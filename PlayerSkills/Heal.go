@@ -13,6 +13,19 @@ type Heal struct {
 	LvlupExp []int
 	Speed    int
 	Name     string
+	Wielder  Unit
+}
+
+func (h *Heal) GetTarget() Unit {
+	return h.Wielder
+}
+
+func (h *Heal) Apply(f *Fight) string {
+	return HealthUp(h.Wielder, h.Wielder, h.HP)
+}
+
+func (h *Heal) GetWielder() Unit {
+	return h.Wielder
 }
 
 func (h *Heal) GetSpeed() int {
@@ -23,7 +36,7 @@ func (h *Heal) GetName() string {
 	return h.Name
 }
 
-func (h *Heal) Init() {
+func (h *Heal) Init(player Unit) {
 	h.HP = 8
 	h.Lvl = 1
 	h.CurExp = 0
@@ -31,6 +44,7 @@ func (h *Heal) Init() {
 	h.LvlupExp = []int{1, 4}
 	h.Speed = 3
 	h.Name = "Heal"
+	h.Wielder = player
 }
 
 func (h *Heal) LvlUp() {
@@ -50,8 +64,4 @@ func (h *Heal) AddExp(amount int) {
 			h.LvlUp()
 		}
 	}
-}
-
-func (h *Heal) Apply(wielder *Player) {
-	panic("implement me")
 }

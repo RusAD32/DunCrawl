@@ -27,7 +27,22 @@ type Player struct {
 	MaxMentHP  int
 }
 
-func (p *Player) TakeDamage(damage int) {
+func (p *Player) GetName() string {
+	return "you"
+}
+
+func (p *Player) AddEffect(effect Effect) {
+	p.Effects = append(p.Effects, effect)
+}
+
+func (p *Player) ChangeHealth(damage int) int {
+	if damage < 0 { // значит, это хил
+		p.CurPhysHP -= damage
+		if p.CurPhysHP > p.MaxPhysHP {
+			p.CurPhysHP = p.MaxPhysHP
+		}
+		return damage
+	}
 	def := 0
 	for _, v := range p.Equipment {
 		def += v.Defence
@@ -37,6 +52,11 @@ func (p *Player) TakeDamage(damage int) {
 	}
 	damage -= damage * def / 100
 	p.CurPhysHP -= damage
+
+	if p.CurPhysHP < 0 {
+		p.CurPhysHP = 0
+	}
+	return damage
 }
 
 func (p *Player) GetEffects() []Effect {

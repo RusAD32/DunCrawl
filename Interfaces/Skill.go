@@ -1,31 +1,37 @@
 package Interfaces
 
+type SkillType int
+
+type Skill interface {
+	GetName() string
+	GetTarget() Unit
+	GetWielder() Unit
+	Init(wielder Unit)
+	Apply(f *Fight) string
+}
+
 type HasSpeed interface {
 	GetSpeed() int
 }
 
 type PlayerDmgSkill interface {
 	HasSpeed
-	Init()
+	Skill
 	LvlUp()
 	AddExp(amount int)
-	Apply(wielder *Player, opp *Enemy)
 	GetUses() int
-	GetName() string
+	SetTarget(target Unit)
 }
 
 type PlayerSelfSkill interface {
 	HasSpeed
-	Init()
+	Skill
 	LvlUp()
 	AddExp(amount int)
-	Apply(wielder *Player)
-	GetName() string
 }
 
 type EnemySkill interface {
 	HasSpeed
-	Apply(wielder *Enemy, opp *Player)
-	Init()
-	GetName() string
+	Skill
+	SetTarget(player Unit)
 }

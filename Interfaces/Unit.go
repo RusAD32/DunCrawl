@@ -1,6 +1,8 @@
 package Interfaces
 
 type Unit interface {
-	TakeDamage(int)
+	ChangeHealth(damgage int) int
 	GetEffects() []Effect
+	AddEffect(effect Effect)
+	GetName() string
 }

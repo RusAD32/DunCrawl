@@ -48,8 +48,12 @@ func Inform(message string) {
 	Output.Write([]byte(message))
 }
 
-func DealDamage(from, to Unit, dmg int) {
+func DealDamage(from, to Unit, dmg int) string {
 	//TODO: триггеры
 	//TODO: эффекты
-	to.TakeDamage(dmg)
+	return strconv.Itoa(to.ChangeHealth(dmg))
+}
+
+func HealthUp(from, to Unit, amount int) string {
+	return strconv.Itoa(to.ChangeHealth(-amount))
 }

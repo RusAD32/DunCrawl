@@ -6,6 +6,20 @@ type DogBite struct {
 	BaseDmg int
 	Speed   int
 	Name    string
+	Wielder Unit
+	Target  Unit
+}
+
+func (b *DogBite) SetTarget(player Unit) {
+	b.Target = player
+}
+
+func (b *DogBite) GetTarget() Unit {
+	return b.Target
+}
+
+func (b *DogBite) GetWielder() Unit {
+	return b.Wielder
 }
 
 func (b *DogBite) GetSpeed() int {
@@ -16,12 +30,13 @@ func (b *DogBite) GetName() string {
 	return b.Name
 }
 
-func (b *DogBite) Init() {
+func (b *DogBite) Init(enemy Unit) {
 	b.BaseDmg = 5
 	b.Speed = 6
 	b.Name = "Bite"
+	b.Wielder = enemy
 }
 
-func (b *DogBite) Apply(wielder *Enemy, opp *Player) {
-	DealDamage(wielder, opp, b.BaseDmg)
+func (b *DogBite) Apply(f *Fight) string {
+	return DealDamage(b.Wielder, b.Target, b.BaseDmg)
 }

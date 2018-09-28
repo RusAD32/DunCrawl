@@ -14,6 +14,32 @@ type SimpleAttack struct {
 	CurExp   int
 	Speed    int
 	LvlupExp []int
+	Wielder  Unit
+	Target   Unit
+}
+
+func (s *SimpleAttack) GetTarget() Unit {
+	return s.Target
+}
+
+func (s *SimpleAttack) GetEnemy() Unit {
+	return s.Target
+}
+
+func (s *SimpleAttack) GetWielder() Unit {
+	return s.Wielder
+}
+
+func (s *SimpleAttack) SetTarget(enemy Unit) {
+	s.Target = enemy
+}
+
+func (s *SimpleAttack) Apply(f *Fight) string {
+	equipDmg := 0
+	for _, v := range s.Wielder.(*Player).Equipment {
+		equipDmg += v.Attack
+	}
+	return DealDamage(s.Wielder, s.Target, s.BaseDMG+equipDmg)
 }
 
 func (s *SimpleAttack) GetSpeed() int {
@@ -28,7 +54,7 @@ func (s *SimpleAttack) GetUses() int {
 	return -1
 }
 
-func (s *SimpleAttack) Init() {
+func (s *SimpleAttack) Init(player Unit) {
 	s.Name = "Simple Attack"
 	s.BaseDMG = 5
 	s.Lvl = 1
@@ -36,7 +62,8 @@ func (s *SimpleAttack) Init() {
 	s.CurExp = 0
 	s.Speed = 7
 	s.LvlupExp = make([]int, 4)
-	for i, _ := range s.LvlupExp {
+	s.Wielder = player
+	for i := range s.LvlupExp {
 		s.LvlupExp[i] = int(math.Pow(float64(i+2), 2.0) / 4.0)
 	}
 }
@@ -58,12 +85,4 @@ func (s *SimpleAttack) AddExp(amount int) {
 			s.LvlUp()
 		}
 	}
-}
-
-func (s *SimpleAttack) Apply(wielder *Player, opp *Enemy) {
-	equipDmg := 0
-	for _, v := range wielder.Equipment {
-		equipDmg += v.Attack
-	}
-	DealDamage(wielder, opp, s.BaseDMG+equipDmg)
 }
