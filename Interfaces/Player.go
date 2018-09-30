@@ -15,7 +15,7 @@ const (
 type Player struct {
 	Stats      map[Stat]int
 	Equipment  map[Slot]Equippable
-	Inventory  []int
+	Inventory  []Carriable
 	DmgSkills  []PlayerDmgSkill
 	SelfSkills []PlayerSelfSkill
 	Effects    []Effect
@@ -25,6 +25,10 @@ type Player struct {
 	MaxPhysHP  int
 	CurMentHP  int
 	MaxMentHP  int
+}
+
+func (p *Player) GetHP() int {
+	return p.CurPhysHP
 }
 
 func (p *Player) GetName() string {

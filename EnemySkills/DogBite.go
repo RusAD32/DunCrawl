@@ -38,5 +38,8 @@ func (b *DogBite) Init(enemy Unit) {
 }
 
 func (b *DogBite) Apply(f *Fight) string {
-	return DealDamage(b.Wielder, b.Target, b.BaseDmg)
+	if b.Wielder.GetHP() > 0 {
+		return DealDamage(b.Wielder, b.Target, b.BaseDmg)
+	}
+	return ""
 }

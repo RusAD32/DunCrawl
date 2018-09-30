@@ -12,6 +12,6 @@ type Effect interface {
 	GetID() EffectID
 	GetAmount() int
 	GetInfo() string
-	DecreaseCDs()
-	GetCDs()
+	DecreaseCD()
+	GetCD() int
 }

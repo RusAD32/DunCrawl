@@ -8,7 +8,7 @@ const (
 	Human EnemyType = iota
 	Undead
 	Vampire
-	Spider
+	Animal
 )
 
 type AILevel int
@@ -29,6 +29,10 @@ type Enemy struct {
 	AILevel
 	CurHP int
 	MaxHP int
+}
+
+func (e *Enemy) GetHP() int {
+	return e.CurHP
 }
 
 func (e *Enemy) GetName() string {

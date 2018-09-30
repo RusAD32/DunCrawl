@@ -12,6 +12,7 @@ var Errors = bufio.NewWriter(os.Stderr)
 
 func Prompt(message string, reqInput []string) string {
 	Output.Write([]byte(message))
+	Output.Flush()
 	for true {
 		text, err := Input.ReadString('\n')
 		if err != nil {
@@ -20,6 +21,7 @@ func Prompt(message string, reqInput []string) string {
 		}
 		for _, v := range reqInput {
 			length := len(v)
+			//fmt.Println(text, text[:length], v, text[:length] == v, len(text) >= length)
 			if len(text) >= length && text[:length] == v {
 				return v
 			}
@@ -46,6 +48,7 @@ func MakeStrRange(min, max int) []string {
 
 func Inform(message string) {
 	Output.Write([]byte(message))
+	Output.Flush()
 }
 
 func DealDamage(from, to Unit, dmg int) string {
@@ -56,4 +59,31 @@ func DealDamage(from, to Unit, dmg int) string {
 
 func HealthUp(from, to Unit, amount int) string {
 	return strconv.Itoa(to.ChangeHealth(-amount))
+}
+
+func RemoveExpiredEffects(s *[]Effect) {
+	numToRemove := make([]int, 0)
+	for i, x := range *s {
+		if x.GetCD() == 0 {
+			numToRemove = append(numToRemove, i-len(numToRemove))
+		}
+	}
+	for _, i := range numToRemove {
+		(*s)[i] = nil
+		*s = append((*s)[:i], (*s)[i+1:]...)
+	}
+}
+
+func RemoveDeadEnemies(f *Fight) {
+	numToRemove := make([]int, 0)
+	for i, x := range f.enemies {
+		if x.GetHP() == 0 {
+			numToRemove = append(numToRemove, i-len(numToRemove))
+		}
+	}
+	for _, i := range numToRemove {
+		f.defeated = append(f.defeated, f.enemies[i])
+		f.enemies[i] = nil
+		f.enemies = append(f.enemies[:i], f.enemies[i+1:]...)
+	}
 }

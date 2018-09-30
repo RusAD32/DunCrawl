@@ -5,4 +5,5 @@ type Unit interface {
 	GetEffects() []Effect
 	AddEffect(effect Effect)
 	GetName() string
+	GetHP() int
 }

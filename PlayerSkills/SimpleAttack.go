@@ -7,23 +7,20 @@ import (
 )
 
 type SimpleAttack struct {
-	Name     string
-	BaseDMG  int
-	Lvl      int
-	MaxLvl   int
-	CurExp   int
-	Speed    int
-	LvlupExp []int
-	Wielder  Unit
-	Target   Unit
+	Name       string
+	BaseDMG    int
+	Lvl        int
+	MaxLvl     int
+	CurExp     int
+	Speed      int
+	LvlupExp   []int
+	Wielder    Unit
+	Targets    []Unit
+	LastTarget Unit
 }
 
 func (s *SimpleAttack) GetTarget() Unit {
-	return s.Target
-}
-
-func (s *SimpleAttack) GetEnemy() Unit {
-	return s.Target
+	return s.LastTarget
 }
 
 func (s *SimpleAttack) GetWielder() Unit {
@@ -31,7 +28,7 @@ func (s *SimpleAttack) GetWielder() Unit {
 }
 
 func (s *SimpleAttack) SetTarget(enemy Unit) {
-	s.Target = enemy
+	s.Targets = append(s.Targets, enemy)
 }
 
 func (s *SimpleAttack) Apply(f *Fight) string {
@@ -39,7 +36,11 @@ func (s *SimpleAttack) Apply(f *Fight) string {
 	for _, v := range s.Wielder.(*Player).Equipment {
 		equipDmg += v.Attack
 	}
-	return DealDamage(s.Wielder, s.Target, s.BaseDMG+equipDmg)
+	s.LastTarget = s.Targets[0]
+	s.Targets = s.Targets[1:]
+
+	res := DealDamage(s.Wielder, s.LastTarget, s.BaseDMG+equipDmg)
+	return res
 }
 
 func (s *SimpleAttack) GetSpeed() int {
