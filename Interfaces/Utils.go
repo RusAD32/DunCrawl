@@ -61,7 +61,8 @@ func HealthUp(from, to Unit, amount int) string {
 	return strconv.Itoa(to.ChangeHealth(-amount))
 }
 
-func RemoveExpiredEffects(s *[]Effect) {
+func RemoveExpiredEffects(unit Unit) {
+	s := unit.GetEffects()
 	numToRemove := make([]int, 0)
 	for i, x := range *s {
 		if x.GetCD() == 0 {
@@ -72,6 +73,29 @@ func RemoveExpiredEffects(s *[]Effect) {
 		(*s)[i] = nil
 		*s = append((*s)[:i], (*s)[i+1:]...)
 	}
+}
+
+func RemoveEffect(unit Unit, id EffectID) {
+	s := unit.GetEffects()
+	numToRemove := make([]int, 0)
+	for i, x := range *s {
+		if x.GetID() == id {
+			numToRemove = append(numToRemove, i-len(numToRemove))
+		}
+	}
+	for _, i := range numToRemove {
+		(*s)[i] = nil
+		*s = append((*s)[:i], (*s)[i+1:]...)
+	}
+}
+
+func FindEffect(unit Unit, id EffectID) bool {
+	for _, v := range *unit.GetEffects() {
+		if v.GetID() == id {
+			return true
+		}
+	}
+	return false
 }
 
 func RemoveDeadEnemies(f *Fight) {

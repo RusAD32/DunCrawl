@@ -8,9 +8,9 @@ const (
 )
 
 type Effect interface {
-	Init(values ...interface{})
+	Init(values ...interface{}) Effect
 	GetID() EffectID
-	GetAmount() int
+	GetAmount() int // this is for effects that have extra description. Like stat modifier
 	GetInfo() string
 	DecreaseCD()
 	GetCD() int

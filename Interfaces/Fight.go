@@ -13,11 +13,11 @@ type Fight struct {
 }
 
 func (f *Fight) Turn() {
-	for _, v := range f.p.GetEffects() {
+	for _, v := range *f.p.GetEffects() {
 		v.DecreaseCD()
 	}
 	for _, en := range f.enemies {
-		for _, v := range en.GetEffects() {
+		for _, v := range *en.GetEffects() {
 			v.DecreaseCD()
 		}
 	}
@@ -68,7 +68,7 @@ func (f *Fight) Turn() {
 	}
 	for f.pq.Len() > 0 {
 		sk := f.pq.Pop().(Skill)
-		if sk.GetWielder().GetHP() > 0 {
+		if sk.GetWielder().GetHP() > 0 && !FindEffect(sk.GetWielder(), Stun) {
 			res := sk.Apply(f)
 			Inform(fmt.Sprintf(
 				"%s used %s on %s, %s\n",
@@ -76,11 +76,13 @@ func (f *Fight) Turn() {
 				sk.GetName(),
 				sk.GetTarget().GetName(),
 				res))
+		} else if FindEffect(sk.GetWielder(), Stun) {
+			RemoveEffect(sk.GetWielder(), Stun)
 		}
 	}
-	RemoveExpiredEffects(&f.p.Effects)
+	RemoveExpiredEffects(f.p)
 	for _, en := range f.enemies {
-		RemoveExpiredEffects(&en.Effects)
+		RemoveExpiredEffects(en)
 	}
 	RemoveDeadEnemies(f)
 }

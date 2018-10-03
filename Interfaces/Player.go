@@ -63,6 +63,6 @@ func (p *Player) ChangeHealth(damage int) int {
 	return damage
 }
 
-func (p *Player) GetEffects() []Effect {
-	return p.Effects
+func (p *Player) GetEffects() *[]Effect {
+	return &p.Effects
 }

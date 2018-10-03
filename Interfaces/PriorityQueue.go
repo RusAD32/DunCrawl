@@ -18,10 +18,10 @@ func (pq PriorityQueue) Swap(i, j int) {
 
 func (pq *PriorityQueue) Push(obj HasSpeed) {
 	*pq = append(*pq, obj)
-	sort.Sort(pq)
 }
 
 func (pq *PriorityQueue) Pop() HasSpeed {
+	sort.Sort(pq)
 	item := (*pq)[0]
 	*pq = (*pq)[1:]
 	return item

@@ -66,8 +66,8 @@ func (e *Enemy) ChangeHealth(damage int) int {
 	return damage
 }
 
-func (e *Enemy) GetEffects() []Effect {
-	return e.Effects
+func (e *Enemy) GetEffects() *[]Effect {
+	return &e.Effects
 }
 
 func (e *Enemy) ChooseSkill() EnemySkill {
