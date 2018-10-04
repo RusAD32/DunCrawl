@@ -16,6 +16,8 @@ type Heal struct {
 	Wielder  Unit
 }
 
+func (h *Heal) ApplyVoid() {}
+
 func (h *Heal) GetTarget() Unit {
 	return h.Wielder
 }

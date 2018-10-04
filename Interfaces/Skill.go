@@ -8,6 +8,7 @@ type Skill interface {
 	GetWielder() Unit
 	Init(wielder Unit)
 	Apply(f *Fight) string
+	ApplyVoid()
 }
 
 type HasSpeed interface {
@@ -21,6 +22,7 @@ type PlayerDmgSkill interface {
 	AddExp(amount int)
 	GetUses() int
 	SetTarget(target Unit)
+	Reset()
 }
 
 type PlayerSelfSkill interface {

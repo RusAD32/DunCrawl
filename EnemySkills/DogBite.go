@@ -10,6 +10,9 @@ type DogBite struct {
 	Target  Unit
 }
 
+func (b *DogBite) ApplyVoid() {
+}
+
 func (b *DogBite) SetTarget(player Unit) {
 	b.Target = player
 }

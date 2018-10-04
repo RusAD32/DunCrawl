@@ -61,6 +61,11 @@ func HealthUp(from, to Unit, amount int) string {
 	return strconv.Itoa(to.ChangeHealth(-amount))
 }
 
+func AddEffect(unit Unit, effect Effect) {
+	effects := unit.GetEffects()
+	*effects = append(*effects, effect)
+}
+
 func RemoveExpiredEffects(unit Unit) {
 	s := unit.GetEffects()
 	numToRemove := make([]int, 0)

@@ -43,14 +43,18 @@ func (f *Fight) Turn() {
 	chosenSelfSkill = f.p.SelfSkills[skillNum]
 
 	f.pq.Push(chosenSelfSkill)
-	info := "Your skills:\n"
-	for i, v := range f.p.DmgSkills {
-		info += fmt.Sprintf("%d. %s\n", i, v.GetName())
-	}
-	Inform(info)
 	Inform("Select a skill to use on each enemy\n")
 	for _, v := range f.enemies {
-		dmgSkill := Prompt(v.Name+": ", MakeStrRange(0, len(f.p.DmgSkills)-1))
+		info := "Your skills:\n"
+		availSkillsNum := 0
+		for i, v := range f.p.DmgSkills {
+			if v.GetUses() > 0 {
+				info += fmt.Sprintf("%d. %s (uses left: %d)\n", i, v.GetName(), v.GetUses())
+				availSkillsNum++
+			}
+		}
+		Inform(info)
+		dmgSkill := Prompt(v.Name+": ", MakeStrRange(0, availSkillsNum-1))
 		if dmgSkill == "" {
 			Inform("Prompt returned empty string, dmgskill")
 		}
@@ -77,8 +81,17 @@ func (f *Fight) Turn() {
 				sk.GetTarget().GetName(),
 				res))
 		} else if FindEffect(sk.GetWielder(), Stun) {
+			sk.ApplyVoid()
+			Inform(fmt.Sprintf(
+				"%s tried to use %s on %s, but was stunned\n",
+				sk.GetWielder().GetName(),
+				sk.GetName(),
+				sk.GetTarget().GetName()))
 			RemoveEffect(sk.GetWielder(), Stun)
 		}
+	}
+	for _, v := range f.p.DmgSkills {
+		v.Reset()
 	}
 	RemoveExpiredEffects(f.p)
 	for _, en := range f.enemies {
@@ -95,4 +108,5 @@ func (f *Fight) StartFight(p *Player, enemies []*Enemy) {
 	for len(f.enemies) > 0 && p.CurMentHP > 0 && p.CurPhysHP > 0 {
 		f.Turn()
 	}
+	Inform(fmt.Sprintf("Your HP: %d", f.p.CurPhysHP))
 }

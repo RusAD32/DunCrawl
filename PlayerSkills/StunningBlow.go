@@ -1,12 +1,13 @@
 package PlayerSkills
 
 import (
+	"../Effects"
 	. "../Interfaces"
 	"fmt"
 	"math"
 )
 
-type SimpleAttack struct {
+type StunningBlow struct {
 	Name       string
 	BaseDMG    int
 	Lvl        int
@@ -20,24 +21,24 @@ type SimpleAttack struct {
 	LastTarget Unit
 }
 
-func (s *SimpleAttack) Reset() {
-	s.Uses = 4
-}
-
-func (s *SimpleAttack) ApplyVoid() {
+func (s *StunningBlow) ApplyVoid() {
 	s.LastTarget = s.Targets[0]
 	s.Targets = s.Targets[1:]
 }
 
-func (s *SimpleAttack) GetTarget() Unit {
+func (s *StunningBlow) Reset() {
+	s.Uses = 2
+}
+
+func (s *StunningBlow) GetTarget() Unit {
 	return s.LastTarget
 }
 
-func (s *SimpleAttack) GetWielder() Unit {
+func (s *StunningBlow) GetWielder() Unit {
 	return s.Wielder
 }
 
-func (s *SimpleAttack) SetTarget(enemy Unit) {
+func (s *StunningBlow) SetTarget(enemy Unit) {
 	s.Uses--
 	if s.LastTarget == nil {
 		s.LastTarget = enemy
@@ -45,7 +46,7 @@ func (s *SimpleAttack) SetTarget(enemy Unit) {
 	s.Targets = append(s.Targets, enemy)
 }
 
-func (s *SimpleAttack) Apply(f *Fight) string {
+func (s *StunningBlow) Apply(f *Fight) string {
 	equipDmg := 0
 	for _, v := range s.Wielder.(*Player).Equipment {
 		equipDmg += v.Attack
@@ -53,47 +54,49 @@ func (s *SimpleAttack) Apply(f *Fight) string {
 	s.LastTarget = s.Targets[0]
 	s.Targets = s.Targets[1:]
 	res := DealDamage(s.Wielder, s.LastTarget, s.BaseDMG+equipDmg)
+	effect := (&Effects.StunEffect{}).Init()
+	AddEffect(s.LastTarget, effect)
 	return res
 }
 
-func (s *SimpleAttack) GetSpeed() int {
+func (s *StunningBlow) GetSpeed() int {
 	return s.Speed
 }
 
-func (s *SimpleAttack) GetName() string {
+func (s *StunningBlow) GetName() string {
 	return s.Name
 }
 
-func (s *SimpleAttack) GetUses() int {
+func (s *StunningBlow) GetUses() int {
 	return s.Uses
 }
 
-func (s *SimpleAttack) Init(player Unit) {
-	s.Name = "Simple Attack"
-	s.BaseDMG = 5
+func (s *StunningBlow) Init(player Unit) {
+	s.Name = "Stunning Blow"
+	s.BaseDMG = 3
 	s.Lvl = 1
-	s.MaxLvl = 5
+	s.MaxLvl = 3
 	s.CurExp = 0
-	s.Speed = 7
-	s.Uses = 4
+	s.Speed = 5
+	s.Uses = 2
 	s.LvlupExp = make([]int, 4)
 	s.Wielder = player
 	for i := range s.LvlupExp {
-		s.LvlupExp[i] = int(math.Pow(float64(i+2), 2.0) / 4.0)
+		s.LvlupExp[i] = int(math.Pow(float64(i+2), 2.0) / 3.0)
 	}
 }
 
-func (s *SimpleAttack) LvlUp() {
+func (s *StunningBlow) LvlUp() {
 	if s.Lvl < s.MaxLvl && s.CurExp >= s.LvlupExp[s.Lvl-1] {
 		s.CurExp -= s.LvlupExp[s.Lvl+1]
 		s.Lvl++
-		s.BaseDMG = int(math.Pow(5.0, math.Sqrt(float64(s.Lvl))))
+		s.BaseDMG = int(math.Pow(3.0, math.Sqrt(float64(s.Lvl))))
 	} else {
 		Inform(fmt.Sprintf("Error: Requirements for levelling up skill %s not met", s.Name))
 	}
 }
 
-func (s *SimpleAttack) AddExp(amount int) {
+func (s *StunningBlow) AddExp(amount int) {
 	if s.Lvl < s.MaxLvl {
 		s.CurExp += amount
 		if s.CurExp >= s.LvlupExp[s.Lvl-1] {
