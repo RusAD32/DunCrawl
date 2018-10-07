@@ -54,6 +54,11 @@ func Inform(message string) {
 func DealDamage(from, to Unit, dmg int) string {
 	//TODO: триггеры
 	//TODO: эффекты
+	res := to.GetDamageTrigger().Call(from)
+	return strconv.Itoa(to.ChangeHealth(dmg)) + res
+}
+
+func DealRawDamage(to Unit, dmg int) string {
 	return strconv.Itoa(to.ChangeHealth(dmg))
 }
 

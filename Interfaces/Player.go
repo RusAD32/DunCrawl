@@ -13,18 +13,27 @@ const (
 )
 
 type Player struct {
-	Stats      map[Stat]int
-	Equipment  map[Slot]Equippable
-	Inventory  []Carriable
-	DmgSkills  []PlayerDmgSkill
-	SelfSkills []PlayerSelfSkill
-	Effects    []Effect
-	Lvl        int
-	Exp        int
-	CurPhysHP  int
-	MaxPhysHP  int
-	CurMentHP  int
-	MaxMentHP  int
+	Stats           map[Stat]int
+	Equipment       map[Slot]Equippable
+	Inventory       []Carriable
+	DmgSkills       []PlayerDmgSkill
+	SelfSkills      []PlayerSelfSkill
+	Effects         []Effect
+	Lvl             int
+	Exp             int
+	CurPhysHP       int
+	MaxPhysHP       int
+	CurMentHP       int
+	MaxMentHP       int
+	DmgTakenTrigger *Trigger
+}
+
+func (p *Player) GetDamageTrigger() *Trigger {
+	return p.DmgTakenTrigger
+}
+
+func (p *Player) AddDamageTriggerable(t Triggerable) {
+	p.DmgTakenTrigger.AddEvent(t)
 }
 
 func (p *Player) GetHP() int {

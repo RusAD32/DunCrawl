@@ -27,8 +27,17 @@ type Enemy struct {
 	Effects   []Effect
 	Equipment []Equippable
 	AILevel
-	CurHP int
-	MaxHP int
+	CurHP           int
+	MaxHP           int
+	DmgTakenTrigger *Trigger
+}
+
+func (e *Enemy) GetDamageTrigger() *Trigger {
+	return e.DmgTakenTrigger
+}
+
+func (e *Enemy) AddDamageTriggerable(t Triggerable) {
+	e.DmgTakenTrigger.AddEvent(t)
 }
 
 func (e *Enemy) GetHP() int {

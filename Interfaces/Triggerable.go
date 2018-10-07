@@ -1,7 +1,6 @@
 package Interfaces
 
 type Triggerable interface {
-	Init(values ...interface{})
-	Apply()
-	GetCondition() string
+	Init(values ...interface{}) Triggerable
+	Apply(values ...interface{}) string
 }

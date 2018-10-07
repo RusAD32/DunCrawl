@@ -1,13 +1,11 @@
 package Interfaces
 
 type Trigger struct {
-	Events    []Triggerable
-	Condition string
+	Events []Triggerable
 }
 
-func TriggerInit(cond string) *Trigger {
+func TriggerInit() *Trigger {
 	t := &Trigger{}
-	t.Condition = cond
 	t.Events = make([]Triggerable, 0)
 	return t
 }
@@ -26,8 +24,10 @@ func (t *Trigger) RemoveEvent(event Triggerable) {
 	}
 }
 
-func (t *Trigger) Call() {
+func (t *Trigger) Call(values ...interface{}) string {
+	res := ""
 	for _, v := range t.Events {
-		v.Apply()
+		res += "\n" + v.Apply(values...)
 	}
+	return res
 }

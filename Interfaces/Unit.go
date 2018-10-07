@@ -6,4 +6,6 @@ type Unit interface {
 	AddEffect(effect Effect)
 	GetName() string
 	GetHP() int
+	GetDamageTrigger() *Trigger
+	AddDamageTriggerable(t Triggerable)
 }

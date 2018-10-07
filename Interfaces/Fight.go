@@ -6,10 +6,13 @@ import (
 )
 
 type Fight struct {
-	p        *Player
-	enemies  []*Enemy
-	defeated []*Enemy
-	pq       PriorityQueue
+	p                *Player
+	enemies          []*Enemy
+	defeated         []*Enemy
+	pq               PriorityQueue
+	TurnStartTrigger Trigger
+	TurnEndTrigger   Trigger
+	EnemyDeadTrigger Trigger
 }
 
 func (f *Fight) Turn() {
