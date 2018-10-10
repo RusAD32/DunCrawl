@@ -32,6 +32,10 @@ type Enemy struct {
 	DmgTakenTrigger *Trigger
 }
 
+func (e *Enemy) IsAlive() bool {
+	return e.CurHP > 0
+}
+
 func (e *Enemy) GetDamageTrigger() *Trigger {
 	return e.DmgTakenTrigger
 }
@@ -58,7 +62,7 @@ func (e *Enemy) ChangeHealth(damage int) int {
 		if e.CurHP > e.MaxHP {
 			e.CurHP = e.MaxHP
 		}
-		return damage
+		return -damage
 	}
 	def := 0
 	for _, v := range e.Equipment {

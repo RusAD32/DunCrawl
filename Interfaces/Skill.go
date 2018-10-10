@@ -8,7 +8,8 @@ type Skill interface {
 	GetWielder() Unit
 	Init(wielder Unit)
 	Apply(f *Fight) string
-	ApplyVoid()
+	ApplyVoid(res string)
+	GetRes() string
 }
 
 type HasSpeed interface {

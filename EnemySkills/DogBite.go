@@ -8,9 +8,15 @@ type DogBite struct {
 	Name    string
 	Wielder Unit
 	Target  Unit
+	Res     string
 }
 
-func (b *DogBite) ApplyVoid() {
+func (b *DogBite) GetRes() string {
+	return b.Res
+}
+
+func (b *DogBite) ApplyVoid(res string) {
+	b.Res = res
 }
 
 func (b *DogBite) SetTarget(player Unit) {

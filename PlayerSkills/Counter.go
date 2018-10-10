@@ -15,9 +15,16 @@ type Counter struct {
 	Speed    int
 	Name     string
 	Wielder  Unit
+	Res      string
 }
 
-func (c *Counter) ApplyVoid() {}
+func (c *Counter) GetRes() string {
+	return c.Res
+}
+
+func (c *Counter) ApplyVoid(res string) {
+	c.Res = res
+}
 
 func (c *Counter) GetTarget() Unit {
 	return c.Wielder
@@ -26,7 +33,8 @@ func (c *Counter) GetTarget() Unit {
 func (c *Counter) Apply(f *Fight) string {
 	cntr := Counterattack{}
 	c.Wielder.AddDamageTriggerable(cntr.Init(3, 4, c.Wielder))
-	return "Counterattack applied"
+	c.Res = "Counter"
+	return c.Res
 }
 
 func (c *Counter) GetWielder() Unit {

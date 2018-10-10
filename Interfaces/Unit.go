@@ -6,6 +6,7 @@ type Unit interface {
 	AddEffect(effect Effect)
 	GetName() string
 	GetHP() int
+	IsAlive() bool
 	GetDamageTrigger() *Trigger
 	AddDamageTriggerable(t Triggerable)
 }

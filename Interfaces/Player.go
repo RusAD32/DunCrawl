@@ -28,6 +28,10 @@ type Player struct {
 	DmgTakenTrigger *Trigger
 }
 
+func (p *Player) IsAlive() bool {
+	return p.CurPhysHP > 0 && p.CurMentHP > 0
+}
+
 func (p *Player) GetDamageTrigger() *Trigger {
 	return p.DmgTakenTrigger
 }
@@ -54,7 +58,7 @@ func (p *Player) ChangeHealth(damage int) int {
 		if p.CurPhysHP > p.MaxPhysHP {
 			p.CurPhysHP = p.MaxPhysHP
 		}
-		return damage
+		return -damage
 	}
 	def := 0
 	for _, v := range p.Equipment {

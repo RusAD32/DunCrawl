@@ -19,11 +19,17 @@ type StunningBlow struct {
 	Wielder    Unit
 	Targets    []Unit
 	LastTarget Unit
+	Res        string
 }
 
-func (s *StunningBlow) ApplyVoid() {
+func (s *StunningBlow) GetRes() string {
+	return s.Res
+}
+
+func (s *StunningBlow) ApplyVoid(res string) {
 	s.LastTarget = s.Targets[0]
 	s.Targets = s.Targets[1:]
+
 }
 
 func (s *StunningBlow) Reset() {
@@ -53,10 +59,10 @@ func (s *StunningBlow) Apply(f *Fight) string {
 	}
 	s.LastTarget = s.Targets[0]
 	s.Targets = s.Targets[1:]
-	res := DealDamage(s.Wielder, s.LastTarget, s.BaseDMG+equipDmg)
+	s.Res = DealDamage(s.Wielder, s.LastTarget, s.BaseDMG+equipDmg)
 	effect := (&Effects.StunEffect{}).Init()
 	AddEffect(s.LastTarget, effect)
-	return res
+	return s.Res
 }
 
 func (s *StunningBlow) GetSpeed() int {

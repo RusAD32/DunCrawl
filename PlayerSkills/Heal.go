@@ -14,16 +14,24 @@ type Heal struct {
 	Speed    int
 	Name     string
 	Wielder  Unit
+	Res      string
 }
 
-func (h *Heal) ApplyVoid() {}
+func (h *Heal) GetRes() string {
+	return h.Res
+}
+
+func (h *Heal) ApplyVoid(res string) {
+	h.Res = res
+}
 
 func (h *Heal) GetTarget() Unit {
 	return h.Wielder
 }
 
 func (h *Heal) Apply(f *Fight) string {
-	return HealthUp(h.Wielder, h.Wielder, h.HP)
+	h.Res = HealthUp(h.Wielder, h.Wielder, h.HP)
+	return h.Res
 }
 
 func (h *Heal) GetWielder() Unit {

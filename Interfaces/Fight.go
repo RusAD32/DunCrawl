@@ -13,6 +13,8 @@ type Fight struct {
 	TurnStartTrigger Trigger
 	TurnEndTrigger   Trigger
 	EnemyDeadTrigger Trigger
+	uiToBg           chan string
+	bgToUi           chan []Skill
 }
 
 func (f *Fight) Turn() {
@@ -24,16 +26,13 @@ func (f *Fight) Turn() {
 			v.DecreaseCD()
 		}
 	}
-	Inform(fmt.Sprintf("Your HP: %d/%d\n", f.p.CurPhysHP, f.p.MaxPhysHP))
-	for _, v := range f.enemies {
-		Inform(fmt.Sprintf("%s's HP: %d/%d\n", v.Name, v.CurHP, v.MaxHP))
+	skills := make([]Skill, 0)
+	for _, v := range f.p.SelfSkills {
+		skills = append(skills, v)
 	}
-	prompt := "Choose a skill to use on yourself\n"
-	for i, v := range f.p.SelfSkills {
-		prompt += fmt.Sprintf("%d. %s\n", i, v.GetName())
-	}
-	res := Prompt(prompt, MakeStrRange(0, len(f.p.SelfSkills)-1))
-	var chosenSelfSkill PlayerSelfSkill
+	f.bgToUi <- skills
+	res := <-f.uiToBg
+	//var chosenSelfSkill PlayerSelfSkill
 	if res == "" {
 		Inform("Prompt returned empty string, selfskill")
 		return
@@ -43,21 +42,20 @@ func (f *Fight) Turn() {
 		Inform("Prompt returned bad value: " + res)
 		return
 	}
-	chosenSelfSkill = f.p.SelfSkills[skillNum]
+	chosenSelfSkill := f.p.SelfSkills[skillNum-1]
 
 	f.pq.Push(chosenSelfSkill)
-	Inform("Select a skill to use on each enemy\n")
+
 	for _, v := range f.enemies {
-		info := "Your skills:\n"
-		availSkillsNum := 0
-		for i, v := range f.p.DmgSkills {
+
+		dmgSkills := make([]Skill, 0)
+		for _, v := range f.p.DmgSkills {
 			if v.GetUses() > 0 {
-				info += fmt.Sprintf("%d. %s (uses left: %d)\n", i, v.GetName(), v.GetUses())
-				availSkillsNum++
+				dmgSkills = append(dmgSkills, v)
 			}
 		}
-		Inform(info)
-		dmgSkill := Prompt(v.Name+": ", MakeStrRange(0, availSkillsNum-1))
+		f.bgToUi <- dmgSkills
+		dmgSkill := <-f.uiToBg
 		if dmgSkill == "" {
 			Inform("Prompt returned empty string, dmgskill")
 		}
@@ -66,7 +64,7 @@ func (f *Fight) Turn() {
 			Inform("Prompt returned bad value: " + dmgSkill)
 			return
 		}
-		chosenDmgSkill := f.p.DmgSkills[dmgSkillNum]
+		chosenDmgSkill := f.p.DmgSkills[dmgSkillNum-1]
 		chosenDmgSkill.SetTarget(v)
 		f.pq.Push(chosenDmgSkill)
 		ensk := v.ChooseSkill()
@@ -75,8 +73,11 @@ func (f *Fight) Turn() {
 	}
 	for f.pq.Len() > 0 {
 		sk := f.pq.Pop().(Skill)
-		if sk.GetWielder().GetHP() > 0 && !FindEffect(sk.GetWielder(), Stun) {
+		// what if the target died? Just miss that use? Redirect to random?
+		// if player is dead, then skip 100%. For consistency, let's for now skip all the time
+		if sk.GetWielder().IsAlive() && !FindEffect(sk.GetWielder(), Stun) && sk.GetTarget().IsAlive() {
 			res := sk.Apply(f)
+			f.bgToUi <- []Skill{sk}
 			Inform(fmt.Sprintf(
 				"%s used %s on %s, %s\n",
 				sk.GetWielder().GetName(),
@@ -84,7 +85,8 @@ func (f *Fight) Turn() {
 				sk.GetTarget().GetName(),
 				res))
 		} else if FindEffect(sk.GetWielder(), Stun) {
-			sk.ApplyVoid()
+			sk.ApplyVoid("stun")
+			f.bgToUi <- []Skill{sk}
 			Inform(fmt.Sprintf(
 				"%s tried to use %s on %s, but was stunned\n",
 				sk.GetWielder().GetName(),
@@ -93,6 +95,7 @@ func (f *Fight) Turn() {
 			RemoveEffect(sk.GetWielder(), Stun)
 		}
 	}
+	f.bgToUi <- nil
 	for _, v := range f.p.DmgSkills {
 		v.Reset()
 	}
@@ -103,11 +106,13 @@ func (f *Fight) Turn() {
 	RemoveDeadEnemies(f)
 }
 
-func (f *Fight) StartFight(p *Player, enemies []*Enemy) {
+func (f *Fight) StartFight(p *Player, enemies []*Enemy, bgToUi chan []Skill, uiToBg chan string) {
 	//heap.Init(&f.pq)
 	f.p = p
 	f.enemies = enemies
 	f.defeated = make([]*Enemy, 0)
+	f.uiToBg = uiToBg
+	f.bgToUi = bgToUi
 	for len(f.enemies) > 0 && p.CurMentHP > 0 && p.CurPhysHP > 0 {
 		f.Turn()
 	}
