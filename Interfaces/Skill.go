@@ -11,7 +11,7 @@ type SkillInfo interface {
 
 type Skill interface {
 	SkillInfo
-	Init(wielder Unit)
+	Init(wielder Unit) Skill
 	Apply(f *Fight) string
 	ApplyVoid(res string)
 }

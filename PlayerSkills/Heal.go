@@ -46,7 +46,7 @@ func (h *Heal) GetName() string {
 	return h.Name
 }
 
-func (h *Heal) Init(player Unit) {
+func (h *Heal) Init(player Unit) Skill {
 	h.HP = 8
 	h.Lvl = 1
 	h.CurExp = 0
@@ -55,6 +55,7 @@ func (h *Heal) Init(player Unit) {
 	h.Speed = 3
 	h.Name = "Heal"
 	h.Wielder = player
+	return h
 }
 
 func (h *Heal) LvlUp() {

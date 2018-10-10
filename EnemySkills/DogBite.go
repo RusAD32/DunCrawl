@@ -39,11 +39,12 @@ func (b *DogBite) GetName() string {
 	return b.Name
 }
 
-func (b *DogBite) Init(enemy Unit) {
+func (b *DogBite) Init(enemy Unit) Skill {
 	b.BaseDmg = 5
 	b.Speed = 6
 	b.Name = "Bite"
 	b.Wielder = enemy
+	return b
 }
 
 func (b *DogBite) Apply(f *Fight) string {

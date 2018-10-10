@@ -77,7 +77,7 @@ func (s *StunningBlow) GetUses() int {
 	return s.Uses
 }
 
-func (s *StunningBlow) Init(player Unit) {
+func (s *StunningBlow) Init(player Unit) Skill {
 	s.Name = "Stunning Blow"
 	s.BaseDMG = 3
 	s.Lvl = 1
@@ -90,6 +90,7 @@ func (s *StunningBlow) Init(player Unit) {
 	for i := range s.LvlupExp {
 		s.LvlupExp[i] = int(math.Pow(float64(i+2), 2.0) / 3.0)
 	}
+	return s
 }
 
 func (s *StunningBlow) LvlUp() {

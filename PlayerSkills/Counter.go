@@ -49,7 +49,7 @@ func (c *Counter) GetName() string {
 	return c.Name
 }
 
-func (c *Counter) Init(player Unit) {
+func (c *Counter) Init(player Unit) Skill {
 	c.Lvl = 1
 	c.CurExp = 0
 	c.MaxLvl = 3
@@ -57,6 +57,7 @@ func (c *Counter) Init(player Unit) {
 	c.Speed = 9
 	c.Name = "Counter"
 	c.Wielder = player
+	return c
 }
 
 func (c *Counter) LvlUp() {
