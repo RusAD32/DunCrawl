@@ -14,9 +14,15 @@ type Fight struct {
 	TurnEndTrigger   Trigger
 	EnemyDeadTrigger Trigger
 	uiToBg           chan string
-	bgToUi           chan []Skill
+	bgToUi           chan []SkillInfo
 }
 
+/**
+Turn writes skills to you this way:
+Skills, that you can use on yourself
+Skills to use on each of the enemies (so you need to keep the same enemies array on the UI side)
+Skills that were used, in the order of them being used
+*/
 func (f *Fight) Turn() {
 	for _, v := range *f.p.GetEffects() {
 		v.DecreaseCD()
@@ -26,7 +32,7 @@ func (f *Fight) Turn() {
 			v.DecreaseCD()
 		}
 	}
-	skills := make([]Skill, 0)
+	skills := make([]SkillInfo, 0)
 	for _, v := range f.p.SelfSkills {
 		skills = append(skills, v)
 	}
@@ -48,7 +54,7 @@ func (f *Fight) Turn() {
 
 	for _, v := range f.enemies {
 
-		dmgSkills := make([]Skill, 0)
+		dmgSkills := make([]SkillInfo, 0)
 		for _, v := range f.p.DmgSkills {
 			if v.GetUses() > 0 {
 				dmgSkills = append(dmgSkills, v)
@@ -71,13 +77,14 @@ func (f *Fight) Turn() {
 		ensk.SetTarget(f.p)
 		f.pq.Push(v.ChooseSkill())
 	}
+	skillsUsed := make([]SkillInfo, 0)
 	for f.pq.Len() > 0 {
 		sk := f.pq.Pop().(Skill)
 		// what if the target died? Just miss that use? Redirect to random?
 		// if player is dead, then skip 100%. For consistency, let's for now skip all the time
 		if sk.GetWielder().IsAlive() && !FindEffect(sk.GetWielder(), Stun) && sk.GetTarget().IsAlive() {
 			res := sk.Apply(f)
-			f.bgToUi <- []Skill{sk}
+			skillsUsed = append(skillsUsed, sk)
 			Inform(fmt.Sprintf(
 				"%s used %s on %s, %s\n",
 				sk.GetWielder().GetName(),
@@ -86,7 +93,7 @@ func (f *Fight) Turn() {
 				res))
 		} else if FindEffect(sk.GetWielder(), Stun) {
 			sk.ApplyVoid("stun")
-			f.bgToUi <- []Skill{sk}
+			skillsUsed = append(skillsUsed, sk)
 			Inform(fmt.Sprintf(
 				"%s tried to use %s on %s, but was stunned\n",
 				sk.GetWielder().GetName(),
@@ -95,7 +102,7 @@ func (f *Fight) Turn() {
 			RemoveEffect(sk.GetWielder(), Stun)
 		}
 	}
-	f.bgToUi <- nil
+	f.bgToUi <- skillsUsed
 	for _, v := range f.p.DmgSkills {
 		v.Reset()
 	}
@@ -106,7 +113,7 @@ func (f *Fight) Turn() {
 	RemoveDeadEnemies(f)
 }
 
-func (f *Fight) StartFight(p *Player, enemies []*Enemy, bgToUi chan []Skill, uiToBg chan string) {
+func (f *Fight) StartFight(p *Player, enemies []*Enemy, bgToUi chan []SkillInfo, uiToBg chan string) {
 	//heap.Init(&f.pq)
 	f.p = p
 	f.enemies = enemies

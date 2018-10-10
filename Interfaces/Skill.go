@@ -2,14 +2,18 @@ package Interfaces
 
 type SkillType int
 
-type Skill interface {
+type SkillInfo interface {
 	GetName() string
 	GetTarget() Unit
 	GetWielder() Unit
+	GetRes() string
+}
+
+type Skill interface {
+	SkillInfo
 	Init(wielder Unit)
 	Apply(f *Fight) string
 	ApplyVoid(res string)
-	GetRes() string
 }
 
 type HasSpeed interface {

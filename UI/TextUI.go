@@ -8,7 +8,7 @@ import (
 func TextFight(p *Player, enemies []*Enemy) {
 	f := Fight{}
 	uiToBg := make(chan string)
-	bgToUi := make(chan []Skill)
+	bgToUi := make(chan []SkillInfo)
 	go f.StartFight(p, enemies, bgToUi, uiToBg)
 	for {
 		if p.CurPhysHP == 0 { // should work, but only theoretically. Maybe handling player death should be different?
@@ -45,12 +45,12 @@ func TextFight(p *Player, enemies []*Enemy) {
 			}
 			Inform(info)
 		}
-		for skills, ok := <-bgToUi; skills != nil; skills, ok = <-bgToUi {
-			if !ok {
-				Inform("Something went wrong applying skills")
-				break
-			}
-			sk := skills[0]
+		skillsUsed, ok := <-bgToUi
+		if !ok {
+			Inform("Something went wrong applying skills")
+			break
+		}
+		for _, sk := range skillsUsed {
 			switch sk.GetRes() {
 			case "stun":
 				{
