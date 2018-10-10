@@ -15,8 +15,8 @@ func TextFight(p *Player, enemies []*Enemy) {
 			Inform("You died")
 			break
 		}
-		Inform(fmt.Sprintf("Your HP: %d/%d\n", p.CurPhysHP, p.MaxPhysHP))
-		for _, v := range enemies {
+		Inform(fmt.Sprintf("Your HP: %d/%d\n", f.P.CurPhysHP, f.P.MaxPhysHP))
+		for _, v := range f.Enemies {
 			Inform(fmt.Sprintf("%s's HP: %d/%d\n", v.Name, v.CurHP, v.MaxHP))
 		}
 		selfSkills, ok := <-bgToUi
@@ -36,7 +36,7 @@ func TextFight(p *Player, enemies []*Enemy) {
 			break // Не должно!!!
 		}
 		Inform("Select a skill to use on each enemy\n")
-		for _, v := range enemies {
+		for _, v := range f.Enemies {
 			Inform(fmt.Sprintf("%s. HP: %d/%d\n", v.Name, v.CurHP, v.MaxHP))
 			info := "Your skills:\n"
 			for i, sk := range dmgSkills {

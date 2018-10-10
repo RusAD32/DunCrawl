@@ -110,14 +110,14 @@ func FindEffect(unit Unit, id EffectID) bool {
 
 func RemoveDeadEnemies(f *Fight) {
 	numToRemove := make([]int, 0)
-	for i, x := range f.enemies {
+	for i, x := range f.Enemies {
 		if x.GetHP() == 0 {
 			numToRemove = append(numToRemove, i-len(numToRemove))
 		}
 	}
 	for _, i := range numToRemove {
-		f.defeated = append(f.defeated, f.enemies[i])
-		f.enemies[i] = nil
-		f.enemies = append(f.enemies[:i], f.enemies[i+1:]...)
+		f.Defeated = append(f.Defeated, f.Enemies[i])
+		f.Enemies[i] = nil
+		f.Enemies = append(f.Enemies[:i], f.Enemies[i+1:]...)
 	}
 }

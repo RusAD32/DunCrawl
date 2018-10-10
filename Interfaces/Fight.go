@@ -6,9 +6,9 @@ import (
 )
 
 type Fight struct {
-	p                *Player
-	enemies          []*Enemy
-	defeated         []*Enemy
+	P                *Player
+	Enemies          []*Enemy
+	Defeated         []*Enemy
 	pq               PriorityQueue
 	TurnStartTrigger Trigger
 	TurnEndTrigger   Trigger
@@ -20,20 +20,20 @@ type Fight struct {
 /**
 Turn writes skills to you this way:
 Skills, that you can use on yourself
-Skills to use on each of the enemies (so you need to keep the same enemies array on the UI side)
+Skills to use on each of the Enemies (so you need to keep the same Enemies array on the UI side)
 Skills that were used, in the order of them being used
 */
 func (f *Fight) Turn() {
-	for _, v := range *f.p.GetEffects() {
+	for _, v := range *f.P.GetEffects() {
 		v.DecreaseCD()
 	}
-	for _, en := range f.enemies {
+	for _, en := range f.Enemies {
 		for _, v := range *en.GetEffects() {
 			v.DecreaseCD()
 		}
 	}
 	skills := make([]SkillInfo, 0)
-	for _, v := range f.p.SelfSkills {
+	for _, v := range f.P.SelfSkills {
 		skills = append(skills, v)
 	}
 	f.bgToUi <- skills
@@ -48,14 +48,14 @@ func (f *Fight) Turn() {
 		Inform("Prompt returned bad value: " + res)
 		return
 	}
-	chosenSelfSkill := f.p.SelfSkills[skillNum-1]
+	chosenSelfSkill := f.P.SelfSkills[skillNum-1]
 
 	f.pq.Push(chosenSelfSkill)
 
-	for _, v := range f.enemies {
+	for _, v := range f.Enemies {
 
 		dmgSkills := make([]SkillInfo, 0)
-		for _, v := range f.p.DmgSkills {
+		for _, v := range f.P.DmgSkills {
 			if v.GetUses() > 0 {
 				dmgSkills = append(dmgSkills, v)
 			}
@@ -70,11 +70,11 @@ func (f *Fight) Turn() {
 			Inform("Prompt returned bad value: " + dmgSkill)
 			return
 		}
-		chosenDmgSkill := f.p.DmgSkills[dmgSkillNum-1]
+		chosenDmgSkill := f.P.DmgSkills[dmgSkillNum-1]
 		chosenDmgSkill.SetTarget(v)
 		f.pq.Push(chosenDmgSkill)
 		ensk := v.ChooseSkill()
-		ensk.SetTarget(f.p)
+		ensk.SetTarget(f.P)
 		f.pq.Push(v.ChooseSkill())
 	}
 	skillsUsed := make([]SkillInfo, 0)
@@ -103,11 +103,11 @@ func (f *Fight) Turn() {
 		}
 	}
 	f.bgToUi <- skillsUsed
-	for _, v := range f.p.DmgSkills {
+	for _, v := range f.P.DmgSkills {
 		v.Reset()
 	}
-	RemoveExpiredEffects(f.p)
-	for _, en := range f.enemies {
+	RemoveExpiredEffects(f.P)
+	for _, en := range f.Enemies {
 		RemoveExpiredEffects(en)
 	}
 	RemoveDeadEnemies(f)
@@ -115,13 +115,13 @@ func (f *Fight) Turn() {
 
 func (f *Fight) StartFight(p *Player, enemies []*Enemy, bgToUi chan []SkillInfo, uiToBg chan string) {
 	//heap.Init(&f.pq)
-	f.p = p
-	f.enemies = enemies
-	f.defeated = make([]*Enemy, 0)
+	f.P = p
+	f.Enemies = enemies
+	f.Defeated = make([]*Enemy, 0)
 	f.uiToBg = uiToBg
 	f.bgToUi = bgToUi
-	for len(f.enemies) > 0 && p.CurMentHP > 0 && p.CurPhysHP > 0 {
+	for len(f.Enemies) > 0 && p.CurMentHP > 0 && p.CurPhysHP > 0 {
 		f.Turn()
 	}
-	Inform(fmt.Sprintf("Your HP: %d", f.p.CurPhysHP))
+	Inform(fmt.Sprintf("Your HP: %d", f.P.CurPhysHP))
 }
