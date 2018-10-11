@@ -44,12 +44,13 @@ func (b *DogBite) Init(enemy Unit) Skill {
 	b.Speed = 6
 	b.Name = "Bite"
 	b.Wielder = enemy
+	b.Res = ""
 	return b
 }
 
 func (b *DogBite) Apply(f *Fight) string {
 	if b.Wielder.GetHP() > 0 {
-		return DealDamage(b.Wielder, b.Target, b.BaseDmg)
+		b.Res = DealDamage(b.Wielder, b.Target, b.BaseDmg)
 	}
-	return ""
+	return b.Res
 }

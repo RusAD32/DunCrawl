@@ -1,7 +1,6 @@
 package Interfaces
 
 import (
-	"fmt"
 	"strconv"
 )
 
@@ -39,10 +38,6 @@ func (f *Fight) Turn() {
 	f.bgToUi <- skills
 	res := <-f.uiToBg
 	//var chosenSelfSkill PlayerSelfSkill
-	if res == "" {
-		Inform("Prompt returned empty string, selfskill")
-		return
-	}
 	skillNum, err := strconv.Atoi(res)
 	if err != nil {
 		Inform("Prompt returned bad value: " + res)
@@ -62,9 +57,6 @@ func (f *Fight) Turn() {
 		}
 		f.bgToUi <- dmgSkills
 		dmgSkill := <-f.uiToBg
-		if dmgSkill == "" {
-			Inform("Prompt returned empty string, dmgskill")
-		}
 		dmgSkillNum, err := strconv.Atoi(dmgSkill)
 		if err != nil {
 			Inform("Prompt returned bad value: " + dmgSkill)
@@ -75,30 +67,19 @@ func (f *Fight) Turn() {
 		f.pq.Push(chosenDmgSkill)
 		ensk := v.ChooseSkill()
 		ensk.SetTarget(f.P)
-		f.pq.Push(v.ChooseSkill())
+		f.pq.Push(ensk)
 	}
 	skillsUsed := make([]SkillInfo, 0)
 	for f.pq.Len() > 0 {
 		sk := f.pq.Pop().(Skill)
 		// what if the target died? Just miss that use? Redirect to random?
 		// if player is dead, then skip 100%. For consistency, let's for now skip all the time
-		if sk.GetWielder().IsAlive() && !FindEffect(sk.GetWielder(), Stun) && sk.GetTarget().IsAlive() {
-			res := sk.Apply(f)
+		if sk.GetWielder().IsAlive() && !FindEffect(sk.GetWielder(), Stun) {
+			sk.Apply(f)
 			skillsUsed = append(skillsUsed, sk)
-			Inform(fmt.Sprintf(
-				"%s used %s on %s, %s\n",
-				sk.GetWielder().GetName(),
-				sk.GetName(),
-				sk.GetTarget().GetName(),
-				res))
 		} else if FindEffect(sk.GetWielder(), Stun) {
 			sk.ApplyVoid("stun")
 			skillsUsed = append(skillsUsed, sk)
-			Inform(fmt.Sprintf(
-				"%s tried to use %s on %s, but was stunned\n",
-				sk.GetWielder().GetName(),
-				sk.GetName(),
-				sk.GetTarget().GetName()))
 			RemoveEffect(sk.GetWielder(), Stun)
 		}
 	}
@@ -113,15 +94,19 @@ func (f *Fight) Turn() {
 	RemoveDeadEnemies(f)
 }
 
-func (f *Fight) StartFight(p *Player, enemies []*Enemy, bgToUi chan []SkillInfo, uiToBg chan string) {
-	//heap.Init(&f.pq)
+func (f *Fight) Init(p *Player, enemies []*Enemy, bgToUi chan []SkillInfo, uiToBg chan string) {
 	f.P = p
 	f.Enemies = enemies
 	f.Defeated = make([]*Enemy, 0)
 	f.uiToBg = uiToBg
 	f.bgToUi = bgToUi
-	for len(f.Enemies) > 0 && p.CurMentHP > 0 && p.CurPhysHP > 0 {
+}
+
+func (f *Fight) StartFight() {
+	for len(f.Enemies) > 0 && f.P.CurMentHP > 0 && f.P.CurPhysHP > 0 {
 		f.Turn()
 	}
-	Inform(fmt.Sprintf("Your HP: %d", f.P.CurPhysHP))
+	close(f.uiToBg)
+	close(f.bgToUi)
+	//Inform(fmt.Sprintf("Your HP: %d", f.P.CurPhysHP))
 }

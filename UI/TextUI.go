@@ -9,9 +9,10 @@ func TextFight(p *Player, enemies []*Enemy) {
 	f := Fight{}
 	uiToBg := make(chan string)
 	bgToUi := make(chan []SkillInfo)
-	go f.StartFight(p, enemies, bgToUi, uiToBg)
+	f.Init(p, enemies, bgToUi, uiToBg)
+	go f.StartFight()
 	for {
-		if p.CurPhysHP == 0 { // should work, but only theoretically. Maybe handling player death should be different?
+		if f.P.CurPhysHP == 0 { // should work, but only theoretically. Maybe handling player death should be different?
 			Inform("You died")
 			break
 		}
@@ -29,14 +30,18 @@ func TextFight(p *Player, enemies []*Enemy) {
 			prompt += fmt.Sprintf("%d. %s\n", i+1, v.GetName())
 		}
 		res := Prompt(prompt, MakeStrRange(1, len(selfSkills)))
-		uiToBg <- res
-		dmgSkills, ok := <-bgToUi
-		if !ok {
-			Inform("The turn ended in the middle!!")
-			break // Не должно!!!
+		if res == "" {
+			Inform("Prompt returned empty string, selfskill")
+			return
 		}
+		uiToBg <- res
 		Inform("Select a skill to use on each enemy\n")
 		for _, v := range f.Enemies {
+			dmgSkills, ok := <-bgToUi
+			if !ok {
+				Inform("The turn ended in the middle!!")
+				break // Не должно!!!
+			}
 			Inform(fmt.Sprintf("%s. HP: %d/%d\n", v.Name, v.CurHP, v.MaxHP))
 			info := "Your skills:\n"
 			for i, sk := range dmgSkills {
@@ -44,6 +49,11 @@ func TextFight(p *Player, enemies []*Enemy) {
 				info += fmt.Sprintf("%d. %s (uses left: %d)\n", i+1, sk.GetName(), sk.(PlayerDmgSkill).GetUses())
 			}
 			Inform(info)
+			dmgSkill := Prompt(v.Name+": ", MakeStrRange(1, len(dmgSkills)))
+			if dmgSkill == "" {
+				Inform("Prompt returned empty string, dmgskill")
+			}
+			uiToBg <- dmgSkill
 		}
 		skillsUsed, ok := <-bgToUi
 		if !ok {
@@ -51,7 +61,7 @@ func TextFight(p *Player, enemies []*Enemy) {
 			break
 		}
 		for _, sk := range skillsUsed {
-			switch sk.GetRes() {
+			switch res := sk.GetRes(); res {
 			case "stun":
 				{
 					Inform(fmt.Sprintf(

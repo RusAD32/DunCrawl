@@ -18,11 +18,13 @@ type SimpleAttack struct {
 	Wielder    Unit
 	Targets    []Unit
 	LastTarget Unit
-	Res        string
+	Res        []string
 }
 
 func (s *SimpleAttack) GetRes() string {
-	return s.Res
+	res := s.Res[0]
+	s.Res = s.Res[1:]
+	return res
 }
 
 func (s *SimpleAttack) Reset() {
@@ -32,7 +34,7 @@ func (s *SimpleAttack) Reset() {
 func (s *SimpleAttack) ApplyVoid(res string) {
 	s.LastTarget = s.Targets[0]
 	s.Targets = s.Targets[1:]
-	s.Res = res
+	s.Res = append(s.Res, res)
 }
 
 func (s *SimpleAttack) GetTarget() Unit {
@@ -58,8 +60,9 @@ func (s *SimpleAttack) Apply(f *Fight) string {
 	}
 	s.LastTarget = s.Targets[0]
 	s.Targets = s.Targets[1:]
-	s.Res = DealDamage(s.Wielder, s.LastTarget, s.BaseDMG+equipDmg)
-	return s.Res
+	res := DealDamage(s.Wielder, s.LastTarget, s.BaseDMG+equipDmg)
+	s.Res = append(s.Res, res)
+	return res
 }
 
 func (s *SimpleAttack) GetSpeed() int {
