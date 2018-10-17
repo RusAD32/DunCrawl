@@ -12,7 +12,7 @@ type SkillInfo interface {
 type Skill interface {
 	SkillInfo
 	Init(wielder Unit) Skill
-	Apply(f *Fight) string
+	Apply(r *Room) string
 	ApplyVoid(res string)
 }
 

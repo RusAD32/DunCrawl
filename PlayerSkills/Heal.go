@@ -29,7 +29,7 @@ func (h *Heal) GetTarget() Unit {
 	return h.Wielder
 }
 
-func (h *Heal) Apply(f *Fight) string {
+func (h *Heal) Apply(r *Room) string {
 	h.Res = HealthUp(h.Wielder, h.Wielder, h.HP)
 	return h.Res
 }

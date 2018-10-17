@@ -30,7 +30,7 @@ func (c *Counter) GetTarget() Unit {
 	return c.Wielder
 }
 
-func (c *Counter) Apply(f *Fight) string {
+func (c *Counter) Apply(r *Room) string {
 	cntr := Counterattack{}
 	c.Wielder.AddDamageTriggerable(cntr.Init(3, 4, c.Wielder))
 	c.Res = "Counter"

@@ -22,9 +22,18 @@ func (c *Counterattack) Init(values ...interface{}) Interfaces.Triggerable {
 }
 
 func (c *Counterattack) Apply(values ...interface{}) string {
-	if len(values) < 1 {
-		panic("First argument of Apply should be its target")
+	if !c.Finished() {
+		if len(values) < 1 {
+			panic("First argument of Apply should be its target")
+		}
+		target := values[0].(Interfaces.Unit)
+		c.triggerNum--
+		res := fmt.Sprintf("%s dealt %s damage back", c.user.GetName(), Interfaces.DealRawDamage(target, c.baseAtk))
+		return res
 	}
-	target := values[0].(Interfaces.Unit)
-	return fmt.Sprintf("%s dealt %s damage back", c.user.GetName(), Interfaces.DealRawDamage(target, c.baseAtk))
+	return ""
+}
+
+func (c *Counterattack) Finished() bool {
+	return c.triggerNum <= 0
 }

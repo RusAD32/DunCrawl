@@ -54,7 +54,7 @@ func (s *StunningBlow) SetTarget(enemy Unit) {
 	s.Targets = append(s.Targets, enemy)
 }
 
-func (s *StunningBlow) Apply(f *Fight) string {
+func (s *StunningBlow) Apply(r *Room) string {
 	equipDmg := 0
 	for _, v := range s.Wielder.(*Player).Equipment {
 		equipDmg += v.Attack

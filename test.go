@@ -64,7 +64,7 @@ func main() {
 		ptrenemies[i] = &enemies[i]
 	}
 
-	//f := Fight{&p, *[]*Enemy{&dog, &dog2, &dog3, &dog4}, PriorityQueue, 0{}}
+	//f := Room{&p, *[]*Enemy{&dog, &dog2, &dog3, &dog4}, PriorityQueue, 0{}}
 	UI.TextFight(&p, ptrenemies)
 
 }

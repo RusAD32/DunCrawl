@@ -48,7 +48,7 @@ func (b *DogBite) Init(enemy Unit) Skill {
 	return b
 }
 
-func (b *DogBite) Apply(f *Fight) string {
+func (b *DogBite) Apply(r *Room) string {
 	if b.Wielder.GetHP() > 0 {
 		b.Res = DealDamage(b.Wielder, b.Target, b.BaseDmg)
 	}

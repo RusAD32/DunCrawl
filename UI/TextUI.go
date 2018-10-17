@@ -6,7 +6,7 @@ import (
 )
 
 func TextFight(p *Player, enemies []*Enemy) {
-	f := Fight{}
+	f := Room{}
 	uiToBg := make(chan string)
 	bgToUi := make(chan []SkillInfo)
 	f.Init(p, enemies, bgToUi, uiToBg)
@@ -22,7 +22,7 @@ func TextFight(p *Player, enemies []*Enemy) {
 		}
 		selfSkills, ok := <-bgToUi
 		if !ok {
-			Inform("Fight is over") // here we are supposed to break
+			Inform("Room is over") // here we are supposed to break
 			break
 		}
 		prompt := "Choose a skill to use on yourself\n"

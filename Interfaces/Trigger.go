@@ -28,6 +28,9 @@ func (t *Trigger) Call(values ...interface{}) string {
 	res := ""
 	for _, v := range t.Events {
 		res += "\n" + v.Apply(values...)
+		if v.Finished() {
+			t.RemoveEvent(v)
+		}
 	}
 	return res
 }

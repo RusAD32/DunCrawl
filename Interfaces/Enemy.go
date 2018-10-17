@@ -26,6 +26,8 @@ type Enemy struct {
 	Stats     map[Stat]int
 	Effects   []Effect
 	Equipment []Equippable
+	Loot      []Lootable
+	Provision []Carriable
 	AILevel
 	CurHP           int
 	MaxHP           int
@@ -93,4 +95,23 @@ func (e *Enemy) ChooseSkill() EnemySkill {
 		return e.Skills[rand.Intn(len(e.Skills))]
 	}
 	return nil
+}
+
+func (e *Enemy) GetMoney() int {
+	total := 0
+	for _, v := range e.Loot {
+		total += v.GetValue()
+	}
+	return total
+}
+
+func (e *Enemy) GetProvision() []Carriable {
+	res := make([]Carriable, 0)
+	for _, v := range e.Equipment {
+		res = append(res, v)
+	}
+	for _, v := range e.Provision {
+		res = append(res, v)
+	}
+	return res
 }

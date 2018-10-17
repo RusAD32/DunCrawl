@@ -53,7 +53,7 @@ func (s *SimpleAttack) SetTarget(enemy Unit) {
 	s.Targets = append(s.Targets, enemy)
 }
 
-func (s *SimpleAttack) Apply(f *Fight) string {
+func (s *SimpleAttack) Apply(r *Room) string {
 	equipDmg := 0
 	for _, v := range s.Wielder.(*Player).Equipment {
 		equipDmg += v.Attack
