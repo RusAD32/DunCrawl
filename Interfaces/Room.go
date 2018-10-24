@@ -14,12 +14,14 @@ type Room struct {
 	EnemyDeadTrigger Trigger
 	uiToBg           chan string
 	bgToUi           chan []SkillInfo
+	confirm          chan bool
 	Loot             []Lootable
 	ShadowLoot       []Lootable
 	ShadowEnemies    []*Enemy
 	ShadowProvision  []Carriable
 	Provision        []Carriable
 	Chest            *Chest
+	Neighbours       []*Room
 }
 
 /**
@@ -100,21 +102,20 @@ func (r *Room) FightTurn() {
 	RemoveDeadEnemies(r)
 }
 
-func (r *Room) Init(p *Player, enemies []*Enemy, bgToUi chan []SkillInfo, uiToBg chan string) {
+func (r *Room) Init(p *Player, enemies []*Enemy, bgToUi chan []SkillInfo, uiToBg chan string, confirm chan bool) {
 	r.P = p
 	r.Enemies = enemies
 	r.Defeated = make([]*Enemy, 0)
 	r.ShadowEnemies = make([]*Enemy, 0)
 	r.uiToBg = uiToBg
 	r.bgToUi = bgToUi
+	r.confirm = confirm
 }
 
 func (r *Room) StartFight() (int, []Carriable) {
 	for len(r.Enemies) > 0 && r.P.CurMentHP > 0 && r.P.CurPhysHP > 0 {
 		r.FightTurn()
 	}
-	close(r.uiToBg)
-	close(r.bgToUi)
 	if r.P.IsAlive() {
 		totalMoney := 0
 		totalProvision := make([]Carriable, 0)
@@ -122,10 +123,16 @@ func (r *Room) StartFight() (int, []Carriable) {
 			totalMoney += v.GetMoney()
 			totalProvision = append(totalProvision, v.GetProvision()...)
 		}
+		defer func() { r.confirm <- true }()
 		return totalMoney, totalProvision
 	}
+	defer func() { r.confirm <- false }()
 	//Inform(fmt.Sprintf("Your HP: %d", r.P.CurPhysHP))
 	return 0, make([]Carriable, 0)
+}
+
+func (r *Room) GetValues() (int, []Carriable) {
+	return r.GetMoney(), r.GetLoot()
 }
 
 func (r *Room) GetMoney() int {
@@ -142,6 +149,14 @@ func (r *Room) GetLoot() []Carriable {
 
 func (r *Room) HasChest() bool {
 	return r.Chest != nil
+}
+
+func (r *Room) HasEnemies() bool {
+	return len(r.Enemies) > 0
+}
+
+func (r *Room) HasShadowEnemies() bool {
+	return len(r.ShadowEnemies) > 0
 }
 
 func (r *Room) UnlockChest() (int, []Carriable) {
@@ -165,4 +180,12 @@ func (r *Room) Light() (int, []Carriable) {
 	}
 	totalProvision = append(totalProvision, r.ShadowProvision...)
 	return totalMoney, totalProvision
+}
+
+func (r *Room) GetNeighbours() []*Room {
+	return r.Neighbours
+}
+
+func (r *Room) GetChannels() (chan string, chan []SkillInfo, chan bool) {
+	return r.uiToBg, r.bgToUi, r.confirm
 }
