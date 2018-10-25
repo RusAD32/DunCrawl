@@ -65,6 +65,24 @@ func main() {
 	}
 
 	//f := Room{&p, *[]*Enemy{&dog, &dog2, &dog3, &dog4}, PriorityQueue, 0{}}
-	UI.TextFight(&p, ptrenemies)
-
+	r := Room{}
+	uiToBg := make(chan string)
+	bgToUi := make(chan []SkillInfo)
+	confirm := make(chan bool)
+	events := make(chan Event)
+	r.Init(ptrenemies, bgToUi, uiToBg, confirm)
+	r2 := Room{}
+	r2.Init(make([]*Enemy, 0), bgToUi, uiToBg, confirm)
+	r2.Loot = make([]Lootable, 1)
+	r2.Loot[0] = Lootable{
+		Name:  "Stuff",
+		Value: 10,
+	}
+	l := Labyrinth{}
+	rooms := make([]*Room, 2)
+	rooms[0] = &r
+	rooms[1] = &r2
+	l.Init(&p, rooms, confirm, bgToUi, uiToBg, events)
+	//	UI.TextFight(&r)
+	UI.EnterLabyrinth(&l)
 }

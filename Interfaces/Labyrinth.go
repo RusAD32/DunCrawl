@@ -11,6 +11,7 @@ const (
 //TODO написать Init для лабиринта
 
 type Labyrinth struct {
+	P                *Player
 	Rooms            []*Room
 	Current          *Room
 	FightConfirmChan chan bool
@@ -19,8 +20,21 @@ type Labyrinth struct {
 	EventsChannel    chan Event
 }
 
+func (l *Labyrinth) Init(p *Player, rooms []*Room, fightConfirm chan bool, fightBgToUi chan []SkillInfo, fightUiToBg chan string, events chan Event) {
+	l.P = p
+	l.Rooms = rooms
+	l.FightConfirmChan = fightConfirm
+	l.FightBgToUi = fightBgToUi
+	l.FightUiToBg = fightUiToBg
+	l.EventsChannel = events
+}
+
 func (l *Labyrinth) GoToRoom(roomNum int) (int, []Carriable) {
+	if l.Current != nil {
+		l.Current.P = nil
+	}
 	l.Current = l.Rooms[roomNum]
+	l.Current.P = l.P
 	if l.Current.HasEnemies() {
 		l.EventsChannel <- FightEvent
 		return l.Current.StartFight()

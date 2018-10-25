@@ -44,7 +44,7 @@ func (e Equippable) Use(p *Player) {
 			prompt += fmt.Sprintf("%d: %s\n", i+1, SlotNames[v])
 		}
 		reqInput := MakeStrRange(1, length)
-		res := Prompt(prompt, reqInput)
+		res, _ := Prompt(prompt, reqInput)
 		if res != "" {
 			slotNum, err := strconv.Atoi(res)
 			if err != nil {

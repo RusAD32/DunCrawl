@@ -1,6 +1,7 @@
 package Interfaces
 
 import (
+	"fmt"
 	"strconv"
 )
 
@@ -102,8 +103,7 @@ func (r *Room) FightTurn() {
 	RemoveDeadEnemies(r)
 }
 
-func (r *Room) Init(p *Player, enemies []*Enemy, bgToUi chan []SkillInfo, uiToBg chan string, confirm chan bool) {
-	r.P = p
+func (r *Room) Init(enemies []*Enemy, bgToUi chan []SkillInfo, uiToBg chan string, confirm chan bool) {
 	r.Enemies = enemies
 	r.Defeated = make([]*Enemy, 0)
 	r.ShadowEnemies = make([]*Enemy, 0)
@@ -123,7 +123,10 @@ func (r *Room) StartFight() (int, []Carriable) {
 			totalMoney += v.GetMoney()
 			totalProvision = append(totalProvision, v.GetProvision()...)
 		}
-		defer func() { r.confirm <- true }()
+		defer func() {
+			fmt.Println("asdfadfa")
+			r.confirm <- true
+		}()
 		return totalMoney, totalProvision
 	}
 	defer func() { r.confirm <- false }()
