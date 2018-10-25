@@ -125,7 +125,7 @@ func EnterLabyrinth(l *Labyrinth) { //TODO выводить номера ком�
 			fmt.Println(loot) //TODO убрать заглушку, выписывать все их имена через Inform
 		}
 		money, loot = l.GetValues()
-		Inform(fmt.Sprintf("You got %d gold and some loot from the fight\n", money))
+		Inform(fmt.Sprintf("You got %d gold and some loot on the floor\n", money))
 		fmt.Println(loot) //TODO убрать заглушку, выписывать все их имена через Inform
 		stayhere := true
 		for stayhere {
@@ -138,13 +138,13 @@ func EnterLabyrinth(l *Labyrinth) { //TODO выводить номера ком�
 					if f == FightEvent {
 						TextFight(l.Current)
 					}
-					Inform(fmt.Sprintf("You got %d gold and some loot from the fight\n", money))
+					Inform(fmt.Sprintf("You got %d gold and some loot\n", money))
 					fmt.Println(loot) //TODO убрать заглушку, выписывать все их имена через Inform
 				}
 			case CHEST_CMD:
 				{
 					money, loot = l.UnlockChest()
-					Inform(fmt.Sprintf("You got %d gold and some loot from the fight\n", money))
+					Inform(fmt.Sprintf("You got %d gold and some loot from the chest\n", money))
 					fmt.Println(loot) //TODO убрать заглушку, выписывать все их имена через Inform
 				}
 			case GOTO_CMD:

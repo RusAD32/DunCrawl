@@ -23,9 +23,12 @@ func (c *Chest) GetMoney() int {
 	for _, v := range c.Loot {
 		total += v.GetValue()
 	}
+	c.Loot = make([]Lootable, 0)
 	return total
 }
 
 func (c *Chest) GetValuables() []Carriable {
-	return c.UsefulLoot
+	res := c.UsefulLoot
+	c.UsefulLoot = make([]Carriable, 0)
+	return res
 }

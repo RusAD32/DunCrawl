@@ -78,6 +78,13 @@ func main() {
 		Name:  "Stuff",
 		Value: 10,
 	}
+	ch := Chest{
+		nil,
+		r2.Loot,
+		make([]Carriable, 0),
+	}
+	r2.Chest = &ch
+	r.ShadowLoot = append(r.ShadowLoot, Lootable{"Other stuff", 200})
 	l := Labyrinth{}
 	rooms := make([]*Room, 2)
 	rooms[0] = &r
