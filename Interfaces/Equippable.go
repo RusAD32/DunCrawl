@@ -2,7 +2,6 @@ package Interfaces
 
 import (
 	"fmt"
-	"strconv"
 )
 
 type Slot int
@@ -29,6 +28,7 @@ var SlotNames = map[Slot]string{
 
 type Equippable struct {
 	AvailableSlots []Slot
+	Name           string
 	Defence        int
 	Attack         int
 	StatsBoost     map[Stat]int
@@ -36,24 +36,23 @@ type Equippable struct {
 	Triggerables   []Triggerable
 }
 
-func (e Equippable) Use(p *Player) {
+func (e Equippable) GetName() string {
+	return e.Name
+}
+
+func (e Equippable) Use(p *Player, values ...interface{}) {
 	length := len(e.AvailableSlots)
-	if length > 1 {
-		prompt := "Choose where to equip:\n"
-		for i, v := range e.AvailableSlots {
-			prompt += fmt.Sprintf("%d: %s\n", i+1, SlotNames[v])
-		}
-		reqInput := MakeStrRange(1, length)
-		res := Prompt(prompt, reqInput)
-		if res != "" {
-			slotNum, err := strconv.Atoi(res)
-			if err != nil {
-				Errors.Write([]byte(err.Error()))
-				return
+	if len(values) > 0 {
+		slotNum := values[0].(int)
+		if length > 1 {
+			prompt := "Choose where to equip:\n"
+			for i, v := range e.AvailableSlots {
+				prompt += fmt.Sprintf("%d: %s\n", i+1, SlotNames[v])
 			}
 			p.Equipment[e.AvailableSlots[slotNum]] = e
+
+		} else if length == 1 {
+			p.Equipment[e.AvailableSlots[0]] = e
 		}
-	} else if length == 1 {
-		p.Equipment[e.AvailableSlots[0]] = e
 	}
 }

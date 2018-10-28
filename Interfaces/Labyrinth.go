@@ -47,6 +47,12 @@ func (l *Labyrinth) UnlockChest() (int, []Carriable) {
 	return l.Current.UnlockChest()
 }
 
-func (l *Labyrinth) GetNeighbours() []*Room { // TODO переписать так, чтобы выдавался список номеров комнат
-	return l.Current.GetNeighbours()
+func (l *Labyrinth) GetNeighbours() map[string]int {
+	res := make(map[string]int, 0)
+	for i, v := range l.Current.GetNeighbours() {
+		if v.CanGoThrough() {
+			res[DirToStr[Direction(i)]] = v.GetNextDoor().Num
+		}
+	}
+	return res
 }

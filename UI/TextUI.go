@@ -4,7 +4,6 @@ import (
 	. "../Interfaces"
 	"fmt"
 	"strconv"
-	"strings"
 )
 
 const (
@@ -123,14 +122,12 @@ func EnterLabyrinth(l *Labyrinth) { //TODO выводить номера ком�
 		f := <-events
 		if f == FightEvent {
 			TextFight(l.Current)
-			Inform(fmt.Sprintf("You got %d gold and some loot from the fight", money))
-			fmt.Println(loot) //TODO убрать заглушку, выписывать все их имена через Inform
+			InformLoot(money, loot)
 		}
 		money, loot = l.GetValues()
-		Inform(fmt.Sprintf("You got %d gold and some loot from the fight", money))
-		fmt.Println(loot) //TODO убрать заглушку, выписывать все их имена через Inform
+		InformLoot(money, loot)
 		for true {
-			cmd, cmd_ext := Prompt("Write a command...", commands)
+			cmd, _ := Prompt("Write a command...", commands)
 			switch cmd {
 			case LIGHT_CMD:
 				{
@@ -139,21 +136,38 @@ func EnterLabyrinth(l *Labyrinth) { //TODO выводить номера ком�
 					if f == FightEvent {
 						TextFight(l.Current)
 					}
-					Inform(fmt.Sprintf("You got %d gold and some loot from the fight", money))
-					fmt.Println(loot) //TODO убрать заглушку, выписывать все их имена через Inform
+					InformLoot(money, loot)
 				}
 			case CHEST_CMD:
 				{
 					money, loot = l.UnlockChest()
-					Inform(fmt.Sprintf("You got %d gold and some loot from the fight", money))
-					fmt.Println(loot) //TODO убрать заглушку, выписывать все их имена через Inform
+					InformLoot(money, loot)
 				}
 			case GOTO_CMD:
 				{
-					next, _ = strconv.Atoi(strings.Split(cmd_ext, " ")[1])
+					rooms := l.GetNeighbours()
+					Inform("Which room?")
+					nums := make([]string, 0)
+					for k, v := range rooms {
+						Inform(fmt.Sprintf("%s: %d\n", k, v))
+						nums = append(nums, strconv.Itoa(v))
+					}
+					v, _ := Prompt("", nums)
+					next, _ = strconv.Atoi(v)
 					break
 				}
 			}
 		}
 	}
+}
+
+func InformLoot(money int, loot []Carriable) {
+	Inform(fmt.Sprintf("You found %d money", money))
+	if len(loot) > 0 {
+		Inform(" and some loot!\n")
+	}
+	for _, v := range loot {
+		Inform(v.GetName() + "\n")
+	}
+	Inform("\n")
 }
