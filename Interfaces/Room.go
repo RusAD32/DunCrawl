@@ -1,6 +1,7 @@
 package Interfaces
 
 import (
+	"fmt"
 	"strconv"
 )
 
@@ -49,7 +50,7 @@ func (r *Room) FightTurn() {
 	//var chosenSelfSkill PlayerSelfSkill
 	skillNum, err := strconv.Atoi(res)
 	if err != nil {
-		Inform("Prompt returned bad value: " + res)
+		fmt.Println("Prompt returned bad value: " + res)
 		return
 	}
 	chosenSelfSkill := r.P.SelfSkills[skillNum-1]
@@ -68,7 +69,7 @@ func (r *Room) FightTurn() {
 		dmgSkill := <-r.uiToBg
 		dmgSkillNum, err := strconv.Atoi(dmgSkill)
 		if err != nil {
-			Inform("Prompt returned bad value: " + dmgSkill)
+			fmt.Println("Prompt returned bad value: " + dmgSkill)
 			return
 		}
 		chosenDmgSkill := r.P.DmgSkills[dmgSkillNum-1]
@@ -126,7 +127,10 @@ func (r *Room) StartFight() (int, []Carriable) {
 			totalMoney += v.GetMoney()
 			totalProvision = append(totalProvision, v.GetProvision()...)
 		}
-		defer func() { r.confirm <- true }()
+		r.Defeated = make([]*Enemy, 0)
+		defer func() {
+			r.confirm <- true
+		}()
 		return totalMoney, totalProvision
 	}
 	defer func() { r.confirm <- false }()
@@ -143,11 +147,14 @@ func (r *Room) GetMoney() int {
 	for _, v := range r.Loot {
 		total += v.GetValue()
 	}
+	r.Loot = make([]Lootable, 0)
 	return total
 }
 
 func (r *Room) GetLoot() []Carriable {
-	return r.Provision
+	res := r.Provision
+	r.Provision = make([]Carriable, 0)
+	return res
 }
 
 func (r *Room) HasChest() bool {

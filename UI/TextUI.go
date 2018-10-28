@@ -14,18 +14,16 @@ const (
 
 var commands = []string{LIGHT_CMD, CHEST_CMD, GOTO_CMD}
 
-func TextFight( /*p *Player, enemies []*Enemy*/ r *Room) (int, []Carriable) {
+func TextFight( /*p *Player, enemies []*Enemy*/ r *Room) {
 	/*r := Room{}
 	uiToBg := make(chan string)
 	bgToUi := make(chan []SkillInfo)
 	confirm := make(chan bool)
 	r.Init(p, enemies, bgToUi, uiToBg, confirm)*/
 	uiToBg, bgToUi, confirm := r.GetChannels()
-	var money int
-	var loot []Carriable
-	go func() {
+	/*go func() {
 		money, loot = r.StartFight()
-	}()
+	}()*/
 	for {
 		select {
 		case alive := <-confirm:
@@ -33,17 +31,17 @@ func TextFight( /*p *Player, enemies []*Enemy*/ r *Room) (int, []Carriable) {
 				if !alive {
 					Inform("You're dead")
 				}
-				break
+				return
 			}
 		case selfSkills, ok := <-bgToUi:
 			{
 				if !ok {
 					Inform("Something wrong while getting selfskills")
-					break
+					return
 				}
 				if r.P.CurPhysHP == 0 { // should work, but only theoretically. Maybe handling player death should be different?
 					Inform("You died")
-					break
+					return
 				}
 				Inform(fmt.Sprintf("Your HP: %d/%d\n", r.P.CurPhysHP, r.P.MaxPhysHP))
 				for _, v := range r.Enemies {
@@ -56,7 +54,7 @@ func TextFight( /*p *Player, enemies []*Enemy*/ r *Room) (int, []Carriable) {
 				res, _ := Prompt(prompt, MakeStrRange(1, len(selfSkills)))
 				if res == "" {
 					Inform("Prompt returned empty string, selfskill")
-					break
+					return
 				}
 				uiToBg <- res[:1]
 				Inform("Select a skill to use on each enemy\n")
@@ -64,7 +62,7 @@ func TextFight( /*p *Player, enemies []*Enemy*/ r *Room) (int, []Carriable) {
 					dmgSkills, ok := <-bgToUi
 					if !ok {
 						Inform("The turn ended in the middle!!")
-						break // Не должно!!!
+						return // Не должно!!!
 					}
 					Inform(fmt.Sprintf("%s. HP: %d/%d\n", v.Name, v.CurHP, v.MaxHP))
 					info := "Your skills:\n"
@@ -82,7 +80,7 @@ func TextFight( /*p *Player, enemies []*Enemy*/ r *Room) (int, []Carriable) {
 				skillsUsed, ok := <-bgToUi
 				if !ok {
 					Inform("Something went wrong applying skills")
-					break
+					return
 				}
 				for _, sk := range skillsUsed {
 					switch res := sk.GetRes(); res {
@@ -109,7 +107,7 @@ func TextFight( /*p *Player, enemies []*Enemy*/ r *Room) (int, []Carriable) {
 
 		}
 	}
-	return money, loot
+	return
 }
 
 func EnterLabyrinth(l *Labyrinth) { //TODO выводить номера комнат, в которые можно перейти, протестить
@@ -136,7 +134,7 @@ func EnterLabyrinth(l *Labyrinth) { //TODO выводить номера ком�
 					if f == FightEvent {
 						TextFight(l.Current)
 					}
-					InformLoot(money, loot)
+          InformLoot(money, loot)
 				}
 			case CHEST_CMD:
 				{
@@ -156,7 +154,10 @@ func EnterLabyrinth(l *Labyrinth) { //TODO выводить номера ком�
 					next, _ = strconv.Atoi(v)
 					break
 				}
+			default:
+				fmt.Println("Unknown command", cmd, cmd_ext)
 			}
+
 		}
 	}
 }
