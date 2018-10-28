@@ -99,7 +99,7 @@ func (s *SimpleAttack) LvlUp() {
 		s.Lvl++
 		s.BaseDMG = int(math.Pow(5.0, math.Sqrt(float64(s.Lvl))))
 	} else {
-		Inform(fmt.Sprintf("Error: Requirements for levelling up skill %s not met", s.Name))
+		fmt.Sprintln("Error: Requirements for levelling up skill %s not met", s.Name)
 	}
 }
 

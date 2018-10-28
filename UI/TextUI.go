@@ -124,7 +124,8 @@ func EnterLabyrinth(l *Labyrinth) { //TODO выводить номера ком�
 		}
 		money, loot = l.GetValues()
 		InformLoot(money, loot)
-		for true {
+		stayHere := true
+		for stayHere {
 			cmd, _ := Prompt("Write a command...", commands)
 			switch cmd {
 			case LIGHT_CMD:
@@ -134,7 +135,7 @@ func EnterLabyrinth(l *Labyrinth) { //TODO выводить номера ком�
 					if f == FightEvent {
 						TextFight(l.Current)
 					}
-          InformLoot(money, loot)
+					InformLoot(money, loot)
 				}
 			case CHEST_CMD:
 				{
@@ -144,7 +145,7 @@ func EnterLabyrinth(l *Labyrinth) { //TODO выводить номера ком�
 			case GOTO_CMD:
 				{
 					rooms := l.GetNeighbours()
-					Inform("Which room?")
+					Inform("Which room?\n")
 					nums := make([]string, 0)
 					for k, v := range rooms {
 						Inform(fmt.Sprintf("%s: %d\n", k, v))
@@ -152,10 +153,10 @@ func EnterLabyrinth(l *Labyrinth) { //TODO выводить номера ком�
 					}
 					v, _ := Prompt("", nums)
 					next, _ = strconv.Atoi(v)
-					break
+					stayHere = false
 				}
 			default:
-				fmt.Println("Unknown command", cmd, cmd_ext)
+				fmt.Println("Unknown command", cmd)
 			}
 
 		}

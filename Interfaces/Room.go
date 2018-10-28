@@ -104,15 +104,17 @@ func (r *Room) FightTurn() {
 	RemoveDeadEnemies(r)
 }
 
-func (r *Room) Init(p *Player, enemies []*Enemy, bgToUi chan []SkillInfo, uiToBg chan string, confirm chan bool, num int) {
-	r.P = p
+func (r *Room) Init(enemies []*Enemy, bgToUi chan []SkillInfo, uiToBg chan string, confirm chan bool, num int) {
 	r.Enemies = enemies
 	r.Defeated = make([]*Enemy, 0)
 	r.ShadowEnemies = make([]*Enemy, 0)
 	r.uiToBg = uiToBg
 	r.bgToUi = bgToUi
 	r.confirm = confirm
-	r.Neighbours = make([]*Wall, 4)
+	r.Neighbours = make([]*Wall, 0)
+	for i := 0; i < 4; i++ {
+		r.Neighbours = append(r.Neighbours, new(Wall))
+	}
 	r.Num = num
 }
 

@@ -66,7 +66,7 @@ func (c *Counter) LvlUp() {
 		c.Lvl++
 		c.HP = int(c.HP * 3 / 2) // Why won't you multiply by 1.5?
 	} else {
-		Inform(fmt.Sprintf("Error: Requirements for levelling up skill %s not met", c.Name))
+		fmt.Sprintln("Error: Requirements for levelling up skill %s not met", c.Name)
 	}
 }
 
