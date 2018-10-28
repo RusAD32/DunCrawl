@@ -22,7 +22,8 @@ type Room struct {
 	ShadowProvision  []Carriable
 	Provision        []Carriable
 	Chest            *Chest
-	Neighbours       []*Room
+	Neighbours       []*Wall
+	Num              int
 }
 
 /**
@@ -103,13 +104,16 @@ func (r *Room) FightTurn() {
 	RemoveDeadEnemies(r)
 }
 
-func (r *Room) Init(enemies []*Enemy, bgToUi chan []SkillInfo, uiToBg chan string, confirm chan bool) {
+func (r *Room) Init(p *Player, enemies []*Enemy, bgToUi chan []SkillInfo, uiToBg chan string, confirm chan bool, num int) {
+	r.P = p
 	r.Enemies = enemies
 	r.Defeated = make([]*Enemy, 0)
 	r.ShadowEnemies = make([]*Enemy, 0)
 	r.uiToBg = uiToBg
 	r.bgToUi = bgToUi
 	r.confirm = confirm
+	r.Neighbours = make([]*Wall, 4)
+	r.Num = num
 }
 
 func (r *Room) StartFight() (int, []Carriable) {
@@ -188,7 +192,7 @@ func (r *Room) Light() (int, []Carriable) {
 	return totalMoney, totalProvision
 }
 
-func (r *Room) GetNeighbours() []*Room {
+func (r *Room) GetNeighbours() []*Wall {
 	return r.Neighbours
 }
 
