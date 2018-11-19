@@ -17,7 +17,7 @@ type Room struct {
 	bgToUi           chan []SkillInfo
 	confirm          chan bool
 	loot             []Lootable
-	shadowLoots      []Lootable
+	shadowLoot       []Lootable
 	shadowEnemies    []*Enemy
 	shadowProvision  []Carriable
 	provision        []Carriable
@@ -195,7 +195,7 @@ func (r *Room) Light() (int, []Carriable) {
 		totalMoney += money
 		totalProvision = append(totalProvision, prov...)
 	}
-	for _, v := range r.shadowLoots {
+	for _, v := range r.shadowLoot {
 		totalMoney += v.GetValue()
 	}
 	totalProvision = append(totalProvision, r.shadowProvision...)
@@ -219,5 +219,5 @@ func (r *Room) SetChest(chest *Chest) {
 }
 
 func (r *Room) AddShadowLoot(lootable Lootable) {
-	r.shadowLoots = append(r.shadowLoots, lootable)
+	r.shadowLoot = append(r.shadowLoot, lootable)
 }

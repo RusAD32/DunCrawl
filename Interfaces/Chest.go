@@ -1,34 +1,35 @@
 package Interfaces
 
+//TODO Generating chests
 type Chest struct {
-	Trap       Trap
-	Loot       []Lootable
-	UsefulLoot []Carriable
+	trap       Trap
+	loot       []Lootable
+	usefulLoot []Carriable
 }
 
 func (c *Chest) TrapTrigger(p *Player) {
-	if c.Trap != nil {
-		c.Trap.Trigger(p)
+	if c.trap != nil {
+		c.trap.Trigger(p)
 	}
 }
 
 func (c *Chest) TrapDisarm() {
-	if c.Trap != nil {
-		c.Trap = nil
+	if c.trap != nil {
+		c.trap = nil
 	}
 }
 
 func (c *Chest) GetMoney() int {
 	total := 0
-	for _, v := range c.Loot {
+	for _, v := range c.loot {
 		total += v.GetValue()
 	}
-	c.Loot = make([]Lootable, 0)
+	c.loot = make([]Lootable, 0)
 	return total
 }
 
 func (c *Chest) GetValuables() []Carriable {
-	res := c.UsefulLoot
-	c.UsefulLoot = make([]Carriable, 0)
+	res := c.usefulLoot
+	c.usefulLoot = make([]Carriable, 0)
 	return res
 }
