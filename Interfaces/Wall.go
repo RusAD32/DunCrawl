@@ -25,7 +25,7 @@ var DirToStr = map[Direction]string{
 
 type Wall struct {
 	kind    WallType
-	LeadsTo *Room
+	leadsTo *Room
 }
 
 func (w *Wall) CanGoThrough() bool {
@@ -33,12 +33,12 @@ func (w *Wall) CanGoThrough() bool {
 }
 
 func (w *Wall) GetNextDoor() *Room {
-	return w.LeadsTo
+	return w.leadsTo
 }
 
 func ConnectRooms(r1, r2 *Room, d Direction) {
-	r1.Neighbours[int(d)].LeadsTo = r2
-	r1.Neighbours[int(d)].kind = Door
-	r2.Neighbours[(int(d)+2)%4].LeadsTo = r1
-	r2.Neighbours[(int(d)+2)%4].kind = Door
+	r1.neighbours[int(d)].leadsTo = r2
+	r1.neighbours[int(d)].kind = Door
+	r2.neighbours[(int(d)+2)%4].leadsTo = r1
+	r2.neighbours[(int(d)+2)%4].kind = Door
 }

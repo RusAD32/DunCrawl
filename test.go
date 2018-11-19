@@ -6,58 +6,35 @@ import (
 	. "./Interfaces"
 	"./PlayerSkills"
 	"./UI"
-	"fmt"
 )
 
 func main() {
-	p := Player{
-		Stats:           map[Stat]int{},
-		Equipment:       map[Slot]Equippable{},
-		Inventory:       []Carriable{},
-		DmgSkills:       []PlayerDmgSkill{},
-		SelfSkills:      []PlayerSelfSkill{},
-		Effects:         []Effect{},
-		DmgTakenTrigger: TriggerInit(),
-		CurPhysHP:       100,
-		MaxPhysHP:       100,
-		Lvl:             1,
-		Exp:             0,
-		CurMentHP:       100,
-		MaxMentHP:       100,
-	}
+	p := GetDefaultPlayer()
 	h := Hatchet{}
 	h.Init()
-	p.Equipment[MainHand] = Equippable(h)
+	p.Equip(Equippable(h), MainHand)
 	heal := PlayerSkills.Heal{}
 	heal.Init(&p)
-	p.SelfSkills = append(p.SelfSkills, &heal)
+	p.AddSelfSkill(&heal)
 	cntr := PlayerSkills.Counter{}
 	cntr.Init(&p)
-	p.SelfSkills = append(p.SelfSkills, &cntr)
+	p.AddSelfSkill(&cntr)
 	atk := PlayerSkills.SimpleAttack{}
 	atk.Init(&p)
-	p.DmgSkills = append(p.DmgSkills, &atk)
+	p.AddDmgSkill(&atk)
 	stn := PlayerSkills.StunningBlow{}
 	stn.Init(&p)
-	p.DmgSkills = append(p.DmgSkills, &stn)
-	dog := Enemy{
-		Type:            Animal,
-		Name:            "Rabid dog",
-		Skills:          []EnemySkill{},
-		Effects:         []Effect{},
-		Equipment:       []Equippable{},
-		DmgTakenTrigger: TriggerInit(),
-		AILevel:         Usual,
-		CurHP:           15,
-		MaxHP:           15,
-	}
+	p.AddDmgSkill(&stn)
+
+	//dog := GetDefaultEnemy(index)
 	enemies := make([]Enemy, 4)
 	for i := range enemies {
-		enemies[i] = dog
-		enemies[i].Name += fmt.Sprintf(" %d", i)
+		enemies[i] = GetDefaultEnemy(i)
+		//enemies[i].name += fmt.Sprintf(" %d", i)
 		bite := EnemySkills.DogBite{}
 		bite.Init(&enemies[i])
-		enemies[i].Skills = append(enemies[i].Skills, &bite)
+		enemies[i].AddSkill(&bite)
+		//enemies[i].skills = append(enemies[i].skills, &bite)
 	}
 	ptrenemies := make([]*Enemy, 4)
 	for i := range enemies {
@@ -73,18 +50,14 @@ func main() {
 	r.Init(ptrenemies, bgToUi, uiToBg, confirm, 0)
 	r2 := Room{}
 	r2.Init(make([]*Enemy, 0), bgToUi, uiToBg, confirm, 1)
-	r2.Loot = make([]Lootable, 1)
-	r2.Loot[0] = Lootable{
-		Name:  "Stuff",
-		Value: 10,
-	}
+	r2.AddLoot(GenerateLootable("Stuff", 10))
 	ch := Chest{
 		nil,
-		r2.Loot,
+		[]Lootable{GenerateLootable("Different stuff", 40)},
 		make([]Carriable, 0),
 	}
-	r2.Chest = &ch
-	r.ShadowLoot = append(r.ShadowLoot, Lootable{"Other stuff", 200})
+	r2.SetChest(&ch)
+	r.AddShadowLoot(GenerateLootable("Other stuff", 200))
 	l := Labyrinth{}
 	rooms := make([]*Room, 2)
 	rooms[0] = &r

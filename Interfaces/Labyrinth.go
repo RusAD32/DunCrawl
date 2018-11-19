@@ -11,62 +11,70 @@ const (
 //TODO написать Init для лабиринта
 
 type Labyrinth struct {
-	P                *Player
-	Rooms            []*Room
-	Current          *Room
-	FightConfirmChan chan bool
-	FightBgToUi      chan []SkillInfo
-	FightUiToBg      chan string
-	EventsChannel    chan Event
+	p                *Player
+	rooms            []*Room
+	current          *Room
+	fightConfirmChan chan bool
+	fightBgToUi      chan []SkillInfo
+	fightUiToBg      chan string
+	eventsChannel    chan Event
 }
 
 func (l *Labyrinth) Init(p *Player, rooms []*Room, fightConfirm chan bool, fightBgToUi chan []SkillInfo, fightUiToBg chan string, events chan Event) {
-	l.P = p
-	l.Rooms = rooms
-	l.FightConfirmChan = fightConfirm
-	l.FightBgToUi = fightBgToUi
-	l.FightUiToBg = fightUiToBg
-	l.EventsChannel = events
+	l.p = p
+	l.rooms = rooms
+	l.fightConfirmChan = fightConfirm
+	l.fightBgToUi = fightBgToUi
+	l.fightUiToBg = fightUiToBg
+	l.eventsChannel = events
 }
 
 func (l *Labyrinth) GoToRoom(roomNum int) (int, []Carriable) {
-	if l.Current != nil {
-		l.Current.P = nil
+	if l.current != nil {
+		l.current.p = nil
 	}
-	l.Current = l.Rooms[roomNum]
-	l.Current.P = l.P
-	if l.Current.HasEnemies() {
-		l.EventsChannel <- FightEvent
-		return l.Current.StartFight()
+	l.current = l.rooms[roomNum]
+	l.current.p = l.p
+	if l.current.HasEnemies() {
+		l.eventsChannel <- FightEvent
+		return l.current.StartFight()
 	} else {
-		defer func() { l.EventsChannel <- NoEvent }()
+		defer func() { l.eventsChannel <- NoEvent }()
 		return 0, []Carriable{}
 	}
 }
 
 func (l *Labyrinth) GetValues() (int, []Carriable) {
-	return l.Current.GetValues()
+	return l.current.GetValues()
 }
 
 func (l *Labyrinth) Light() (int, []Carriable) {
-	if l.Current.HasShadowEnemies() {
-		l.EventsChannel <- FightEvent
+	if l.current.HasShadowEnemies() {
+		l.eventsChannel <- FightEvent
 	} else {
-		defer func() { l.EventsChannel <- NoEvent }()
+		defer func() { l.eventsChannel <- NoEvent }()
 	}
-	return l.Current.Light()
+	return l.current.Light()
 }
 
 func (l *Labyrinth) UnlockChest() (int, []Carriable) {
-	return l.Current.UnlockChest()
+	return l.current.UnlockChest()
 }
 
 func (l *Labyrinth) GetNeighbours() map[string]int {
 	res := make(map[string]int, 0)
-	for i, v := range l.Current.GetNeighbours() {
+	for i, v := range l.current.GetNeighbours() {
 		if v.CanGoThrough() {
-			res[DirToStr[Direction(i)]] = v.GetNextDoor().Num
+			res[DirToStr[Direction(i)]] = v.GetNextDoor().num
 		}
 	}
 	return res
+}
+
+func (l *Labyrinth) GetCurrentRoom() Room {
+	return *l.current
+}
+
+func (l *Labyrinth) GetEventsChan() chan Event {
+	return l.eventsChannel
 }

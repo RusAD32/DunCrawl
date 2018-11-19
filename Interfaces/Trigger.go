@@ -1,24 +1,24 @@
 package Interfaces
 
 type Trigger struct {
-	Events []Triggerable
+	events []Triggerable
 }
 
 func TriggerInit() *Trigger {
 	t := &Trigger{}
-	t.Events = make([]Triggerable, 0)
+	t.events = make([]Triggerable, 0)
 	return t
 }
 
 func (t *Trigger) AddEvent(event Triggerable) {
-	t.Events = append(t.Events, event)
+	t.events = append(t.events, event)
 }
 
 func (t *Trigger) RemoveEvent(event Triggerable) {
-	for i, v := range t.Events {
+	for i, v := range t.events {
 		if v == event {
-			t.Events[i] = nil
-			t.Events = append(t.Events[:i], t.Events[i+1:]...)
+			t.events[i] = nil
+			t.events = append(t.events[:i], t.events[i+1:]...)
 			return
 		}
 	}
@@ -26,7 +26,7 @@ func (t *Trigger) RemoveEvent(event Triggerable) {
 
 func (t *Trigger) Call(values ...interface{}) string {
 	res := ""
-	for _, v := range t.Events {
+	for _, v := range t.events {
 		res += "\n" + v.Apply(values...)
 		if v.Finished() {
 			t.RemoveEvent(v)

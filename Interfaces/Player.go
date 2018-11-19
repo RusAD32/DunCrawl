@@ -13,35 +13,35 @@ const (
 )
 
 type Player struct {
-	Stats           map[Stat]int
-	Equipment       map[Slot]Equippable
-	Inventory       []Carriable
-	DmgSkills       []PlayerDmgSkill
-	SelfSkills      []PlayerSelfSkill
-	Effects         []Effect
-	Lvl             int
-	Exp             int
-	CurPhysHP       int
-	MaxPhysHP       int
-	CurMentHP       int
-	MaxMentHP       int
-	DmgTakenTrigger *Trigger
+	stats           map[Stat]int
+	equipment       map[Slot]Equippable
+	inventory       []Carriable
+	dmgSkills       []PlayerDmgSkill
+	selfSkills      []PlayerSelfSkill
+	effects         []Effect
+	lvl             int
+	exp             int
+	curPhysHP       int
+	maxPhysHP       int
+	curMentHP       int
+	maxMentHP       int
+	dmgTakenTrigger *Trigger
 }
 
 func (p *Player) IsAlive() bool {
-	return p.CurPhysHP > 0 && p.CurMentHP > 0
+	return p.curPhysHP > 0 && p.curMentHP > 0
 }
 
 func (p *Player) GetDamageTrigger() *Trigger {
-	return p.DmgTakenTrigger
+	return p.dmgTakenTrigger
 }
 
 func (p *Player) AddDamageTriggerable(t Triggerable) {
-	p.DmgTakenTrigger.AddEvent(t)
+	p.dmgTakenTrigger.AddEvent(t)
 }
 
 func (p *Player) GetHP() int {
-	return p.CurPhysHP
+	return p.curPhysHP
 }
 
 func (p *Player) GetName() string {
@@ -49,33 +49,57 @@ func (p *Player) GetName() string {
 }
 
 func (p *Player) AddEffect(effect Effect) {
-	p.Effects = append(p.Effects, effect)
+	p.effects = append(p.effects, effect)
 }
 
 func (p *Player) ChangeHealth(damage int) int {
 	if damage < 0 { // значит, это хил
-		p.CurPhysHP -= damage
-		if p.CurPhysHP > p.MaxPhysHP {
-			p.CurPhysHP = p.MaxPhysHP
+		p.curPhysHP -= damage
+		if p.curPhysHP > p.maxPhysHP {
+			p.curPhysHP = p.maxPhysHP
 		}
 		return -damage
 	}
 	def := 0
-	for _, v := range p.Equipment {
-		def += v.Defence
+	for _, v := range p.equipment {
+		def += v.defence
 	}
 	if def > 80 {
 		def = 80
 	}
 	damage -= damage * def / 100
-	p.CurPhysHP -= damage
+	p.curPhysHP -= damage
 
-	if p.CurPhysHP < 0 {
-		p.CurPhysHP = 0
+	if p.curPhysHP < 0 {
+		p.curPhysHP = 0
 	}
 	return damage
 }
 
 func (p *Player) GetEffects() *[]Effect {
-	return &p.Effects
+	return &p.effects
+}
+
+func (p *Player) GetCurHP() int {
+	return p.curPhysHP
+}
+
+func (p *Player) GetMaxHP() int {
+	return p.maxPhysHP
+}
+
+func (p *Player) GetEquipment() map[Slot]Equippable {
+	return p.equipment
+}
+
+func (p *Player) Equip(e Equippable, slot Slot) {
+	p.equipment[slot] = e
+}
+
+func (p *Player) AddSelfSkill(skill PlayerSelfSkill) {
+	p.selfSkills = append(p.selfSkills, skill)
+}
+
+func (p *Player) AddDmgSkill(skill PlayerDmgSkill) {
+	p.dmgSkills = append(p.dmgSkills, skill)
 }

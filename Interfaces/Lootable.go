@@ -1,14 +1,21 @@
 package Interfaces
 
 type Lootable struct {
-    Name string
-    Value int
+	name  string
+	value int
 }
 
 func (l *Lootable) GetName() string {
-    return l.Name
+	return l.name
 }
 
 func (l *Lootable) GetValue() int {
-    return l.Value
+	return l.value
+}
+
+func GenerateLootable(name string, value int) Lootable {
+	return Lootable{
+		name,
+		value,
+	}
 }

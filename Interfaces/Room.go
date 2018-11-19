@@ -6,43 +6,51 @@ import (
 )
 
 type Room struct {
-	P                *Player
-	Enemies          []*Enemy
-	Defeated         []*Enemy
+	p                *Player
+	enemies          []*Enemy
+	defeated         []*Enemy
 	pq               PriorityQueue
-	TurnStartTrigger Trigger
-	TurnEndTrigger   Trigger
-	EnemyDeadTrigger Trigger
+	turnStartTrigger Trigger
+	turnEndTrigger   Trigger
+	enemyDeadTrigger Trigger
 	uiToBg           chan string
 	bgToUi           chan []SkillInfo
 	confirm          chan bool
-	Loot             []Lootable
-	ShadowLoot       []Lootable
-	ShadowEnemies    []*Enemy
-	ShadowProvision  []Carriable
-	Provision        []Carriable
-	Chest            *Chest
-	Neighbours       []*Wall
-	Num              int
+	loot             []Lootable
+	shadowLoots      []Lootable
+	shadowEnemies    []*Enemy
+	shadowProvision  []Carriable
+	provision        []Carriable
+	chest            *Chest
+	neighbours       []*Wall
+	num              int
+}
+
+func (r *Room) GetPlayer() *Player {
+	return r.p
+}
+
+func (r *Room) GetEnemies() []*Enemy {
+	return r.enemies
 }
 
 /**
 FightTurn writes skills to you this way:
-Skills, that you can use on yourself
-Skills to use on each of the Enemies (so you need to keep the same Enemies array on the UI side)
-Skills that were used, in the order of them being used
+skills, that you can use on yourself
+skills to use on each of the enemies (so you need to keep the same enemies array on the UI side)
+skills that were used, in the order of them being used
 */
 func (r *Room) FightTurn() {
-	for _, v := range *r.P.GetEffects() {
+	for _, v := range *r.p.GetEffects() {
 		v.DecreaseCD()
 	}
-	for _, en := range r.Enemies {
+	for _, en := range r.enemies {
 		for _, v := range *en.GetEffects() {
 			v.DecreaseCD()
 		}
 	}
 	skills := make([]SkillInfo, 0)
-	for _, v := range r.P.SelfSkills {
+	for _, v := range r.p.selfSkills {
 		skills = append(skills, v)
 	}
 	r.bgToUi <- skills
@@ -53,14 +61,14 @@ func (r *Room) FightTurn() {
 		fmt.Println("Prompt returned bad value: " + res)
 		return
 	}
-	chosenSelfSkill := r.P.SelfSkills[skillNum-1]
+	chosenSelfSkill := r.p.selfSkills[skillNum-1]
 
 	r.pq.Push(chosenSelfSkill)
 
-	for _, v := range r.Enemies {
+	for _, v := range r.enemies {
 
 		dmgSkills := make([]SkillInfo, 0)
-		for _, v := range r.P.DmgSkills {
+		for _, v := range r.p.dmgSkills {
 			if v.GetUses() > 0 {
 				dmgSkills = append(dmgSkills, v)
 			}
@@ -72,11 +80,11 @@ func (r *Room) FightTurn() {
 			fmt.Println("Prompt returned bad value: " + dmgSkill)
 			return
 		}
-		chosenDmgSkill := r.P.DmgSkills[dmgSkillNum-1]
+		chosenDmgSkill := r.p.dmgSkills[dmgSkillNum-1]
 		chosenDmgSkill.SetTarget(v)
 		r.pq.Push(chosenDmgSkill)
 		ensk := v.ChooseSkill()
-		ensk.SetTarget(r.P)
+		ensk.SetTarget(r.p)
 		r.pq.Push(ensk)
 	}
 	skillsUsed := make([]SkillInfo, 0)
@@ -94,49 +102,49 @@ func (r *Room) FightTurn() {
 		}
 	}
 	r.bgToUi <- skillsUsed
-	for _, v := range r.P.DmgSkills {
+	for _, v := range r.p.dmgSkills {
 		v.Reset()
 	}
-	RemoveExpiredEffects(r.P)
-	for _, en := range r.Enemies {
+	RemoveExpiredEffects(r.p)
+	for _, en := range r.enemies {
 		RemoveExpiredEffects(en)
 	}
 	RemoveDeadEnemies(r)
 }
 
 func (r *Room) Init(enemies []*Enemy, bgToUi chan []SkillInfo, uiToBg chan string, confirm chan bool, num int) {
-	r.Enemies = enemies
-	r.Defeated = make([]*Enemy, 0)
-	r.ShadowEnemies = make([]*Enemy, 0)
+	r.enemies = enemies
+	r.defeated = make([]*Enemy, 0)
+	r.shadowEnemies = make([]*Enemy, 0)
 	r.uiToBg = uiToBg
 	r.bgToUi = bgToUi
 	r.confirm = confirm
-	r.Neighbours = make([]*Wall, 0)
+	r.neighbours = make([]*Wall, 0)
 	for i := 0; i < 4; i++ {
-		r.Neighbours = append(r.Neighbours, new(Wall))
+		r.neighbours = append(r.neighbours, new(Wall))
 	}
-	r.Num = num
+	r.num = num
 }
 
 func (r *Room) StartFight() (int, []Carriable) {
-	for len(r.Enemies) > 0 && r.P.CurMentHP > 0 && r.P.CurPhysHP > 0 {
+	for len(r.enemies) > 0 && r.p.curMentHP > 0 && r.p.curPhysHP > 0 {
 		r.FightTurn()
 	}
-	if r.P.IsAlive() {
+	if r.p.IsAlive() {
 		totalMoney := 0
 		totalProvision := make([]Carriable, 0)
-		for _, v := range r.Defeated {
+		for _, v := range r.defeated {
 			totalMoney += v.GetMoney()
 			totalProvision = append(totalProvision, v.GetProvision()...)
 		}
-		r.Defeated = make([]*Enemy, 0)
+		r.defeated = make([]*Enemy, 0)
 		defer func() {
 			r.confirm <- true
 		}()
 		return totalMoney, totalProvision
 	}
 	defer func() { r.confirm <- false }()
-	//Inform(fmt.Sprintf("Your HP: %d", r.P.CurPhysHP))
+	//Inform(fmt.Sprintf("Your hp: %d", r.p.curPhysHP))
 	return 0, make([]Carriable, 0)
 }
 
@@ -146,34 +154,34 @@ func (r *Room) GetValues() (int, []Carriable) {
 
 func (r *Room) GetMoney() int {
 	total := 0
-	for _, v := range r.Loot {
+	for _, v := range r.loot {
 		total += v.GetValue()
 	}
-	r.Loot = make([]Lootable, 0)
+	r.loot = make([]Lootable, 0)
 	return total
 }
 
 func (r *Room) GetLoot() []Carriable {
-	res := r.Provision
-	r.Provision = make([]Carriable, 0)
+	res := r.provision
+	r.provision = make([]Carriable, 0)
 	return res
 }
 
 func (r *Room) HasChest() bool {
-	return r.Chest != nil
+	return r.chest != nil
 }
 
 func (r *Room) HasEnemies() bool {
-	return len(r.Enemies) > 0
+	return len(r.enemies) > 0
 }
 
 func (r *Room) HasShadowEnemies() bool {
-	return len(r.ShadowEnemies) > 0
+	return len(r.shadowEnemies) > 0
 }
 
 func (r *Room) UnlockChest() (int, []Carriable) {
-	if r.Chest != nil {
-		return r.Chest.GetMoney(), r.Chest.GetValuables()
+	if r.chest != nil {
+		return r.chest.GetMoney(), r.chest.GetValuables()
 	}
 	return 0, make([]Carriable, 0)
 }
@@ -181,23 +189,35 @@ func (r *Room) UnlockChest() (int, []Carriable) {
 func (r *Room) Light() (int, []Carriable) {
 	totalMoney := 0
 	totalProvision := make([]Carriable, 0)
-	if len(r.ShadowEnemies) > 0 {
-		r.Enemies = r.ShadowEnemies
+	if len(r.shadowEnemies) > 0 {
+		r.enemies = r.shadowEnemies
 		money, prov := r.StartFight()
 		totalMoney += money
 		totalProvision = append(totalProvision, prov...)
 	}
-	for _, v := range r.ShadowLoot {
+	for _, v := range r.shadowLoots {
 		totalMoney += v.GetValue()
 	}
-	totalProvision = append(totalProvision, r.ShadowProvision...)
+	totalProvision = append(totalProvision, r.shadowProvision...)
 	return totalMoney, totalProvision
 }
 
 func (r *Room) GetNeighbours() []*Wall {
-	return r.Neighbours
+	return r.neighbours
 }
 
 func (r *Room) GetChannels() (chan string, chan []SkillInfo, chan bool) {
 	return r.uiToBg, r.bgToUi, r.confirm
+}
+
+func (r *Room) AddLoot(lootable Lootable) {
+	r.loot = append(r.loot, lootable)
+}
+
+func (r *Room) SetChest(chest *Chest) {
+	r.chest = chest
+}
+
+func (r *Room) AddShadowLoot(lootable Lootable) {
+	r.shadowLoots = append(r.shadowLoots, lootable)
 }

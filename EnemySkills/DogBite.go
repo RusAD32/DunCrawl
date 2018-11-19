@@ -3,54 +3,54 @@ package EnemySkills
 import . "../Interfaces"
 
 type DogBite struct {
-	BaseDmg int
-	Speed   int
-	Name    string
-	Wielder Unit
-	Target  Unit
-	Res     string
+	baseDmg int
+	speed   int
+	name    string
+	wielder Unit
+	target  Unit
+	res     string
 }
 
 func (b *DogBite) GetRes() string {
-	return b.Res
+	return b.res
 }
 
 func (b *DogBite) ApplyVoid(res string) {
-	b.Res = res
+	b.res = res
 }
 
 func (b *DogBite) SetTarget(player Unit) {
-	b.Target = player
+	b.target = player
 }
 
 func (b *DogBite) GetTarget() Unit {
-	return b.Target
+	return b.target
 }
 
 func (b *DogBite) GetWielder() Unit {
-	return b.Wielder
+	return b.wielder
 }
 
 func (b *DogBite) GetSpeed() int {
-	return b.Speed
+	return b.speed
 }
 
 func (b *DogBite) GetName() string {
-	return b.Name
+	return b.name
 }
 
 func (b *DogBite) Init(enemy Unit) Skill {
-	b.BaseDmg = 5
-	b.Speed = 6
-	b.Name = "Bite"
-	b.Wielder = enemy
-	b.Res = ""
+	b.baseDmg = 5
+	b.speed = 6
+	b.name = "Bite"
+	b.wielder = enemy
+	b.res = ""
 	return b
 }
 
 func (b *DogBite) Apply(r *Room) string {
-	if b.Wielder.GetHP() > 0 {
-		b.Res = DealDamage(b.Wielder, b.Target, b.BaseDmg)
+	if b.wielder.GetHP() > 0 {
+		b.res = DealDamage(b.wielder, b.target, b.baseDmg)
 	}
-	return b.Res
+	return b.res
 }

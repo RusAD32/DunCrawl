@@ -27,32 +27,48 @@ var SlotNames = map[Slot]string{
 }
 
 type Equippable struct {
-	AvailableSlots []Slot
-	Name           string
-	Defence        int
-	Attack         int
-	StatsBoost     map[Stat]int
-	Effects        []Effect
-	Triggerables   []Triggerable
+	availableSlots []Slot
+	name           string
+	defence        int
+	attack         int
+	statsBoosts    map[Stat]int
+	effects        []Effect
+	triggerables   []Triggerable
+}
+
+func (e *Equippable) Init(availableSlots []Slot, name string, defence, attack int, statsBoosts map[Stat]int, effects []Effect, triggerables []Triggerable) *Equippable {
+	//e := new(Equippable)
+	e.availableSlots = availableSlots
+	e.name = name
+	e.defence = defence
+	e.attack = attack
+	e.statsBoosts = statsBoosts
+	e.effects = effects
+	e.triggerables = triggerables
+	return e
+}
+
+func (e *Equippable) GetAttack() int {
+	return e.attack
 }
 
 func (e Equippable) GetName() string {
-	return e.Name
+	return e.name
 }
 
 func (e Equippable) Use(p *Player, values ...interface{}) {
-	length := len(e.AvailableSlots)
+	length := len(e.availableSlots)
 	if len(values) > 0 {
 		slotNum := values[0].(int)
 		if length > 1 {
 			prompt := "Choose where to equip:\n"
-			for i, v := range e.AvailableSlots {
+			for i, v := range e.availableSlots {
 				prompt += fmt.Sprintf("%d: %s\n", i+1, SlotNames[v])
 			}
-			p.Equipment[e.AvailableSlots[slotNum]] = e
+			p.equipment[e.availableSlots[slotNum]] = e
 
 		} else if length == 1 {
-			p.Equipment[e.AvailableSlots[0]] = e
+			p.equipment[e.availableSlots[0]] = e
 		}
 	}
 }

@@ -1,6 +1,7 @@
 package Interfaces
 
 import (
+	"fmt"
 	"strconv"
 )
 
@@ -71,14 +72,46 @@ func FindEffect(unit Unit, id EffectID) bool {
 
 func RemoveDeadEnemies(r *Room) {
 	numToRemove := make([]int, 0)
-	for i, x := range r.Enemies {
+	for i, x := range r.enemies {
 		if x.GetHP() == 0 {
 			numToRemove = append(numToRemove, i-len(numToRemove))
 		}
 	}
 	for _, i := range numToRemove {
-		r.Defeated = append(r.Defeated, r.Enemies[i])
-		r.Enemies[i] = nil
-		r.Enemies = append(r.Enemies[:i], r.Enemies[i+1:]...)
+		r.defeated = append(r.defeated, r.enemies[i])
+		r.enemies[i] = nil
+		r.enemies = append(r.enemies[:i], r.enemies[i+1:]...)
+	}
+}
+
+func GetDefaultPlayer() Player {
+	return Player{
+		stats:           map[Stat]int{},
+		equipment:       map[Slot]Equippable{},
+		inventory:       []Carriable{},
+		dmgSkills:       []PlayerDmgSkill{},
+		selfSkills:      []PlayerSelfSkill{},
+		effects:         []Effect{},
+		dmgTakenTrigger: TriggerInit(),
+		curPhysHP:       100,
+		maxPhysHP:       100,
+		lvl:             1,
+		exp:             0,
+		curMentHP:       100,
+		maxMentHP:       100,
+	}
+}
+
+func GetDefaultEnemy(index int) Enemy {
+	return Enemy{
+		enemyType:       Animal,
+		name:            fmt.Sprintf("Rabid dog %d", index),
+		skills:          []EnemySkill{},
+		effects:         []Effect{},
+		equipment:       []Equippable{},
+		dmgTakenTrigger: TriggerInit(),
+		aiLevel:         Usual,
+		curHP:           15,
+		maxHP:           15,
 	}
 }

@@ -6,72 +6,72 @@ import (
 )
 
 type Heal struct {
-	HP       int
-	Lvl      int
-	MaxLvl   int
-	CurExp   int
-	LvlupExp []int
-	Speed    int
-	Name     string
-	Wielder  Unit
-	Res      string
+	hp       int
+	lvl      int
+	maxLvl   int
+	curExp   int
+	lvlupExp []int
+	speed    int
+	name     string
+	wielder  Unit
+	res      string
 }
 
 func (h *Heal) GetRes() string {
-	return h.Res
+	return h.res
 }
 
 func (h *Heal) ApplyVoid(res string) {
-	h.Res = res
+	h.res = res
 }
 
 func (h *Heal) GetTarget() Unit {
-	return h.Wielder
+	return h.wielder
 }
 
 func (h *Heal) Apply(r *Room) string {
-	h.Res = HealthUp(h.Wielder, h.Wielder, h.HP)
-	return h.Res
+	h.res = HealthUp(h.wielder, h.wielder, h.hp)
+	return h.res
 }
 
 func (h *Heal) GetWielder() Unit {
-	return h.Wielder
+	return h.wielder
 }
 
 func (h *Heal) GetSpeed() int {
-	return h.Speed
+	return h.speed
 }
 
 func (h *Heal) GetName() string {
-	return h.Name
+	return h.name
 }
 
 func (h *Heal) Init(player Unit) Skill {
-	h.HP = 8
-	h.Lvl = 1
-	h.CurExp = 0
-	h.MaxLvl = 3
-	h.LvlupExp = []int{1, 4}
-	h.Speed = 3
-	h.Name = "Heal"
-	h.Wielder = player
+	h.hp = 8
+	h.lvl = 1
+	h.curExp = 0
+	h.maxLvl = 3
+	h.lvlupExp = []int{1, 4}
+	h.speed = 3
+	h.name = "Heal"
+	h.wielder = player
 	return h
 }
 
 func (h *Heal) LvlUp() {
-	if h.Lvl < h.MaxLvl && h.CurExp >= h.LvlupExp[h.Lvl-1] {
-		h.CurExp -= h.LvlupExp[h.Lvl+1]
-		h.Lvl++
-		h.HP = int(h.HP * 3 / 2) // Why won't you multiply by 1.5?
+	if h.lvl < h.maxLvl && h.curExp >= h.lvlupExp[h.lvl-1] {
+		h.curExp -= h.lvlupExp[h.lvl+1]
+		h.lvl++
+		h.hp = int(h.hp * 3 / 2) // Why won't you multiply by 1.5?
 	} else {
-		fmt.Sprintln("Error: Requirements for levelling up skill %s not met", h.Name)
+		fmt.Sprintln("Error: Requirements for levelling up skill %s not met", h.name)
 	}
 }
 
 func (h *Heal) AddExp(amount int) {
-	if h.Lvl < h.MaxLvl {
-		h.CurExp += amount
-		if h.CurExp > h.LvlupExp[h.Lvl-1] {
+	if h.lvl < h.maxLvl {
+		h.curExp += amount
+		if h.curExp > h.lvlupExp[h.lvl-1] {
 			h.LvlUp()
 		}
 	}

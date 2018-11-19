@@ -7,73 +7,73 @@ import (
 )
 
 type Counter struct {
-	HP       int
-	Lvl      int
-	MaxLvl   int
-	CurExp   int
-	LvlupExp []int
-	Speed    int
-	Name     string
-	Wielder  Unit
-	Res      string
+	hp       int
+	lvl      int
+	maxLvl   int
+	curExp   int
+	lvlupExp []int
+	speed    int
+	name     string
+	wielder  Unit
+	res      string
 }
 
 func (c *Counter) GetRes() string {
-	return c.Res
+	return c.res
 }
 
 func (c *Counter) ApplyVoid(res string) {
-	c.Res = res
+	c.res = res
 }
 
 func (c *Counter) GetTarget() Unit {
-	return c.Wielder
+	return c.wielder
 }
 
 func (c *Counter) Apply(r *Room) string {
 	cntr := Counterattack{}
-	c.Wielder.AddDamageTriggerable(cntr.Init(3, 4, c.Wielder))
-	c.Res = "Counter"
-	return c.Res
+	c.wielder.AddDamageTriggerable(cntr.Init(3, 4, c.wielder))
+	c.res = "Counter"
+	return c.res
 }
 
 func (c *Counter) GetWielder() Unit {
-	return c.Wielder
+	return c.wielder
 }
 
 func (c *Counter) GetSpeed() int {
-	return c.Speed
+	return c.speed
 }
 
 func (c *Counter) GetName() string {
-	return c.Name
+	return c.name
 }
 
 func (c *Counter) Init(player Unit) Skill {
-	c.Lvl = 1
-	c.CurExp = 0
-	c.MaxLvl = 3
-	c.LvlupExp = []int{1, 4}
-	c.Speed = 9
-	c.Name = "Counter"
-	c.Wielder = player
+	c.lvl = 1
+	c.curExp = 0
+	c.maxLvl = 3
+	c.lvlupExp = []int{1, 4}
+	c.speed = 9
+	c.name = "Counter"
+	c.wielder = player
 	return c
 }
 
 func (c *Counter) LvlUp() {
-	if c.Lvl < c.MaxLvl && c.CurExp >= c.LvlupExp[c.Lvl-1] {
-		c.CurExp -= c.LvlupExp[c.Lvl+1]
-		c.Lvl++
-		c.HP = int(c.HP * 3 / 2) // Why won't you multiply by 1.5?
+	if c.lvl < c.maxLvl && c.curExp >= c.lvlupExp[c.lvl-1] {
+		c.curExp -= c.lvlupExp[c.lvl+1]
+		c.lvl++
+		c.hp = int(c.hp * 3 / 2) // Why won't you multiply by 1.5?
 	} else {
-		fmt.Sprintln("Error: Requirements for levelling up skill %s not met", c.Name)
+		fmt.Sprintln("Error: Requirements for levelling up skill %s not met", c.name)
 	}
 }
 
 func (c *Counter) AddExp(amount int) {
-	if c.Lvl < c.MaxLvl {
-		c.CurExp += amount
-		if c.CurExp > c.LvlupExp[c.Lvl-1] {
+	if c.lvl < c.maxLvl {
+		c.curExp += amount
+		if c.curExp > c.lvlupExp[c.lvl-1] {
 			c.LvlUp()
 		}
 	}

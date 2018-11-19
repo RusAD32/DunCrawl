@@ -14,7 +14,7 @@ const (
 
 var commands = []string{LIGHT_CMD, CHEST_CMD, GOTO_CMD}
 
-func TextFight( /*p *Player, enemies []*Enemy*/ r *Room) {
+func TextFight( /*p *Player, enemies []*Enemy*/ r Room) {
 	/*r := Room{}
 	uiToBg := make(chan string)
 	bgToUi := make(chan []SkillInfo)
@@ -39,13 +39,13 @@ func TextFight( /*p *Player, enemies []*Enemy*/ r *Room) {
 					Inform("Something wrong while getting selfskills")
 					return
 				}
-				if r.P.CurPhysHP == 0 { // should work, but only theoretically. Maybe handling player death should be different?
+				if r.GetPlayer().IsAlive() { // should work, but only theoretically. Maybe handling player death should be different?
 					Inform("You died")
 					return
 				}
-				Inform(fmt.Sprintf("Your HP: %d/%d\n", r.P.CurPhysHP, r.P.MaxPhysHP))
-				for _, v := range r.Enemies {
-					Inform(fmt.Sprintf("%s's HP: %d/%d\n", v.Name, v.CurHP, v.MaxHP))
+				Inform(fmt.Sprintf("Your hp: %d/%d\n", r.GetPlayer().GetCurHP(), r.GetPlayer().GetMaxHP()))
+				for _, v := range r.GetEnemies() {
+					Inform(fmt.Sprintf("%s's hp: %d/%d\n", v.GetName(), v.GetCurHP(), v.GetMaxHP()))
 				}
 				prompt := "Choose a skill to use on yourself\n"
 				for i, v := range selfSkills {
@@ -58,20 +58,20 @@ func TextFight( /*p *Player, enemies []*Enemy*/ r *Room) {
 				}
 				uiToBg <- res[:1]
 				Inform("Select a skill to use on each enemy\n")
-				for _, v := range r.Enemies {
+				for _, v := range r.GetEnemies() {
 					dmgSkills, ok := <-bgToUi
 					if !ok {
 						Inform("The turn ended in the middle!!")
 						return // Не должно!!!
 					}
-					Inform(fmt.Sprintf("%s. HP: %d/%d\n", v.Name, v.CurHP, v.MaxHP))
+					Inform(fmt.Sprintf("%s. hp: %d/%d\n", v.GetName(), v.GetCurHP(), v.GetMaxHP()))
 					info := "Your skills:\n"
 					for i, sk := range dmgSkills {
 						// this is not quite safe, but __should__ work
 						info += fmt.Sprintf("%d. %s (uses left: %d)\n", i+1, sk.GetName(), sk.(PlayerDmgSkill).GetUses())
 					}
 					Inform(info)
-					dmgSkill, _ := Prompt(v.Name+": ", MakeStrRange(1, len(dmgSkills)))
+					dmgSkill, _ := Prompt(v.GetName()+": ", MakeStrRange(1, len(dmgSkills)))
 					if dmgSkill == "" {
 						Inform("Prompt returned empty string, dmgskill")
 					}
@@ -112,14 +112,14 @@ func TextFight( /*p *Player, enemies []*Enemy*/ r *Room) {
 
 func EnterLabyrinth(l *Labyrinth) { //TODO выводить номера комнат, в которые можно перейти, протестить
 	next := 0
-	events := l.EventsChannel
+	events := l.GetEventsChan()
 	for next >= 0 {
 		var money int
 		var loot []Carriable
 		go func() { money, loot = l.GoToRoom(next) }()
 		f := <-events
 		if f == FightEvent {
-			TextFight(l.Current)
+			TextFight(l.GetCurrentRoom())
 			InformLoot(money, loot)
 		}
 		money, loot = l.GetValues()
@@ -133,7 +133,7 @@ func EnterLabyrinth(l *Labyrinth) { //TODO выводить номера ком�
 					go func() { money, loot = l.Light() }()
 					f = <-events
 					if f == FightEvent {
-						TextFight(l.Current)
+						TextFight(l.GetCurrentRoom())
 					}
 					InformLoot(money, loot)
 				}

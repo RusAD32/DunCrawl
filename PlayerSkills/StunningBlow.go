@@ -8,109 +8,109 @@ import (
 )
 
 type StunningBlow struct {
-	Name       string
-	BaseDMG    int
-	Lvl        int
-	MaxLvl     int
-	CurExp     int
-	Speed      int
-	Uses       int
-	LvlupExp   []int
-	Wielder    Unit
-	Targets    []Unit
-	LastTarget Unit
-	Res        []string
+	name       string
+	baseDMG    int
+	lvl        int
+	maxLvl     int
+	curExp     int
+	speed      int
+	uses       int
+	lvlupExps  []int
+	wielder    Unit
+	targets    []Unit
+	lastTarget Unit
+	res        []string
 }
 
 func (s *StunningBlow) GetRes() string {
-	res := s.Res[0]
-	s.Res = s.Res[1:]
+	res := s.res[0]
+	s.res = s.res[1:]
 	return res
 }
 
 func (s *StunningBlow) ApplyVoid(res string) {
-	s.LastTarget = s.Targets[0]
-	s.Targets = s.Targets[1:]
-	s.Res = append(s.Res, res)
+	s.lastTarget = s.targets[0]
+	s.targets = s.targets[1:]
+	s.res = append(s.res, res)
 }
 
 func (s *StunningBlow) Reset() {
-	s.Uses = 2
+	s.uses = 2
 }
 
 func (s *StunningBlow) GetTarget() Unit {
-	return s.LastTarget
+	return s.lastTarget
 }
 
 func (s *StunningBlow) GetWielder() Unit {
-	return s.Wielder
+	return s.wielder
 }
 
 func (s *StunningBlow) SetTarget(enemy Unit) {
-	s.Uses--
-	if s.LastTarget == nil {
-		s.LastTarget = enemy
+	s.uses--
+	if s.lastTarget == nil {
+		s.lastTarget = enemy
 	}
-	s.Targets = append(s.Targets, enemy)
+	s.targets = append(s.targets, enemy)
 }
 
 func (s *StunningBlow) Apply(r *Room) string {
 	equipDmg := 0
-	for _, v := range s.Wielder.(*Player).Equipment {
-		equipDmg += v.Attack
+	for _, v := range s.wielder.(*Player).GetEquipment() {
+		equipDmg += v.GetAttack()
 	}
-	s.LastTarget = s.Targets[0]
-	s.Targets = s.Targets[1:]
-	res := DealDamage(s.Wielder, s.LastTarget, s.BaseDMG+equipDmg)
-	s.Res = append(s.Res, res)
+	s.lastTarget = s.targets[0]
+	s.targets = s.targets[1:]
+	res := DealDamage(s.wielder, s.lastTarget, s.baseDMG+equipDmg)
+	s.res = append(s.res, res)
 	effect := (&Effects.StunEffect{}).Init()
-	AddEffect(s.LastTarget, effect)
+	AddEffect(s.lastTarget, effect)
 	return res
 }
 
 func (s *StunningBlow) GetSpeed() int {
-	return s.Speed
+	return s.speed
 }
 
 func (s *StunningBlow) GetName() string {
-	return s.Name
+	return s.name
 }
 
 func (s *StunningBlow) GetUses() int {
-	return s.Uses
+	return s.uses
 }
 
 func (s *StunningBlow) Init(player Unit) Skill {
-	s.Name = "Stunning Blow"
-	s.BaseDMG = 3
-	s.Lvl = 1
-	s.MaxLvl = 3
-	s.CurExp = 0
-	s.Speed = 5
-	s.Uses = 2
-	s.LvlupExp = make([]int, 4)
-	s.Wielder = player
-	s.Res = make([]string, 0)
-	for i := range s.LvlupExp {
-		s.LvlupExp[i] = int(math.Pow(float64(i+2), 2.0) / 3.0)
+	s.name = "Stunning Blow"
+	s.baseDMG = 3
+	s.lvl = 1
+	s.maxLvl = 3
+	s.curExp = 0
+	s.speed = 5
+	s.uses = 2
+	s.lvlupExps = make([]int, 4)
+	s.wielder = player
+	s.res = make([]string, 0)
+	for i := range s.lvlupExps {
+		s.lvlupExps[i] = int(math.Pow(float64(i+2), 2.0) / 3.0)
 	}
 	return s
 }
 
 func (s *StunningBlow) LvlUp() {
-	if s.Lvl < s.MaxLvl && s.CurExp >= s.LvlupExp[s.Lvl-1] {
-		s.CurExp -= s.LvlupExp[s.Lvl+1]
-		s.Lvl++
-		s.BaseDMG = int(math.Pow(3.0, math.Sqrt(float64(s.Lvl))))
+	if s.lvl < s.maxLvl && s.curExp >= s.lvlupExps[s.lvl-1] {
+		s.curExp -= s.lvlupExps[s.lvl+1]
+		s.lvl++
+		s.baseDMG = int(math.Pow(3.0, math.Sqrt(float64(s.lvl))))
 	} else {
-		fmt.Sprintln("Error: Requirements for levelling up skill %s not met", s.Name)
+		fmt.Sprintln("Error: Requirements for levelling up skill %s not met", s.name)
 	}
 }
 
 func (s *StunningBlow) AddExp(amount int) {
-	if s.Lvl < s.MaxLvl {
-		s.CurExp += amount
-		if s.CurExp >= s.LvlupExp[s.Lvl-1] {
+	if s.lvl < s.maxLvl {
+		s.curExp += amount
+		if s.curExp >= s.lvlupExps[s.lvl-1] {
 			s.LvlUp()
 		}
 	}

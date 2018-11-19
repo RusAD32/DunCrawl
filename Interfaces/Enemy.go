@@ -11,95 +11,103 @@ const (
 	Animal
 )
 
-type AILevel int
+type AiLevel int
 
 const (
-	Usual AILevel = iota
+	Usual AiLevel = iota
 	Miniboss
 	Boss
 )
 
 type Enemy struct {
-	Type      EnemyType
-	Name      string
-	Skills    []EnemySkill
-	Stats     map[Stat]int
-	Effects   []Effect
-	Equipment []Equippable
-	Loot      []Lootable
-	Provision []Carriable
-	AILevel
-	CurHP           int
-	MaxHP           int
-	DmgTakenTrigger *Trigger
+	enemyType       EnemyType
+	name            string
+	skills          []EnemySkill
+	stats           map[Stat]int
+	effects         []Effect
+	equipment       []Equippable
+	loot            []Lootable
+	provision       []Carriable
+	aiLevel         AiLevel
+	curHP           int
+	maxHP           int
+	dmgTakenTrigger *Trigger
+}
+
+func (e *Enemy) GetCurHP() int {
+	return e.curHP
+}
+
+func (e *Enemy) GetMaxHP() int {
+	return e.maxHP
 }
 
 func (e *Enemy) IsAlive() bool {
-	return e.CurHP > 0
+	return e.curHP > 0
 }
 
 func (e *Enemy) GetDamageTrigger() *Trigger {
-	return e.DmgTakenTrigger
+	return e.dmgTakenTrigger
 }
 
 func (e *Enemy) AddDamageTriggerable(t Triggerable) {
-	e.DmgTakenTrigger.AddEvent(t)
+	e.dmgTakenTrigger.AddEvent(t)
 }
 
 func (e *Enemy) GetHP() int {
-	return e.CurHP
+	return e.curHP
 }
 
 func (e *Enemy) GetName() string {
-	return e.Name
+	return e.name
 }
 
 func (e *Enemy) AddEffect(effect Effect) {
-	e.Effects = append(e.Effects, effect)
+	e.effects = append(e.effects, effect)
 }
 
 func (e *Enemy) ChangeHealth(damage int) int {
 	if damage < 0 { // значит, это хил
-		e.CurHP -= damage
-		if e.CurHP > e.MaxHP {
-			e.CurHP = e.MaxHP
+		e.curHP -= damage
+		if e.curHP > e.maxHP {
+			e.curHP = e.maxHP
 		}
 		return -damage
 	}
 	def := 0
-	for _, v := range e.Equipment {
-		def += v.Defence
+	for _, v := range e.equipment {
+		def += v.defence
 	}
 	if def > 80 { // ограничиваем максимальную броню 80 процентами поглощения урона
 		def = 80
 	}
 	damage -= damage * def / 100
-	e.CurHP -= damage
-	if e.CurHP < 0 {
-		e.CurHP = 0
+	e.curHP -= damage
+	if e.curHP < 0 {
+		e.curHP = 0
 	}
 	return damage
 }
 
 func (e *Enemy) GetEffects() *[]Effect {
-	return &e.Effects
+	return &e.effects
 }
 
 func (e *Enemy) ChooseSkill() EnemySkill {
-	switch e.AILevel {
+	switch e.aiLevel {
 	case Usual:
-		return e.Skills[rand.Intn(len(e.Skills))]
+		return e.skills[rand.Intn(len(e.skills))]
 	case Miniboss: //TODO write the minimap or another algorithm for their ai
 	case Boss:
 	default:
-		return e.Skills[rand.Intn(len(e.Skills))]
+		return e.skills[rand.Intn(len(e.skills))]
 	}
 	return nil
 }
 
 func (e *Enemy) GetMoney() int {
 	total := 0
-	for _, v := range e.Loot {
+	for _, v := range e.loot {
 		total += v.GetValue()
 	}
 	return total
@@ -107,11 +115,15 @@ func (e *Enemy) GetMoney() int {
 
 func (e *Enemy) GetProvision() []Carriable {
 	res := make([]Carriable, 0)
-	for _, v := range e.Equipment {
+	for _, v := range e.equipment {
 		res = append(res, v)
 	}
-	for _, v := range e.Provision {
+	for _, v := range e.provision {
 		res = append(res, v)
 	}
 	return res
+}
+
+func (e *Enemy) AddSkill(skill EnemySkill) {
+	e.skills = append(e.skills, skill)
 }

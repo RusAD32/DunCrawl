@@ -3,8 +3,8 @@ package Effects
 import . "../Interfaces"
 
 type StunEffect struct {
-	Id EffectID
-	CD int
+	id EffectID
+	cd int
 }
 
 // как должен работать стан на плеера?
@@ -18,17 +18,17 @@ type StunEffect struct {
 // Надо подумать
 // Апдейт: я тупой. Следующий скилл после получения стана. Лол.
 func (s *StunEffect) Init(values ...interface{}) Effect {
-	s.Id = Stun
+	s.id = Stun
 	if len(values) == 0 {
-		s.CD = 1
+		s.cd = 1
 	} else {
-		s.CD = values[0].(int)
+		s.cd = values[0].(int)
 	}
 	return Effect(s)
 }
 
 func (s *StunEffect) GetID() EffectID {
-	return s.Id
+	return s.id
 }
 
 func (s *StunEffect) GetAmount() int {
@@ -40,9 +40,9 @@ func (s *StunEffect) GetInfo() string {
 }
 
 func (s *StunEffect) DecreaseCD() {
-	s.CD--
+	s.cd--
 }
 
 func (s *StunEffect) GetCD() int {
-	return s.CD
+	return s.cd
 }

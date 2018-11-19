@@ -7,106 +7,106 @@ import (
 )
 
 type SimpleAttack struct {
-	Name       string
-	BaseDMG    int
-	Lvl        int
-	MaxLvl     int
-	CurExp     int
-	Speed      int
-	Uses       int
-	LvlupExp   []int
-	Wielder    Unit
-	Targets    []Unit
-	LastTarget Unit
-	Res        []string
+	name       string
+	baseDMG    int
+	lvl        int
+	maxLvl     int
+	curExp     int
+	speed      int
+	uses       int
+	lvlupExp   []int
+	wielder    Unit
+	targets    []Unit
+	lastTarget Unit
+	res        []string
 }
 
 func (s *SimpleAttack) GetRes() string {
-	res := s.Res[0]
-	s.Res = s.Res[1:]
+	res := s.res[0]
+	s.res = s.res[1:]
 	return res
 }
 
 func (s *SimpleAttack) Reset() {
-	s.Uses = 4
+	s.uses = 4
 }
 
 func (s *SimpleAttack) ApplyVoid(res string) {
-	s.LastTarget = s.Targets[0]
-	s.Targets = s.Targets[1:]
-	s.Res = append(s.Res, res)
+	s.lastTarget = s.targets[0]
+	s.targets = s.targets[1:]
+	s.res = append(s.res, res)
 }
 
 func (s *SimpleAttack) GetTarget() Unit {
-	return s.LastTarget
+	return s.lastTarget
 }
 
 func (s *SimpleAttack) GetWielder() Unit {
-	return s.Wielder
+	return s.wielder
 }
 
 func (s *SimpleAttack) SetTarget(enemy Unit) {
-	s.Uses--
-	if s.LastTarget == nil {
-		s.LastTarget = enemy
+	s.uses--
+	if s.lastTarget == nil {
+		s.lastTarget = enemy
 	}
-	s.Targets = append(s.Targets, enemy)
+	s.targets = append(s.targets, enemy)
 }
 
 func (s *SimpleAttack) Apply(r *Room) string {
 	equipDmg := 0
-	for _, v := range s.Wielder.(*Player).Equipment {
-		equipDmg += v.Attack
+	for _, v := range s.wielder.(*Player).GetEquipment() {
+		equipDmg += v.GetAttack()
 	}
-	s.LastTarget = s.Targets[0]
-	s.Targets = s.Targets[1:]
-	res := DealDamage(s.Wielder, s.LastTarget, s.BaseDMG+equipDmg)
-	s.Res = append(s.Res, res)
+	s.lastTarget = s.targets[0]
+	s.targets = s.targets[1:]
+	res := DealDamage(s.wielder, s.lastTarget, s.baseDMG+equipDmg)
+	s.res = append(s.res, res)
 	return res
 }
 
 func (s *SimpleAttack) GetSpeed() int {
-	return s.Speed
+	return s.speed
 }
 
 func (s *SimpleAttack) GetName() string {
-	return s.Name
+	return s.name
 }
 
 func (s *SimpleAttack) GetUses() int {
-	return s.Uses
+	return s.uses
 }
 
 func (s *SimpleAttack) Init(player Unit) Skill {
-	s.Name = "Simple Attack"
-	s.BaseDMG = 5
-	s.Lvl = 1
-	s.MaxLvl = 5
-	s.CurExp = 0
-	s.Speed = 7
-	s.Uses = 4
-	s.LvlupExp = make([]int, 4)
-	s.Wielder = player
-	for i := range s.LvlupExp {
-		s.LvlupExp[i] = int(math.Pow(float64(i+2), 2.0) / 4.0)
+	s.name = "Simple attack"
+	s.baseDMG = 5
+	s.lvl = 1
+	s.maxLvl = 5
+	s.curExp = 0
+	s.speed = 7
+	s.uses = 4
+	s.lvlupExp = make([]int, 4)
+	s.wielder = player
+	for i := range s.lvlupExp {
+		s.lvlupExp[i] = int(math.Pow(float64(i+2), 2.0) / 4.0)
 	}
 	return s
 }
 
 func (s *SimpleAttack) LvlUp() {
-	if s.Lvl < s.MaxLvl && s.CurExp >= s.LvlupExp[s.Lvl-1] {
-		s.CurExp -= s.LvlupExp[s.Lvl+1]
-		s.Lvl++
-		s.BaseDMG = int(math.Pow(5.0, math.Sqrt(float64(s.Lvl))))
+	if s.lvl < s.maxLvl && s.curExp >= s.lvlupExp[s.lvl-1] {
+		s.curExp -= s.lvlupExp[s.lvl+1]
+		s.lvl++
+		s.baseDMG = int(math.Pow(5.0, math.Sqrt(float64(s.lvl))))
 	} else {
-		fmt.Sprintln("Error: Requirements for levelling up skill %s not met", s.Name)
+		fmt.Sprintln("Error: Requirements for levelling up skill %s not met", s.name)
 	}
 }
 
 func (s *SimpleAttack) AddExp(amount int) {
-	if s.Lvl < s.MaxLvl {
-		s.CurExp += amount
-		if s.CurExp >= s.LvlupExp[s.Lvl-1] {
+	if s.lvl < s.maxLvl {
+		s.curExp += amount
+		if s.curExp >= s.lvlupExp[s.lvl-1] {
 			s.LvlUp()
 		}
 	}
