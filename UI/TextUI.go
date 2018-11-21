@@ -3,14 +3,24 @@ package UI
 import (
 	. "../Interfaces"
 	"fmt"
-	"strconv"
 )
 
 const (
 	LIGHT_CMD = "light"
 	CHEST_CMD = "chest"
 	GOTO_CMD  = "goto"
+	LEFT_CMD  = "left"
+	UP_CMD    = "up"
+	RIGHT_CMD = "right"
+	BACK_CMD  = "back"
 )
+
+var directionMap = map[string]Direction{
+	LEFT_CMD:  Left,
+	UP_CMD:    Up,
+	RIGHT_CMD: Right,
+	BACK_CMD:  Down,
+}
 
 var commands = []string{LIGHT_CMD, CHEST_CMD, GOTO_CMD}
 
@@ -39,8 +49,8 @@ func TextFight( /*p *Player, enemies []*Enemy*/ r Room) {
 					Inform("Something wrong while getting selfskills")
 					return
 				}
-				if r.GetPlayer().IsAlive() { // should work, but only theoretically. Maybe handling player death should be different?
-					Inform("You died")
+				if !r.GetPlayer().IsAlive() { // should work, but only theoretically. Maybe handling player death should be different?
+					Inform("You died\n")
 					return
 				}
 				Inform(fmt.Sprintf("Your hp: %d/%d\n", r.GetPlayer().GetCurHP(), r.GetPlayer().GetMaxHP()))
@@ -111,7 +121,7 @@ func TextFight( /*p *Player, enemies []*Enemy*/ r Room) {
 }
 
 func EnterLabyrinth(l *Labyrinth) { //TODO выводить номера комнат, в которые можно перейти, протестить
-	next := 0
+	next := Up
 	events := l.GetEventsChan()
 	for next >= 0 {
 		var money int
@@ -146,13 +156,15 @@ func EnterLabyrinth(l *Labyrinth) { //TODO выводить номера ком�
 				{
 					rooms := l.GetNeighbours()
 					Inform("Which room?\n")
-					nums := make([]string, 0)
+					directions := make([]string, 0)
 					for k, v := range rooms {
-						Inform(fmt.Sprintf("%s: %d\n", k, v))
-						nums = append(nums, strconv.Itoa(v))
+						if v {
+							Inform(k + "\n")
+							directions = append(directions, k)
+						}
 					}
-					v, _ := Prompt("", nums)
-					next, _ = strconv.Atoi(v)
+					v, _ := Prompt("", directions)
+					next = directionMap[v]
 					stayHere = false
 				}
 			default:

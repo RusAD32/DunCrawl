@@ -33,3 +33,11 @@ func (c *Chest) GetValuables() []Carriable {
 	c.usefulLoot = make([]Carriable, 0)
 	return res
 }
+
+func GetDefaultChest() *Chest {
+	return &Chest{
+		nil,
+		[]Lootable{GenerateLootable("Different stuff", 40)},
+		make([]Carriable, 0),
+	}
+}

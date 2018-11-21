@@ -11,9 +11,9 @@ type Direction int
 
 const (
 	Left Direction = iota
-	Down
-	Right
 	Up
+	Right
+	Down
 )
 
 var DirToStr = map[Direction]string{

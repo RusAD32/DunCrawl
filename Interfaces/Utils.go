@@ -84,8 +84,8 @@ func RemoveDeadEnemies(r *Room) {
 	}
 }
 
-func GetDefaultPlayer() Player {
-	return Player{
+func GetDefaultPlayer() *Player {
+	return &Player{
 		stats:           map[Stat]int{},
 		equipment:       map[Slot]Equippable{},
 		inventory:       []Carriable{},
@@ -102,8 +102,8 @@ func GetDefaultPlayer() Player {
 	}
 }
 
-func GetDefaultEnemy(index int) Enemy {
-	return Enemy{
+func GetDefaultEnemy(index int) *Enemy {
+	return &Enemy{
 		enemyType:       Animal,
 		name:            fmt.Sprintf("Rabid dog %d", index),
 		skills:          []EnemySkill{},
