@@ -6,9 +6,10 @@ import (
 	. "./Interfaces"
 	"./PlayerSkills"
 	"./UI"
+	"fmt"
 )
 
-func main() {
+func walkTest() {
 	p := GetDefaultPlayer()
 	h := Hatchet{}
 	h.Init()
@@ -42,7 +43,7 @@ func main() {
 	uiToBg := make(chan string)
 	bgToUi := make(chan []SkillInfo)
 	confirm := make(chan bool)
-	events := make(chan Event)
+	//events := make(chan Event)
 	r.Init([]*Enemy{}, bgToUi, uiToBg, confirm)
 	r2 := Room{}
 	r2.Init(make([]*Enemy, 0), bgToUi, uiToBg, confirm)
@@ -50,12 +51,36 @@ func main() {
 	ch := GetDefaultChest()
 	r2.SetChest(ch)
 	r.AddShadowLoot(GenerateLootable("Other stuff", 200))
-	l := Labyrinth{}
-	rooms := make([]*Room, 2)
+	l := GenerateLabyrinth(7, 7)
+	/*rooms := make([]*Room, 2)
 	rooms[0] = &r
 	rooms[1] = &r2
 	ConnectRooms(&r, &r2, Left)
-	l.Init(p, rooms, confirm, bgToUi, uiToBg, events)
+	l.Init(p, rooms, confirm, bgToUi, uiToBg, events)*/
 	//	UI.TextFight(&r)
 	UI.EnterLabyrinth(&l)
+}
+
+func labGenTest() {
+	for j := 10; j < 20; j++ {
+		avails := 0
+		min := j * j
+		max := 0
+		for i := 0; i < 1000; i++ {
+			l := GenerateLabyrinth(j, j)
+			r := PrintLab(l)
+			if r < min {
+				min = r
+			}
+			if r > max {
+				max = r
+			}
+			avails += r
+		}
+		fmt.Println(min, max, avails/1000)
+	}
+}
+
+func main() {
+	walkTest()
 }

@@ -3,6 +3,8 @@ package UI
 import (
 	. "../Interfaces"
 	"fmt"
+	"strconv"
+	"strings"
 )
 
 const (
@@ -132,6 +134,7 @@ func EnterLabyrinth(l *Labyrinth) { //TODO выводить номера ком�
 			TextFight(l.GetCurrentRoom())
 			InformLoot(money, loot)
 		}
+		fmt.Println(l.GetCurrentRoom().Num)
 		money, loot = l.GetValues()
 		InformLoot(money, loot)
 		stayHere := true
@@ -158,13 +161,17 @@ func EnterLabyrinth(l *Labyrinth) { //TODO выводить номера ком�
 					Inform("Which room?\n")
 					directions := make([]string, 0)
 					for k, v := range rooms {
-						if v {
-							Inform(k + "\n")
+						if v != 0 {
+							Inform(k + " " + strconv.Itoa(v) + "\n")
 							directions = append(directions, k)
 						}
 					}
 					v, _ := Prompt("", directions)
-					next = directionMap[v]
+					_next, ok := directionMap[strings.ToLower(v)]
+					if !ok {
+						panic(next)
+					}
+					next = _next
 					stayHere = false
 				}
 			default:

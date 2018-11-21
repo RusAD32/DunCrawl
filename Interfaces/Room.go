@@ -23,6 +23,10 @@ type Room struct {
 	provision        []Carriable
 	chest            *Chest
 	neighbours       []*Wall
+
+	DistFromCenter int
+	pathNum        int
+	Num            int
 }
 
 func (r *Room) GetPlayer() *Player {
