@@ -1,7 +1,5 @@
 package Interfaces
 
-import "fmt"
-
 type Event int
 
 const (
@@ -36,21 +34,12 @@ func (l *Labyrinth) Init(p *Player, rooms []*Room, fightConfirm chan bool, fight
 }
 
 func (l *Labyrinth) GoToRoom(direction Direction) (int, []Carriable) {
-	fmt.Println("goto", direction, " ")
 	if l.current == nil {
 		l.current = l.rooms[l.startingRoomNum]
 	} else if int(direction) >= 0 {
 		l.current.p = nil
-		fmt.Print((int(direction)+l.previous+1)%4, " ")
-		fmt.Print(l.previous, "->")
 		l.current = l.current.GetNeighbours()[(int(direction)+l.previous+1)%4].leadsTo
 		l.previous = (l.previous + int(direction) + 3) % len(l.current.neighbours)
-		fmt.Println(l.previous)
-	}
-	for i, v := range l.current.neighbours {
-		if v.CanGoThrough() {
-			fmt.Println(i, v.leadsTo.Num)
-		}
 	}
 	l.current.p = l.p
 	if l.current.HasEnemies() {

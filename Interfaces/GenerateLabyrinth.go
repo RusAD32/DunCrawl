@@ -38,7 +38,8 @@ func GenerateLabyrinth(length, width int) Labyrinth {
 	for i, v := range []int{0, length - 1, (width - 1) * length, width*length - 1} {
 		markPath(lab.rooms[v], i+1)
 	}
-	//dfsCloseDoors(lab.current)
+	lab.current.pathNum = -1
+	dfsCloseDoors(lab.current)
 	/*for _, v := range lab.rooms {
 		for i, w := range v.neighbours {
 			if w.CanGoThrough() && v.pathNum != w.leadsTo.pathNum && v != lab.current && w.leadsTo != lab.current && rand.Float32() < 0.35 {
@@ -80,7 +81,7 @@ func dfsCloseDoors(room *Room) {
 	locked := 0
 	for i, v := range room.GetNeighbours() {
 		if v.CanGoThrough() {
-			if locked < 3 && (room.pathNum == v.GetNextDoor().pathNum && rand.Float32() < 0.1 || rand.Float32() < 0.6) {
+			if !v.GetNextDoor().seenInDfs && room.pathNum != -1 && locked < 3 && (room.pathNum == v.GetNextDoor().pathNum && rand.Float32() < 0.1 || rand.Float32() < 0.6) {
 				locked++
 				LockRooms(room, v.GetNextDoor(), i)
 			} else if !v.GetNextDoor().seenInDfs {
@@ -122,11 +123,3 @@ func PrintLab(l Labyrinth) int {
 	}
 	return availRooms
 }
-
-/*
-4 0 0 0 0
-3 0 0 0 0
-2 1 0 0 0
-3 2 1 0 0
-4 3 2 3 4
-*/
