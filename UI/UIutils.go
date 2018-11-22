@@ -27,7 +27,7 @@ func Prompt(message string, reqInput []string) (string, string) {
 		for _, v := range reqInput {
 			length := len(v)
 			//fmt.Println(text, text[:length], v, text[:length] == v, len(text) >= length)
-			if len(text) >= length && text[:length] == v {
+			if len(text) >= length && strings.ToLower(text[:length]) == strings.ToLower(v) {
 				return v, strings.TrimSpace(text)
 			}
 		}

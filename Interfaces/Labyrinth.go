@@ -17,7 +17,7 @@ type Labyrinth struct {
 	rooms            []*Room
 	startingRoomNum  int
 	current          *Room
-	previous         *Room
+	previous         int
 	fightConfirmChan chan bool
 	fightBgToUi      chan []SkillInfo
 	fightUiToBg      chan string
@@ -36,20 +36,16 @@ func (l *Labyrinth) Init(p *Player, rooms []*Room, fightConfirm chan bool, fight
 }
 
 func (l *Labyrinth) GoToRoom(direction Direction) (int, []Carriable) {
+	fmt.Println("goto", direction, " ")
 	if l.current == nil {
 		l.current = l.rooms[l.startingRoomNum]
-	} else {
-		/*prevNeighbourNum := 0
-		if l.previous != nil {
-			for i, v := range l.current.GetNeighbours() {
-				if v.leadsTo == l.previous {
-					prevNeighbourNum = i
-				}
-			}
-		}*/
-		l.previous = l.current
+	} else if int(direction) >= 0 {
 		l.current.p = nil
-		l.current = l.current.GetNeighbours()[int(direction)].leadsTo
+		fmt.Print((int(direction)+l.previous+1)%4, " ")
+		fmt.Print(l.previous, "->")
+		l.current = l.current.GetNeighbours()[(int(direction)+l.previous+1)%4].leadsTo
+		l.previous = (l.previous + int(direction) + 3) % len(l.current.neighbours)
+		fmt.Println(l.previous)
 	}
 	for i, v := range l.current.neighbours {
 		if v.CanGoThrough() {
@@ -87,7 +83,7 @@ func (l *Labyrinth) GetNeighbours() map[string]int {
 	res := make(map[string]int, 0)
 	for i, v := range l.current.GetNeighbours() {
 		if v.CanGoThrough() {
-			res[DirToStr[Direction(i)]] = v.leadsTo.Num
+			res[DirToStr[Direction((-l.previous+i+3)%4)]] = v.leadsTo.Num
 		}
 	}
 	return res
@@ -99,15 +95,4 @@ func (l *Labyrinth) GetCurrentRoom() Room {
 
 func (l *Labyrinth) GetEventsChan() chan Event {
 	return l.eventsChannel
-}
-
-func rotate(walls []*Wall, prev *Room) []*Wall {
-	return walls
-	startNum := 0
-	for i, v := range walls {
-		if v.leadsTo == prev {
-			startNum = (i + 1) % len(walls)
-		}
-	}
-	return append(walls[startNum:], walls[:startNum]...)
 }

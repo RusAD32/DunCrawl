@@ -14,7 +14,7 @@ const (
 	LEFT_CMD  = "left"
 	UP_CMD    = "up"
 	RIGHT_CMD = "right"
-	BACK_CMD  = "back"
+	BACK_CMD  = "down"
 )
 
 var directionMap = map[string]Direction{
@@ -123,9 +123,9 @@ func TextFight( /*p *Player, enemies []*Enemy*/ r Room) {
 }
 
 func EnterLabyrinth(l *Labyrinth) { //TODO выводить номера комнат, в которые можно перейти, протестить
-	next := Up
+	next := Direction(-1)
 	events := l.GetEventsChan()
-	for next >= 0 {
+	for {
 		var money int
 		var loot []Carriable
 		go func() { money, loot = l.GoToRoom(next) }()
@@ -169,13 +169,14 @@ func EnterLabyrinth(l *Labyrinth) { //TODO выводить номера ком�
 					v, _ := Prompt("", directions)
 					_next, ok := directionMap[strings.ToLower(v)]
 					if !ok {
-						panic(next)
+						fmt.Println(v)
 					}
 					next = _next
 					stayHere = false
 				}
 			default:
 				fmt.Println("Unknown command", cmd)
+				break
 			}
 
 		}

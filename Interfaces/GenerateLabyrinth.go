@@ -6,12 +6,13 @@ import (
 )
 
 func GenerateLabyrinth(length, width int) Labyrinth {
+	//TODO remove weird constants, they are calculated on paper
 	lab := Labyrinth{
 		nil,
 		make([]*Room, length*width),
 		width/2*length + length/2,
 		nil,
-		nil,
+		3,
 		make(chan bool),
 		make(chan []SkillInfo),
 		make(chan string),
@@ -37,14 +38,17 @@ func GenerateLabyrinth(length, width int) Labyrinth {
 	for i, v := range []int{0, length - 1, (width - 1) * length, width*length - 1} {
 		markPath(lab.rooms[v], i+1)
 	}
-	for _, v := range lab.rooms {
+	//dfsCloseDoors(lab.current)
+	/*for _, v := range lab.rooms {
 		for i, w := range v.neighbours {
 			if w.CanGoThrough() && v.pathNum != w.leadsTo.pathNum && v != lab.current && w.leadsTo != lab.current && rand.Float32() < 0.35 {
 				LockRooms(v, w.leadsTo, i)
 			}
 		}
 		v.DistFromCenter = -1
-	}
+	}*/
+
+	//техническая информация, убрать
 	dfs(lab.current, 0)
 	return lab
 }
@@ -66,6 +70,24 @@ func dfs(room *Room, dist int) {
 			if next.DistFromCenter < 0 || next.DistFromCenter > dist+1 {
 				dfs(next, dist+1)
 			}
+		}
+	}
+}
+
+func dfsCloseDoors(room *Room) {
+	room.seenInDfs = true
+	room.DistFromCenter = -1
+	locked := 0
+	for i, v := range room.GetNeighbours() {
+		if v.CanGoThrough() {
+			if locked < 3 && (room.pathNum == v.GetNextDoor().pathNum && rand.Float32() < 0.1 || rand.Float32() < 0.6) {
+				locked++
+				LockRooms(room, v.GetNextDoor(), i)
+			} else if !v.GetNextDoor().seenInDfs {
+				dfsCloseDoors(v.GetNextDoor())
+			}
+		} else {
+			locked++
 		}
 	}
 }
@@ -93,7 +115,7 @@ func PrintLab(l Labyrinth) int {
 					locks++
 				}
 			}
-			if l.rooms[i*l.length+j].DistFromCenter > 0 {
+			if l.rooms[i*l.length+j].DistFromCenter < 0 {
 				availRooms++
 			}
 		}

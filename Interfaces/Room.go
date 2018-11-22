@@ -27,6 +27,7 @@ type Room struct {
 	DistFromCenter int
 	pathNum        int
 	Num            int
+	seenInDfs      bool
 }
 
 func (r *Room) GetPlayer() *Player {
