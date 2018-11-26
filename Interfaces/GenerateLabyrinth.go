@@ -19,18 +19,22 @@ func GenerateLabyrinth(length, width int) Labyrinth {
 		make(chan Event),
 		length,
 		width,
-		[]int{0, length - 1, (width - 1) * length, width*length - 1},
+		getCorners(length, width),
 	}
 	rand.Seed(time.Now().UnixNano())
 	generateCenter(&lab, length, width)
-	for i, v := range lab.bossEntryRoomNums {
-		generateBossPath(&lab, width, length, v, i)
+	for i := range lab.bossEntryRoomNums {
+		generateBossPath(&lab, width, length, i)
 	}
 	return lab
 }
 
+func getCorners(length, width int) []int {
+	return []int{0, length - 1, width*length - 1, (width - 1) * length}
+}
+
 func generateCenter(lab *Labyrinth, length, width int) {
-	fillWithRooms(lab, length, width, Door)
+	lab.rooms = fillWithRooms(lab, length, width, Door)
 	lab.current = lab.rooms[lab.startingRoomNum]
 	dfs(lab.current, 0)
 	for i, v := range lab.bossEntryRoomNums {
@@ -41,13 +45,13 @@ func generateCenter(lab *Labyrinth, length, width int) {
 	dfs(lab.current, 0)
 }
 
-func generateBossPath(lab *Labyrinth, width, length, startInd, dir int) {
-	nextRoomInd := len(lab.rooms)
-	fillWithRooms(lab, length, width, Solid)
-	nextRoom := lab.rooms[nextRoomInd]
-	lab.current = lab.rooms[startInd]
-	ConnectRooms(nextRoom, lab.current, Direction(dir), Solid)
+func generateBossPath(lab *Labyrinth, width, length, dir int) {
+	newRooms := fillWithRooms(lab, length, width, Solid)
+	firstRoom := newRooms[(dir+2)%len(lab.bossEntryRoomNums)]
+	connectTo := lab.rooms[lab.bossEntryRoomNums[dir]]
+	ConnectRooms(firstRoom, connectTo, Direction(dir), Solid)
 	backTrackerLabGen(lab.current, 0)
+	lab.rooms = append(lab.rooms, newRooms...)
 	//TODO mark as inner or outer based on distance
 }
 
@@ -73,10 +77,11 @@ func backTrackerLabGen(room *Room, distFromStart int) {
 	}
 }
 
-func fillWithRooms(lab *Labyrinth, length, width int, kind WallType) {
+func fillWithRooms(lab *Labyrinth, length, width int, kind WallType) []*Room {
+	rooms := make([]*Room, 0)
 	for i := 0; i < width; i++ {
 		for j := 0; j < length; j++ {
-			lab.rooms = append(lab.rooms, GenerateRoom(lab.fightBgToUi, lab.fightUiToBg, lab.fightConfirmChan, i*length+j))
+			rooms = append(lab.rooms, GenerateRoom(lab.fightBgToUi, lab.fightUiToBg, lab.fightConfirmChan, i*length+j))
 			if i > 0 {
 				ConnectRooms(lab.rooms[i*length+j], lab.rooms[(i-1)*length+j], Left, kind)
 			}
@@ -85,6 +90,7 @@ func fillWithRooms(lab *Labyrinth, length, width int, kind WallType) {
 			}
 		}
 	}
+	return rooms
 }
 
 func GenerateRoom(bgToUi chan []SkillInfo, uiToBg chan string, confirm chan bool, num int) *Room {
