@@ -11,17 +11,18 @@ const (
 //TODO написать Init для лабиринта
 
 type Labyrinth struct {
-	p                *Player
-	rooms            []*Room
-	startingRoomNum  int
-	current          *Room
-	previous         int
-	fightConfirmChan chan bool
-	fightBgToUi      chan []SkillInfo
-	fightUiToBg      chan string
-	eventsChannel    chan Event
-	length           int
-	width            int
+	p                 *Player
+	rooms             []*Room
+	startingRoomNum   int
+	current           *Room
+	previous          int
+	fightConfirmChan  chan bool
+	fightBgToUi       chan []SkillInfo
+	fightUiToBg       chan string
+	eventsChannel     chan Event
+	length            int
+	width             int
+	bossEntryRoomNums []int
 }
 
 func (l *Labyrinth) Init(p *Player, rooms []*Room, fightConfirm chan bool, fightBgToUi chan []SkillInfo, fightUiToBg chan string, events chan Event) {

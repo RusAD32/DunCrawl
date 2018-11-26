@@ -36,11 +36,11 @@ func (w *Wall) GetNextDoor() *Room {
 	return w.leadsTo
 }
 
-func ConnectRooms(r1, r2 *Room, d Direction) {
+func ConnectRooms(r1, r2 *Room, d Direction, kind WallType) {
 	r1.neighbours[int(d)].leadsTo = r2
-	r1.neighbours[int(d)].kind = Door
+	r1.neighbours[int(d)].kind = kind
 	r2.neighbours[(int(d)+2)%4].leadsTo = r1
-	r2.neighbours[(int(d)+2)%4].kind = Door
+	r2.neighbours[(int(d)+2)%4].kind = kind
 }
 
 func LockRooms(r1, r2 *Room, d int) {
@@ -48,4 +48,11 @@ func LockRooms(r1, r2 *Room, d int) {
 	r1.neighbours[d].kind = Solid
 	r2.neighbours[(d+2)%4].leadsTo = r1
 	r2.neighbours[(d+2)%4].kind = Solid
+}
+
+func UnockRooms(r1, r2 *Room, d int) {
+	r1.neighbours[d].leadsTo = r2
+	r1.neighbours[d].kind = Door
+	r2.neighbours[(d+2)%4].leadsTo = r1
+	r2.neighbours[(d+2)%4].kind = Door
 }

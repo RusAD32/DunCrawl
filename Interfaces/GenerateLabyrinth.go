@@ -9,7 +9,7 @@ func GenerateLabyrinth(length, width int) Labyrinth {
 	//TODO remove weird constants, they are calculated on paper
 	lab := Labyrinth{
 		nil,
-		make([]*Room, length*width),
+		make([]*Room, 0),
 		width/2*length + length/2,
 		nil,
 		3,
@@ -19,39 +19,72 @@ func GenerateLabyrinth(length, width int) Labyrinth {
 		make(chan Event),
 		length,
 		width,
+		[]int{0, length - 1, (width - 1) * length, width*length - 1},
 	}
 	rand.Seed(time.Now().UnixNano())
-	for i := 0; i < width; i++ {
-		for j := 0; j < length; j++ {
-			//fmt.Println(i*length+j)
-			lab.rooms[i*length+j] = GenerateRoom(lab.fightBgToUi, lab.fightUiToBg, lab.fightConfirmChan, i*length+j)
-			if i > 0 {
-				ConnectRooms(lab.rooms[i*length+j], lab.rooms[(i-1)*length+j], Left)
-			}
-			if j > 0 {
-				ConnectRooms(lab.rooms[i*length+j], lab.rooms[i*length+j-1], Down)
-			}
-		}
+	generateCenter(&lab, length, width)
+	for i, v := range lab.bossEntryRoomNums {
+		generateBossPath(&lab, width, length, v, i)
 	}
+	return lab
+}
+
+func generateCenter(lab *Labyrinth, length, width int) {
+	fillWithRooms(lab, length, width, Door)
 	lab.current = lab.rooms[lab.startingRoomNum]
 	dfs(lab.current, 0)
-	for i, v := range []int{0, length - 1, (width - 1) * length, width*length - 1} {
+	for i, v := range lab.bossEntryRoomNums {
 		markPath(lab.rooms[v], i+1)
 	}
 	lab.current.pathNum = -1
 	dfsCloseDoors(lab.current)
-	/*for _, v := range lab.rooms {
-		for i, w := range v.neighbours {
-			if w.CanGoThrough() && v.pathNum != w.leadsTo.pathNum && v != lab.current && w.leadsTo != lab.current && rand.Float32() < 0.35 {
-				LockRooms(v, w.leadsTo, i)
+	dfs(lab.current, 0)
+}
+
+func generateBossPath(lab *Labyrinth, width, length, startInd, dir int) {
+	nextRoomInd := len(lab.rooms)
+	fillWithRooms(lab, length, width, Solid)
+	nextRoom := lab.rooms[nextRoomInd]
+	lab.current = lab.rooms[startInd]
+	ConnectRooms(nextRoom, lab.current, Direction(dir), Solid)
+	backTrackerLabGen(lab.current, 0)
+	//TODO mark as inner or outer based on distance
+}
+
+func backTrackerLabGen(room *Room, distFromStart int) {
+	if room.seenInDfs {
+		return
+	}
+	room.seenInDfs = true
+	room.DistFromCenter = distFromStart
+	availNeighbours := make([]*Wall, 0)
+	availNeighbourNums := make([]int, 0)
+	for i, v := range room.neighbours {
+		if !v.GetNextDoor().seenInDfs {
+			availNeighbours = append(availNeighbours, v)
+			availNeighbourNums = append(availNeighbourNums, i)
+		}
+	}
+	for _, v := range rand.Perm(len(availNeighbours)) {
+		if !availNeighbours[v].leadsTo.seenInDfs {
+			UnockRooms(room, availNeighbours[v].leadsTo, availNeighbourNums[v])
+			backTrackerLabGen(room, distFromStart+1)
+		}
+	}
+}
+
+func fillWithRooms(lab *Labyrinth, length, width int, kind WallType) {
+	for i := 0; i < width; i++ {
+		for j := 0; j < length; j++ {
+			lab.rooms = append(lab.rooms, GenerateRoom(lab.fightBgToUi, lab.fightUiToBg, lab.fightConfirmChan, i*length+j))
+			if i > 0 {
+				ConnectRooms(lab.rooms[i*length+j], lab.rooms[(i-1)*length+j], Left, kind)
+			}
+			if j > 0 {
+				ConnectRooms(lab.rooms[i*length+j], lab.rooms[i*length+j-1], Down, kind)
 			}
 		}
-		v.DistFromCenter = -1
-	}*/
-
-	//техническая информация, убрать
-	dfs(lab.current, 0)
-	return lab
+	}
 }
 
 func GenerateRoom(bgToUi chan []SkillInfo, uiToBg chan string, confirm chan bool, num int) *Room {
