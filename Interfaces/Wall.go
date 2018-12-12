@@ -5,6 +5,7 @@ type WallType int
 const (
 	Solid WallType = iota
 	Door
+	NextSection
 )
 
 type Direction int
@@ -26,14 +27,24 @@ var DirToStr = map[Direction]string{
 type Wall struct {
 	kind    WallType
 	leadsTo *Room
+	nextSection *Section
 }
 
 func (w *Wall) CanGoThrough() bool {
-	return w.kind == Door
+	return w.kind == Door || w.kind == NextSection 
 }
 
 func (w *Wall) GetNextDoor() *Room {
 	return w.leadsTo
+}
+
+func ConnectSection(section *Section, room *Room, d Direction, secondSection *Section) {
+	section.first.neighbours[int(d)].leadsTo = room
+	section.first.neighbours[int(d)].kind = nextSection
+	section.first.neighbours[int(d)].nextSection = secondSection
+	room.neighbours[(int(d)+2)%4].leadsTo = section.first
+	room.neighbours[(int(d)+2)%4].kind = nextSection
+	room.neighbours[(int(d)+2)%4].nextSection = section
 }
 
 func ConnectRooms(r1, r2 *Room, d Direction, kind WallType) {

@@ -13,6 +13,7 @@ const (
 type Labyrinth struct {
 	p                 *Player
 	rooms             []*Room
+	sections	  []*Section
 	startingRoomNum   int
 	current           *Room
 	previous          int
@@ -23,6 +24,11 @@ type Labyrinth struct {
 	length            int
 	width             int
 	bossEntryRoomNums []int
+}
+
+type Section struct {
+	[]*Room rooms
+	first *Room
 }
 
 func (l *Labyrinth) Init(p *Player, rooms []*Room, fightConfirm chan bool, fightBgToUi chan []SkillInfo, fightUiToBg chan string, events chan Event) {
@@ -39,7 +45,11 @@ func (l *Labyrinth) GoToRoom(direction Direction) (int, []Carriable) {
 		l.current = l.rooms[l.startingRoomNum]
 	} else if int(direction) >= 0 {
 		l.current.p = nil
-		l.current = l.current.GetNeighbours()[(int(direction)+l.previous+1)%4].leadsTo
+		neighbourWall := l.current.GetNeighbours()[(int(direction)+l.previous+1)%4]
+		if neighbourWall.kind == nextSection {
+			lab.rooms = neighbourWall.nextSection.rooms
+		}
+		l.current = neighbourWall.leadsTo
 		l.previous = (l.previous + int(direction) + 3) % len(l.current.neighbours)
 	}
 	l.current.p = l.p
