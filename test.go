@@ -6,7 +6,6 @@ import (
 	. "./Interfaces"
 	"./PlayerSkills"
 	"./UI"
-	"fmt"
 )
 
 func walkTest() {
@@ -62,25 +61,10 @@ func walkTest() {
 }
 
 func labGenTest() {
-	for j := 10; j < 20; j++ {
-		avails := 0
-		min := j * j
-		max := 0
-		for i := 0; i < 1000; i++ {
-			l := GenerateLabyrinth(j, j)
-			r := PrintLab(l)
-			if r < min {
-				min = r
-			}
-			if r > max {
-				max = r
-			}
-			avails += r
-		}
-		fmt.Println(min, max, avails/1000)
-	}
+	l := GenerateLabyrinth(9, 15)
+	PrintLabyrinth(&l)
 }
 
 func main() {
-	walkTest()
+	labGenTest()
 }

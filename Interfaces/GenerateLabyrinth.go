@@ -54,7 +54,7 @@ func generateBossPath(lab *Labyrinth, width, length, dir int) {
 	firstRoom := newRooms[getCorners(width, length)[(dir+2)%len(lab.bossEntryRoomNums)]]
 	lab.sections = append(lab.sections, &newRooms)
 	connectTo := lab.rooms[lab.bossEntryRoomNums[dir]]
-	ConnectSection(&newRooms, lab.sections[0], firstRoom, connectTo, Direction(dir))
+	ConnectSection(&newRooms, lab.sections[0], firstRoom, connectTo, Direction((dir+2)%4))
 	backTrackerLabGen(firstRoom, 0)
 	// lab.rooms = append(lab.rooms, newRooms...)
 	//TODO mark as inner or outer based on distance
@@ -69,7 +69,7 @@ func backTrackerLabGen(room *Room, distFromStart int) {
 	availNeighbours := make([]*Wall, 0)
 	availNeighbourNums := make([]int, 0)
 	for i, v := range room.neighbours {
-		if !v.GetNextDoor().seenInDfs {
+		if v.CanGoThrough() && !v.GetNextDoor().seenInDfs {
 			availNeighbours = append(availNeighbours, v)
 			availNeighbourNums = append(availNeighbourNums, i)
 		}
@@ -86,12 +86,13 @@ func fillWithRooms(lab *Labyrinth, length, width int, kind WallType) []*Room {
 	rooms := make([]*Room, 0)
 	for i := 0; i < width; i++ {
 		for j := 0; j < length; j++ {
-			rooms = append(lab.rooms, GenerateRoom(lab.fightBgToUi, lab.fightUiToBg, lab.fightConfirmChan, i*length+j))
+			rooms = append(rooms, GenerateRoom(lab.fightBgToUi, lab.fightUiToBg, lab.fightConfirmChan, i*length+j))
+			//fmt.Println(i, j, len(rooms))
 			if i > 0 {
-				ConnectRooms(lab.rooms[i*length+j], lab.rooms[(i-1)*length+j], Left, kind)
+				ConnectRooms(rooms[i*length+j], rooms[(i-1)*length+j], Up, kind)
 			}
 			if j > 0 {
-				ConnectRooms(lab.rooms[i*length+j], lab.rooms[i*length+j-1], Down, kind)
+				ConnectRooms(rooms[i*length+j], rooms[i*length+j-1], Left, kind)
 			}
 		}
 	}
@@ -125,7 +126,7 @@ func dfsCloseDoors(room *Room) {
 	locked := 0
 	for i, v := range room.GetNeighbours() {
 		if v.CanGoThrough() {
-			if !v.GetNextDoor().seenInDfs && room.pathNum != -1 && locked < 3 && (room.pathNum == v.GetNextDoor().pathNum && rand.Float32() < 0.1 || rand.Float32() < 0.6) {
+			if !v.GetNextDoor().seenInDfs && room.pathNum != -1 && locked < 3 && (room.pathNum == 0 || room.pathNum != v.GetNextDoor().pathNum) && rand.Float32() < 0.5 {
 				locked++
 				LockRooms(room, v.GetNextDoor(), i)
 			} else if !v.GetNextDoor().seenInDfs {

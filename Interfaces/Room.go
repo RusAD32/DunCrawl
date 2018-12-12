@@ -124,8 +124,14 @@ func (r *Room) Init(enemies []*Enemy, bgToUi chan []SkillInfo, uiToBg chan strin
 	r.bgToUi = bgToUi
 	r.confirm = confirm
 	r.neighbours = make([]*Wall, 0)
+	r.neighbours = make([]*Wall, 0)
 	for i := 0; i < 4; i++ {
-		r.neighbours = append(r.neighbours, new(Wall))
+		newWall := Wall{
+			Solid,
+			nil,
+			nil,
+		}
+		r.neighbours = append(r.neighbours, &newWall)
 	}
 }
 

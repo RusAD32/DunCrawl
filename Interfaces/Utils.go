@@ -1,6 +1,7 @@
 package Interfaces
 
 import (
+	"bytes"
 	"fmt"
 	"strconv"
 )
@@ -114,4 +115,63 @@ func GetDefaultEnemy(index int) *Enemy {
 		curHP:           15,
 		maxHP:           15,
 	}
+}
+
+func PrintLabyrinth(l *Labyrinth) {
+	labMap := bytes.Buffer{}
+	labMap.WriteString("꜒")
+	for j := 0; j < l.length; j++ {
+		if l.rooms[j].GetNeighbours()[int(Up)].CanGoThrough() {
+			labMap.WriteString("…")
+		} else {
+			labMap.WriteString("-")
+		}
+		if j != l.length-1 {
+			labMap.WriteString("-")
+		} else {
+			labMap.WriteString("˥")
+		}
+	}
+	labMap.WriteString("\n")
+	for i := 0; i < l.width; i++ {
+		if l.rooms[i*l.length].GetNeighbours()[int(Left)].CanGoThrough() {
+			labMap.WriteString(":")
+		} else {
+			labMap.WriteString("|")
+		}
+		for j := 0; j < l.length; j++ {
+			curRoom := l.rooms[i*l.length+j]
+			if curRoom.p != nil {
+				labMap.WriteString("P")
+			} else {
+				labMap.WriteString(" ")
+			}
+			if curRoom.GetNeighbours()[int(Right)].CanGoThrough() {
+				labMap.WriteString(":")
+			} else {
+				labMap.WriteString("|")
+			}
+		}
+		labMap.WriteString("\n")
+		if i == l.width-1 {
+			labMap.WriteString("꜖")
+		} else {
+			labMap.WriteString("꜔")
+		}
+		for j := 0; j < l.length; j++ {
+			curRoom := l.rooms[i*l.length+j]
+			if curRoom.GetNeighbours()[int(Down)].CanGoThrough() {
+				labMap.WriteString(" ")
+			} else {
+				labMap.WriteString("-")
+			}
+			if j == l.width-1 {
+				labMap.WriteString("˧")
+			} else {
+				labMap.WriteString("÷")
+			}
+		}
+		labMap.WriteString("\n")
+	}
+	fmt.Println(labMap.String())
 }
