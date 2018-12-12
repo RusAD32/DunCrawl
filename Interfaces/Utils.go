@@ -141,7 +141,7 @@ func PrintLabyrinth(l *Labyrinth) {
 		}
 		for j := 0; j < l.length; j++ {
 			curRoom := l.rooms[i*l.length+j]
-			if curRoom.p != nil {
+			if curRoom == l.current {
 				labMap.WriteString("P")
 			} else {
 				labMap.WriteString(" ")

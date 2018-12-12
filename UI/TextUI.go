@@ -119,7 +119,6 @@ func TextFight( /*p *Player, enemies []*Enemy*/ r Room) {
 
 		}
 	}
-	return
 }
 
 func EnterLabyrinth(l *Labyrinth) { //TODO выводить номера комнат, в которые можно перейти, протестить
@@ -131,8 +130,12 @@ func EnterLabyrinth(l *Labyrinth) { //TODO выводить номера ком�
 		go func() { money, loot = l.GoToRoom(next) }()
 		f := <-events
 		if f == FightEvent {
-			TextFight(l.GetCurrentRoom())
+			TextFight(*l.GetCurrentRoom())
 			InformLoot(money, loot)
+		}
+		PrintLabyrinth(l)
+		for _, v := range l.GetCurrentRoom().GetNeighbours() {
+			fmt.Print(v.CanGoThrough(), " ")
 		}
 		fmt.Println(l.GetCurrentRoom().Num)
 		money, loot = l.GetValues()
@@ -146,7 +149,7 @@ func EnterLabyrinth(l *Labyrinth) { //TODO выводить номера ком�
 					go func() { money, loot = l.Light() }()
 					f = <-events
 					if f == FightEvent {
-						TextFight(l.GetCurrentRoom())
+						TextFight(*l.GetCurrentRoom())
 					}
 					InformLoot(money, loot)
 				}
@@ -161,7 +164,7 @@ func EnterLabyrinth(l *Labyrinth) { //TODO выводить номера ком�
 					Inform("Which room?\n")
 					directions := make([]string, 0)
 					for k, v := range rooms {
-						if v != 0 {
+						if v != -1 {
 							Inform(k + " " + strconv.Itoa(v) + "\n")
 							directions = append(directions, k)
 						}

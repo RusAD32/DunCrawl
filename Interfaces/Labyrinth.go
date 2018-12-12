@@ -79,13 +79,15 @@ func (l *Labyrinth) GetNeighbours() map[string]int {
 	for i, v := range l.current.GetNeighbours() {
 		if v.CanGoThrough() {
 			res[DirToStr[Direction((-l.previous+i+3)%4)]] = v.leadsTo.Num
+		} else {
+			res[DirToStr[Direction((-l.previous+i+3)%4)]] = -1
 		}
 	}
 	return res
 }
 
-func (l *Labyrinth) GetCurrentRoom() Room {
-	return *l.current
+func (l *Labyrinth) GetCurrentRoom() *Room {
+	return l.current
 }
 
 func (l *Labyrinth) GetEventsChan() chan Event {

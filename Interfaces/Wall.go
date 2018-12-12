@@ -55,15 +55,15 @@ func ConnectRooms(r1, r2 *Room, d Direction, kind WallType) {
 }
 
 func LockRooms(r1, r2 *Room, d int) {
-	r1.neighbours[d].leadsTo = r2
+	//r1.neighbours[d].leadsTo = r2
 	r1.neighbours[d].kind = Solid
-	r2.neighbours[(d+2)%4].leadsTo = r1
+	//r2.neighbours[(d+2)%4].leadsTo = r1
 	r2.neighbours[(d+2)%4].kind = Solid
 }
 
 func UnockRooms(r1, r2 *Room, d int) {
-	r1.neighbours[d].leadsTo = r2
+	//r1.neighbours[d].leadsTo = r2
 	r1.neighbours[d].kind = Door
-	r2.neighbours[(d+2)%4].leadsTo = r1
+	//r2.neighbours[(d+2)%4].leadsTo = r1
 	r2.neighbours[(d+2)%4].kind = Door
 }

@@ -51,12 +51,11 @@ func generateCenter(lab *Labyrinth, length, width int) {
 
 func generateBossPath(lab *Labyrinth, width, length, dir int) {
 	newRooms := fillWithRooms(lab, length, width, Solid)
-	firstRoom := newRooms[getCorners(width, length)[(dir+2)%len(lab.bossEntryRoomNums)]]
+	firstRoom := newRooms[getCorners(width, length)[(dir+2)%4]]
 	lab.sections = append(lab.sections, &newRooms)
 	connectTo := lab.rooms[lab.bossEntryRoomNums[dir]]
-	ConnectSection(&newRooms, lab.sections[0], firstRoom, connectTo, Direction((dir+2)%4))
 	backTrackerLabGen(firstRoom, 0)
-	// lab.rooms = append(lab.rooms, newRooms...)
+	ConnectSection(&newRooms, lab.sections[0], firstRoom, connectTo, Direction((dir+2)%4))
 	//TODO mark as inner or outer based on distance
 }
 
@@ -66,18 +65,17 @@ func backTrackerLabGen(room *Room, distFromStart int) {
 	}
 	room.seenInDfs = true
 	room.DistFromCenter = distFromStart
-	availNeighbours := make([]*Wall, 0)
 	availNeighbourNums := make([]int, 0)
 	for i, v := range room.neighbours {
-		if v.CanGoThrough() && !v.GetNextDoor().seenInDfs {
-			availNeighbours = append(availNeighbours, v)
+		if v.GetNextDoor() != nil {
 			availNeighbourNums = append(availNeighbourNums, i)
 		}
 	}
-	for _, v := range rand.Perm(len(availNeighbours)) {
-		if !availNeighbours[v].leadsTo.seenInDfs {
-			UnockRooms(room, availNeighbours[v].leadsTo, availNeighbourNums[v])
-			backTrackerLabGen(room, distFromStart+1)
+	for _, v := range rand.Perm(len(availNeighbourNums)) {
+		num := availNeighbourNums[v]
+		if !room.neighbours[num].leadsTo.seenInDfs {
+			UnockRooms(room, room.neighbours[num].leadsTo, num)
+			backTrackerLabGen(room.neighbours[num].leadsTo, distFromStart+1)
 		}
 	}
 }
@@ -87,7 +85,6 @@ func fillWithRooms(lab *Labyrinth, length, width int, kind WallType) []*Room {
 	for i := 0; i < width; i++ {
 		for j := 0; j < length; j++ {
 			rooms = append(rooms, GenerateRoom(lab.fightBgToUi, lab.fightUiToBg, lab.fightConfirmChan, i*length+j))
-			//fmt.Println(i, j, len(rooms))
 			if i > 0 {
 				ConnectRooms(rooms[i*length+j], rooms[(i-1)*length+j], Up, kind)
 			}

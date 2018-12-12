@@ -50,7 +50,7 @@ func walkTest() {
 	ch := GetDefaultChest()
 	r2.SetChest(ch)
 	r.AddShadowLoot(GenerateLootable("Other stuff", 200))
-	l := GenerateLabyrinth(7, 7)
+	l := GenerateLabyrinth(3, 3)
 	/*rooms := make([]*Room, 2)
 	rooms[0] = &r
 	rooms[1] = &r2
@@ -66,5 +66,5 @@ func labGenTest() {
 }
 
 func main() {
-	labGenTest()
+	walkTest()
 }
