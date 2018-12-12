@@ -10,7 +10,7 @@ func GenerateLabyrinth(length, width int) Labyrinth {
 	lab := Labyrinth{
 		nil,
 		make([]*Room, 0),
-		make([]*Section, 0)
+		make([]*[]*Room, 0),
 		width/2*length + length/2,
 		nil,
 		3,
@@ -36,14 +36,10 @@ func getCorners(length, width int) []int {
 
 func generateCenter(lab *Labyrinth, length, width int) {
 	rooms := fillWithRooms(lab, length, width, Door)
-	current :=rooms[lab.startingRoomNum]
-	section := Section {
-		rooms,
-		current
-	}
+	current := rooms[lab.startingRoomNum]
 	lab.rooms = rooms
 	lab.current = current
-	lab.sections = append(lab.sections, &section)
+	lab.sections = append(lab.sections, &rooms)
 	dfs(lab.current, 0)
 	for i, v := range lab.bossEntryRoomNums {
 		markPath(lab.rooms[v], i+1)
@@ -56,13 +52,9 @@ func generateCenter(lab *Labyrinth, length, width int) {
 func generateBossPath(lab *Labyrinth, width, length, dir int) {
 	newRooms := fillWithRooms(lab, length, width, Solid)
 	firstRoom := newRooms[getCorners(width, length)[(dir+2)%len(lab.bossEntryRoomNums)]]
-	bossSection := Section {
-		newRooms,
-		firstRoom,
-	}
-	lab.sections = append(lab.sections, &bossSection)
+	lab.sections = append(lab.sections, &newRooms)
 	connectTo := lab.rooms[lab.bossEntryRoomNums[dir]]
-	ConnectSection(&bossSection, connectTo, Direction(dir), lab.sections[0])
+	ConnectSection(&newRooms, lab.sections[0], firstRoom, connectTo, Direction(dir))
 	backTrackerLabGen(firstRoom, 0)
 	// lab.rooms = append(lab.rooms, newRooms...)
 	//TODO mark as inner or outer based on distance

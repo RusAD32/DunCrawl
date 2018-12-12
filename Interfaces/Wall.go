@@ -25,26 +25,26 @@ var DirToStr = map[Direction]string{
 }
 
 type Wall struct {
-	kind    WallType
-	leadsTo *Room
-	nextSection *Section
+	kind        WallType
+	leadsTo     *Room
+	nextSection *[]*Room
 }
 
 func (w *Wall) CanGoThrough() bool {
-	return w.kind == Door || w.kind == NextSection 
+	return w.kind == Door || w.kind == NextSection
 }
 
 func (w *Wall) GetNextDoor() *Room {
 	return w.leadsTo
 }
 
-func ConnectSection(section *Section, room *Room, d Direction, secondSection *Section) {
-	section.first.neighbours[int(d)].leadsTo = room
-	section.first.neighbours[int(d)].kind = nextSection
-	section.first.neighbours[int(d)].nextSection = secondSection
-	room.neighbours[(int(d)+2)%4].leadsTo = section.first
-	room.neighbours[(int(d)+2)%4].kind = nextSection
-	room.neighbours[(int(d)+2)%4].nextSection = section
+func ConnectSection(sectionFrom, sectionTo *[]*Room, roomFrom, roomTo *Room, d Direction) {
+	roomFrom.neighbours[int(d)].leadsTo = roomTo
+	roomFrom.neighbours[int(d)].kind = NextSection
+	roomFrom.neighbours[int(d)].nextSection = sectionTo
+	roomTo.neighbours[(int(d)+2)%4].leadsTo = roomFrom
+	roomTo.neighbours[(int(d)+2)%4].kind = NextSection
+	roomTo.neighbours[(int(d)+2)%4].nextSection = sectionFrom
 }
 
 func ConnectRooms(r1, r2 *Room, d Direction, kind WallType) {
