@@ -12,16 +12,16 @@ type Direction int
 
 const (
 	Left Direction = iota
-	Up
+	Forward
 	Right
-	Down
+	Back
 )
 
 var DirToStr = map[Direction]string{
-	Left:  "Left",
-	Down:  "Down",
-	Right: "Right",
-	Up:    "Up",
+	Left:    "Left",
+	Back:    "Back",
+	Right:   "Right",
+	Forward: "Forward",
 }
 
 type Wall struct {

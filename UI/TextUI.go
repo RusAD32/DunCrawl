@@ -3,28 +3,27 @@ package UI
 import (
 	. "../Interfaces"
 	"fmt"
-	"strconv"
 	"strings"
 )
 
 const (
-	LIGHT_CMD = "light"
-	CHEST_CMD = "chest"
-	GOTO_CMD  = "goto"
-	LEFT_CMD  = "left"
-	UP_CMD    = "up"
-	RIGHT_CMD = "right"
-	BACK_CMD  = "down"
+	LightCmd = "light"
+	ChestCmd = "chest"
+	GotoCmd  = "goto"
+	LeftCmd  = "left"
+	FwdCmd   = "forward"
+	RightCmd = "right"
+	BackCmd  = "back"
 )
 
 var directionMap = map[string]Direction{
-	LEFT_CMD:  Left,
-	UP_CMD:    Up,
-	RIGHT_CMD: Right,
-	BACK_CMD:  Down,
+	LeftCmd:  Left,
+	FwdCmd:   Forward,
+	RightCmd: Right,
+	BackCmd:  Back,
 }
 
-var commands = []string{LIGHT_CMD, CHEST_CMD, GOTO_CMD}
+var commands = []string{LightCmd, ChestCmd, GotoCmd}
 
 func TextFight( /*p *Player, enemies []*Enemy*/ r Room) {
 	/*r := Room{}
@@ -144,7 +143,7 @@ func EnterLabyrinth(l *Labyrinth) { //TODO выводить номера ком�
 		for stayHere {
 			cmd, _ := Prompt("Write a command...", commands)
 			switch cmd {
-			case LIGHT_CMD:
+			case LightCmd:
 				{
 					go func() { money, loot = l.Light() }()
 					f = <-events
@@ -153,19 +152,19 @@ func EnterLabyrinth(l *Labyrinth) { //TODO выводить номера ком�
 					}
 					InformLoot(money, loot)
 				}
-			case CHEST_CMD:
+			case ChestCmd:
 				{
 					money, loot = l.UnlockChest()
 					InformLoot(money, loot)
 				}
-			case GOTO_CMD:
+			case GotoCmd:
 				{
 					rooms := l.GetNeighbours()
 					Inform("Which room?\n")
 					directions := make([]string, 0)
 					for k, v := range rooms {
-						if v != -1 {
-							Inform(k + " " + strconv.Itoa(v) + "\n")
+						if v {
+							Inform(k + "\n")
 							directions = append(directions, k)
 						}
 					}

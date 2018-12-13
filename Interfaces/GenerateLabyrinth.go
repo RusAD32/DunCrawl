@@ -5,15 +5,20 @@ import (
 	"time"
 )
 
+const FirstDirection = int(Back)
+const FirstRoomPath = -1
+const MaxLocks = 3
+const LockProbability = 0.5
+
 func GenerateLabyrinth(length, width int) Labyrinth {
 	//TODO remove weird constants, they are calculated on paper
 	lab := Labyrinth{
 		nil,
 		make([]*Room, 0),
 		make([]*[]*Room, 0),
-		width/2*length + length/2,
+		width/2*length + length/2, // center
 		nil,
-		3,
+		FirstDirection,
 		make(chan bool),
 		make(chan []SkillInfo),
 		make(chan string),
@@ -44,18 +49,18 @@ func generateCenter(lab *Labyrinth, length, width int) {
 	for i, v := range lab.bossEntryRoomNums {
 		markPath(lab.rooms[v], i+1)
 	}
-	lab.current.pathNum = -1
+	lab.current.pathNum = FirstRoomPath
 	dfsCloseDoors(lab.current)
 	dfs(lab.current, 0)
 }
 
 func generateBossPath(lab *Labyrinth, width, length, dir int) {
 	newRooms := fillWithRooms(lab, length, width, Solid)
-	firstRoom := newRooms[getCorners(width, length)[(dir+2)%4]]
+	firstRoom := newRooms[getCorners(width, length)[rotateRoomNum(dir, 2)]]
 	lab.sections = append(lab.sections, &newRooms)
 	connectTo := lab.rooms[lab.bossEntryRoomNums[dir]]
 	backTrackerLabGen(firstRoom, 0)
-	ConnectSection(&newRooms, lab.sections[0], firstRoom, connectTo, Direction((dir+2)%4))
+	ConnectSection(&newRooms, lab.sections[0], firstRoom, connectTo, Direction(rotateRoomNum(dir, 2)))
 	//TODO mark as inner or outer based on distance
 }
 
@@ -86,7 +91,7 @@ func fillWithRooms(lab *Labyrinth, length, width int, kind WallType) []*Room {
 		for j := 0; j < length; j++ {
 			rooms = append(rooms, GenerateRoom(lab.fightBgToUi, lab.fightUiToBg, lab.fightConfirmChan, i*length+j))
 			if i > 0 {
-				ConnectRooms(rooms[i*length+j], rooms[(i-1)*length+j], Up, kind)
+				ConnectRooms(rooms[i*length+j], rooms[(i-1)*length+j], Forward, kind)
 			}
 			if j > 0 {
 				ConnectRooms(rooms[i*length+j], rooms[i*length+j-1], Left, kind)
@@ -123,7 +128,7 @@ func dfsCloseDoors(room *Room) {
 	locked := 0
 	for i, v := range room.GetNeighbours() {
 		if v.CanGoThrough() {
-			if !v.GetNextDoor().seenInDfs && room.pathNum != -1 && locked < 3 && (room.pathNum == 0 || room.pathNum != v.GetNextDoor().pathNum) && rand.Float32() < 0.5 {
+			if ifLock(room, v.GetNextDoor(), locked) {
 				locked++
 				LockRooms(room, v.GetNextDoor(), i)
 			} else if !v.GetNextDoor().seenInDfs {
@@ -148,20 +153,14 @@ func markPath(room *Room, pathNum int) {
 	}
 }
 
-func PrintLab(l Labyrinth) int {
-	locks := 0
-	availRooms := 0
-	for i := 0; i < l.width; i++ {
-		for j := 0; j < l.length; j++ {
-			for _, v := range l.rooms[i*l.length+j].neighbours {
-				if !v.CanGoThrough() {
-					locks++
-				}
-			}
-			if l.rooms[i*l.length+j].DistFromCenter < 0 {
-				availRooms++
-			}
-		}
-	}
-	return availRooms
+func rotateRoomNum(dir, rotAmount int) int {
+	return (dir + DOORS_PER_ROOM/rotAmount) % DOORS_PER_ROOM
+}
+
+func ifLock(room, next *Room, locked int) bool {
+	return !next.seenInDfs &&
+		room.pathNum != -1 &&
+		locked < MaxLocks &&
+		(room.pathNum == 0 || room.pathNum != next.pathNum) &&
+		rand.Float32() < LockProbability
 }

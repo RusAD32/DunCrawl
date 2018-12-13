@@ -117,11 +117,13 @@ func GetDefaultEnemy(index int) *Enemy {
 	}
 }
 
+var PlayerDir = []string{">", "v", "<", "^"}
+
 func PrintLabyrinth(l *Labyrinth) {
 	labMap := bytes.Buffer{}
 	labMap.WriteString("꜒")
 	for j := 0; j < l.length; j++ {
-		if l.rooms[j].GetNeighbours()[int(Up)].CanGoThrough() {
+		if l.rooms[j].GetNeighbours()[int(Forward)].CanGoThrough() {
 			labMap.WriteString("…")
 		} else {
 			labMap.WriteString("-")
@@ -142,7 +144,7 @@ func PrintLabyrinth(l *Labyrinth) {
 		for j := 0; j < l.length; j++ {
 			curRoom := l.rooms[i*l.length+j]
 			if curRoom == l.current {
-				labMap.WriteString("P")
+				labMap.WriteString(PlayerDir[l.previous])
 			} else {
 				labMap.WriteString(" ")
 			}
@@ -160,7 +162,7 @@ func PrintLabyrinth(l *Labyrinth) {
 		}
 		for j := 0; j < l.length; j++ {
 			curRoom := l.rooms[i*l.length+j]
-			if curRoom.GetNeighbours()[int(Down)].CanGoThrough() {
+			if curRoom.GetNeighbours()[int(Back)].CanGoThrough() {
 				labMap.WriteString(" ")
 			} else {
 				labMap.WriteString("-")

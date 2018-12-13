@@ -7,6 +7,9 @@ const (
 	FightEvent
 )
 
+const DOORS_PER_ROOM = 4
+const NEW_NEIGHBOUR_OFFSET = -1
+
 //TODO давать плееру то, что он в комнатах нашел
 //TODO написать Init для лабиринта
 
@@ -40,12 +43,12 @@ func (l *Labyrinth) GoToRoom(direction Direction) (int, []Carriable) {
 		l.current = l.rooms[l.startingRoomNum]
 	} else if int(direction) >= 0 {
 		l.current.p = nil
-		neighbourWall := l.current.GetNeighbours()[(int(direction)+l.previous+1)%4]
+		neighbourWall := l.current.GetNeighbours()[getNextDoorNum(int(direction), l.previous)]
 		if neighbourWall.kind == NextSection {
 			l.rooms = *neighbourWall.nextSection
 		}
 		l.current = neighbourWall.leadsTo
-		l.previous = (l.previous + int(direction) + 3) % len(l.current.neighbours)
+		l.previous = (l.previous + int(direction) + DOORS_PER_ROOM + NEW_NEIGHBOUR_OFFSET) % len(l.current.neighbours)
 	}
 	l.current.p = l.p
 	if l.current.HasEnemies() {
@@ -74,14 +77,10 @@ func (l *Labyrinth) UnlockChest() (int, []Carriable) {
 	return l.current.UnlockChest()
 }
 
-func (l *Labyrinth) GetNeighbours() map[string]int {
-	res := make(map[string]int, 0)
+func (l *Labyrinth) GetNeighbours() map[string]bool {
+	res := make(map[string]bool)
 	for i, v := range l.current.GetNeighbours() {
-		if v.CanGoThrough() {
-			res[DirToStr[Direction((-l.previous+i+3)%4)]] = v.leadsTo.Num
-		} else {
-			res[DirToStr[Direction((-l.previous+i+3)%4)]] = -1
-		}
+		res[DirToStr[getRelativeDirection(i, l.previous)]] = v.CanGoThrough()
 	}
 	return res
 }
@@ -92,4 +91,12 @@ func (l *Labyrinth) GetCurrentRoom() *Room {
 
 func (l *Labyrinth) GetEventsChan() chan Event {
 	return l.eventsChannel
+}
+
+func getNextDoorNum(direction, previous int) int {
+	return (direction + previous + 1) % DOORS_PER_ROOM
+}
+
+func getRelativeDirection(newDirection, prevDirection int) Direction {
+	return Direction((-prevDirection + newDirection + DOORS_PER_ROOM + NEW_NEIGHBOUR_OFFSET) % DOORS_PER_ROOM)
 }
