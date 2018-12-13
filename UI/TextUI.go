@@ -10,10 +10,10 @@ const (
 	LightCmd = "light"
 	ChestCmd = "chest"
 	GotoCmd  = "goto"
-	LeftCmd  = "left"
-	FwdCmd   = "forward"
-	RightCmd = "right"
-	BackCmd  = "back"
+	LeftCmd  = "l"
+	FwdCmd   = "f"
+	RightCmd = "r"
+	BackCmd  = "b"
 )
 
 var directionMap = map[string]Direction{
@@ -23,7 +23,15 @@ var directionMap = map[string]Direction{
 	BackCmd:  Back,
 }
 
-var commands = []string{LightCmd, ChestCmd, GotoCmd}
+var commands = []string{
+	LightCmd,
+	ChestCmd,
+	GotoCmd,
+	LeftCmd,
+	RightCmd,
+	FwdCmd,
+	BackCmd,
+}
 
 func TextFight( /*p *Player, enemies []*Enemy*/ r Room) {
 	/*r := Room{}
@@ -159,10 +167,10 @@ func EnterLabyrinth(l *Labyrinth) { //TODO выводить номера ком�
 				}
 			case GotoCmd:
 				{
-					rooms := l.GetNeighbours()
+					neighboringRooms := l.GetNeighbours()
 					Inform("Which room?\n")
 					directions := make([]string, 0)
-					for k, v := range rooms {
+					for k, v := range neighboringRooms {
 						if v {
 							Inform(k + "\n")
 							directions = append(directions, k)
@@ -172,9 +180,27 @@ func EnterLabyrinth(l *Labyrinth) { //TODO выводить номера ком�
 					_next, ok := directionMap[strings.ToLower(v)]
 					if !ok {
 						fmt.Println(v)
+					} else {
+						next = _next
+						stayHere = false
 					}
-					next = _next
-					stayHere = false
+				}
+			case LeftCmd, FwdCmd, RightCmd, BackCmd:
+				{
+					_next, ok := directionMap[strings.ToLower(cmd)]
+					if !ok {
+						fmt.Println(cmd, " is an unknown direction somehow")
+					}
+					passable, ok := l.GetNeighbours()[cmd]
+					if !ok {
+						fmt.Println(cmd, " not a neighbour?")
+					} else if !passable {
+						Inform("There's a wall in that direction\n")
+					} else {
+						next = _next
+						stayHere = false
+					}
+
 				}
 			default:
 				fmt.Println("Unknown command", cmd)

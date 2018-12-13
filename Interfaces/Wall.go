@@ -18,10 +18,10 @@ const (
 )
 
 var DirToStr = map[Direction]string{
-	Left:    "Left",
-	Back:    "Back",
-	Right:   "Right",
-	Forward: "Forward",
+	Left:    "l",
+	Back:    "b",
+	Right:   "r",
+	Forward: "f",
 }
 
 type Wall struct {

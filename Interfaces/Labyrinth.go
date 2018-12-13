@@ -42,8 +42,11 @@ func (l *Labyrinth) GoToRoom(direction Direction) (int, []Carriable) {
 	if l.current == nil {
 		l.current = l.rooms[l.startingRoomNum]
 	} else if int(direction) >= 0 {
-		l.current.p = nil
 		neighbourWall := l.current.GetNeighbours()[getNextDoorNum(int(direction), l.previous)]
+		if !neighbourWall.CanGoThrough() {
+			return 0, nil
+		}
+		l.current.p = nil
 		if neighbourWall.kind == NextSection {
 			l.rooms = *neighbourWall.nextSection
 		}
