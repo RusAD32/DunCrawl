@@ -72,3 +72,7 @@ func (e Equippable) Use(p *Player, values ...interface{}) {
 		}
 	}
 }
+
+func (e Equippable) StacksBy() int {
+	return 1
+}
