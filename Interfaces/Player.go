@@ -1,5 +1,7 @@
 package Interfaces
 
+import "github.com/pkg/errors"
+
 type Stat int
 
 const (
@@ -26,6 +28,8 @@ type Player struct {
 	curMentHP       int
 	maxMentHP       int
 	dmgTakenTrigger *Trigger
+	inv             *Inventory
+	money           int
 }
 
 func (p *Player) IsAlive() bool {
@@ -102,4 +106,37 @@ func (p *Player) AddSelfSkill(skill PlayerSelfSkill) {
 
 func (p *Player) AddDmgSkill(skill PlayerDmgSkill) {
 	p.dmgSkills = append(p.dmgSkills, skill)
+}
+
+func (p *Player) AddToInventory(item Carriable, amount int) error {
+	return p.inv.Add(item, amount)
+}
+
+func (p *Player) GetInventory() []Stack {
+	return p.inv.slots
+}
+
+func (p *Player) RemoveFromInv(slot, amount int) {
+	p.inv.Remove(slot, amount)
+}
+
+func (p *Player) ModifyMoney(amount int) error {
+	if p.money < -amount {
+		return errors.New("not enough money")
+	}
+	p.money += amount
+	return nil
+}
+
+func (p *Player) GetMoney() int {
+	return p.money
+}
+
+func (p *Player) InventoryFull() bool {
+	for _, v := range p.inv.slots {
+		if v == nil {
+			return true
+		}
+	}
+	return false
 }

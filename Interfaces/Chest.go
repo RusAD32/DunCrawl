@@ -4,7 +4,7 @@ package Interfaces
 type Chest struct {
 	trap       Trap
 	loot       []Lootable
-	usefulLoot []Carriable
+	usefulLoot []Stack
 }
 
 func (c *Chest) TrapTrigger(p *Player) {
@@ -28,9 +28,9 @@ func (c *Chest) GetMoney() int {
 	return total
 }
 
-func (c *Chest) GetValuables() []Carriable {
+func (c *Chest) GetValuables() []Stack {
 	res := c.usefulLoot
-	c.usefulLoot = make([]Carriable, 0)
+	c.usefulLoot = make([]Stack, 0)
 	return res
 }
 
@@ -38,6 +38,6 @@ func GetDefaultChest() *Chest {
 	return &Chest{
 		nil,
 		[]Lootable{GenerateLootable("Different stuff", 40)},
-		make([]Carriable, 0),
+		make([]Stack, 0),
 	}
 }

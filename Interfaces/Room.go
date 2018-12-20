@@ -19,8 +19,8 @@ type Room struct {
 	loot             []Lootable
 	shadowLoot       []Lootable
 	shadowEnemies    []*Enemy
-	shadowProvision  []Carriable
-	provision        []Carriable
+	shadowProvision  []Stack
+	provision        []Stack
 	chest            *Chest
 	neighbours       []*Wall
 
@@ -135,13 +135,13 @@ func (r *Room) Init(enemies []*Enemy, bgToUi chan []SkillInfo, uiToBg chan strin
 	}
 }
 
-func (r *Room) StartFight() (int, []Carriable) {
+func (r *Room) StartFight() (int, []Stack) {
 	for len(r.enemies) > 0 && r.p.curMentHP > 0 && r.p.curPhysHP > 0 {
 		r.FightTurn()
 	}
 	if r.p.IsAlive() {
 		totalMoney := 0
-		totalProvision := make([]Carriable, 0)
+		totalProvision := make([]Stack, 0)
 		for _, v := range r.defeated {
 			totalMoney += v.GetMoney()
 			totalProvision = append(totalProvision, v.GetProvision()...)
@@ -154,10 +154,10 @@ func (r *Room) StartFight() (int, []Carriable) {
 	}
 	defer func() { r.confirm <- false }()
 	//Inform(fmt.Sprintf("Your hp: %d", r.p.curPhysHP))
-	return 0, make([]Carriable, 0)
+	return 0, make([]Stack, 0)
 }
 
-func (r *Room) GetValues() (int, []Carriable) {
+func (r *Room) GetValues() (int, []Stack) {
 	return r.GetMoney(), r.GetLoot()
 }
 
@@ -170,9 +170,9 @@ func (r *Room) GetMoney() int {
 	return total
 }
 
-func (r *Room) GetLoot() []Carriable {
+func (r *Room) GetLoot() []Stack {
 	res := r.provision
-	r.provision = make([]Carriable, 0)
+	r.provision = make([]Stack, 0)
 	return res
 }
 
@@ -188,16 +188,16 @@ func (r *Room) HasShadowEnemies() bool {
 	return len(r.shadowEnemies) > 0
 }
 
-func (r *Room) UnlockChest() (int, []Carriable) {
+func (r *Room) UnlockChest() (int, []Stack) {
 	if r.chest != nil {
 		return r.chest.GetMoney(), r.chest.GetValuables()
 	}
-	return 0, make([]Carriable, 0)
+	return 0, make([]Stack, 0)
 }
 
-func (r *Room) Light() (int, []Carriable) {
+func (r *Room) Light() (int, []Stack) {
 	totalMoney := 0
-	totalProvision := make([]Carriable, 0)
+	totalProvision := make([]Stack, 0)
 	if len(r.shadowEnemies) > 0 {
 		r.enemies = r.shadowEnemies
 		money, prov := r.StartFight()

@@ -86,6 +86,8 @@ func RemoveDeadEnemies(r *Room) {
 }
 
 func GetDefaultPlayer() *Player {
+	inv := Inventory{}
+	inv.Init(8)
 	return &Player{
 		stats:           map[Stat]int{},
 		equipment:       map[Slot]Equippable{},
@@ -100,6 +102,8 @@ func GetDefaultPlayer() *Player {
 		exp:             0,
 		curMentHP:       100,
 		maxMentHP:       100,
+		money:           0,
+		inv:             &inv,
 	}
 }
 

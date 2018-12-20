@@ -12,12 +12,23 @@ type Stack interface {
 	Add(amount int) int
 	Remove(amount int) int
 	GetName() string
+	GetAmount() int
+	GetItem() Carriable
+	MaxAmount() int
 }
 
 type CarriableStack struct {
 	item     Carriable
 	stacksBy int
 	amount   int
+}
+
+func (c *CarriableStack) GetItem() Carriable {
+	return c.item
+}
+
+func (c *CarriableStack) MaxAmount() int {
+	return c.stacksBy
 }
 
 func (c *CarriableStack) Init(item Carriable, amount int) {
@@ -57,4 +68,8 @@ func (c *CarriableStack) GetName() string { // assuming the name is unique
 
 func (c *CarriableStack) Use(player *Player, values ...interface{}) {
 	c.item.Use(player, values...)
+}
+
+func (c *CarriableStack) GetAmount() int {
+	return c.amount
 }

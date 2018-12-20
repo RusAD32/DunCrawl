@@ -38,7 +38,7 @@ func (l *Labyrinth) Init(p *Player, rooms []*Room, fightConfirm chan bool, fight
 	l.eventsChannel = events
 }
 
-func (l *Labyrinth) GoToRoom(direction Direction) (int, []Carriable) {
+func (l *Labyrinth) GoToRoom(direction Direction) (int, []Stack) {
 	if l.current == nil {
 		l.current = l.rooms[l.startingRoomNum]
 	} else if int(direction) >= 0 {
@@ -59,15 +59,15 @@ func (l *Labyrinth) GoToRoom(direction Direction) (int, []Carriable) {
 		return l.current.StartFight()
 	} else {
 		defer func() { l.eventsChannel <- NoEvent }()
-		return 0, []Carriable{}
+		return 0, []Stack{}
 	}
 }
 
-func (l *Labyrinth) GetValues() (int, []Carriable) {
+func (l *Labyrinth) GetValues() (int, []Stack) {
 	return l.current.GetValues()
 }
 
-func (l *Labyrinth) Light() (int, []Carriable) {
+func (l *Labyrinth) Light() (int, []Stack) {
 	if l.current.HasShadowEnemies() {
 		l.eventsChannel <- FightEvent
 	} else {
@@ -76,7 +76,7 @@ func (l *Labyrinth) Light() (int, []Carriable) {
 	return l.current.Light()
 }
 
-func (l *Labyrinth) UnlockChest() (int, []Carriable) {
+func (l *Labyrinth) UnlockChest() (int, []Stack) {
 	return l.current.UnlockChest()
 }
 
@@ -94,6 +94,10 @@ func (l *Labyrinth) GetCurrentRoom() *Room {
 
 func (l *Labyrinth) GetEventsChan() chan Event {
 	return l.eventsChannel
+}
+
+func (l *Labyrinth) GetPlayer() *Player {
+	return l.p
 }
 
 func getNextDoorNum(direction, previous int) int {

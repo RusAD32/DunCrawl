@@ -113,13 +113,17 @@ func (e *Enemy) GetMoney() int {
 	return total
 }
 
-func (e *Enemy) GetProvision() []Carriable {
-	res := make([]Carriable, 0)
+func (e *Enemy) GetProvision() []Stack {
+	res := make([]Stack, 0)
 	for _, v := range e.equipment {
-		res = append(res, v)
+		st := CarriableStack{}
+		st.Init(v, 1)
+		res = append(res, &st)
 	}
 	for _, v := range e.provision {
-		res = append(res, v)
+		st := CarriableStack{}
+		st.Init(v, 1)
+		res = append(res, &st)
 	}
 	return res
 }

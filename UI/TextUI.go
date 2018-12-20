@@ -3,6 +3,7 @@ package UI
 import (
 	. "../Interfaces"
 	"fmt"
+	"strconv"
 	"strings"
 )
 
@@ -133,12 +134,12 @@ func EnterLabyrinth(l *Labyrinth) { //TODO выводить номера ком�
 	events := l.GetEventsChan()
 	for {
 		var money int
-		var loot []Carriable
+		var loot []Stack
 		go func() { money, loot = l.GoToRoom(next) }()
 		f := <-events
 		if f == FightEvent {
 			TextFight(*l.GetCurrentRoom())
-			InformLoot(money, loot)
+			InformLoot(money, loot, l.GetPlayer())
 		}
 		PrintLabyrinth(l)
 		for _, v := range l.GetCurrentRoom().GetNeighbours() {
@@ -146,7 +147,7 @@ func EnterLabyrinth(l *Labyrinth) { //TODO выводить номера ком�
 		}
 		fmt.Println(l.GetCurrentRoom().Num)
 		money, loot = l.GetValues()
-		InformLoot(money, loot)
+		InformLoot(money, loot, l.GetPlayer())
 		stayHere := true
 		for stayHere {
 			cmd, _ := Prompt("Write a command...", commands)
@@ -158,12 +159,12 @@ func EnterLabyrinth(l *Labyrinth) { //TODO выводить номера ком�
 					if f == FightEvent {
 						TextFight(*l.GetCurrentRoom())
 					}
-					InformLoot(money, loot)
+					InformLoot(money, loot, l.GetPlayer())
 				}
 			case ChestCmd:
 				{
 					money, loot = l.UnlockChest()
-					InformLoot(money, loot)
+					InformLoot(money, loot, l.GetPlayer())
 				}
 			case GotoCmd:
 				{
@@ -211,13 +212,55 @@ func EnterLabyrinth(l *Labyrinth) { //TODO выводить номера ком�
 	}
 }
 
-func InformLoot(money int, loot []Carriable) {
+func InformLoot(money int, loot []Stack, p *Player) {
 	Inform(fmt.Sprintf("You found %d money", money))
+	err := p.ModifyMoney(money)
+	if err != nil {
+		fmt.Println("Cannot add money!")
+		return
+	}
 	if len(loot) > 0 {
 		Inform(" and some loot!\n")
 	}
-	for _, v := range loot {
-		Inform(v.GetName() + "\n")
+	for i, v := range loot {
+		Inform(strconv.Itoa(i+1) + ": " + v.GetName() + "\n")
+	}
+	if len(loot) > 0 {
+		Inform("Your inventory:\n")
+		for i, v := range p.GetInventory() {
+			name := "Empty"
+			if v != nil {
+				name = v.GetName()
+			}
+			Inform(strconv.Itoa(i+1) + ": " + name)
+			if v != nil && v.GetAmount() > 1 {
+				Inform(" (" + strconv.Itoa(v.GetAmount()) + ")")
+			}
+			Inform("\n")
+		}
+		Inform("Input numbers of what you want to take\n")
+		for {
+			availChoices := MakeStrRange(1, len(loot))
+			availChoices = append(availChoices, "")
+			choice, _ := Prompt("", availChoices)
+			if choice == "" {
+				break
+			}
+			choiceInt, err := strconv.Atoi(choice)
+			if err != nil {
+				fmt.Println("Can't convert input into intgeger", err.Error())
+				continue
+			}
+			err = p.AddToInventory(loot[choiceInt].GetItem(), loot[choiceInt].GetAmount())
+			if err != nil {
+				fmt.Println("Can't add to inventory", err.Error())
+				continue
+			}
+			loot = append(loot[:choiceInt], loot[choiceInt+1:]...)
+			if len(loot) == 0 || p.InventoryFull() {
+				break
+			}
+		}
 	}
 	Inform("\n")
 }
