@@ -26,6 +26,7 @@ func (g *UIGame) Init(l *Labyrinth, w, h int) {
 	g.l = l
 	g.w = w
 	g.h = h
+	g.updateDoors()
 }
 
 func (g *UIGame) doorClicked(mouseX, mouseY int) int {
@@ -46,6 +47,15 @@ func (g *UIGame) Draw(screen *ebiten.Image) {
 }
 
 func (g *UIGame) Update() {
+	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
+		nextDoor := g.doorClicked(ebiten.CursorPosition())
+		go g.l.GoToRoom(Direction(nextDoor))
+		<-g.l.GetEventsChan()
+		g.updateDoors()
+	}
+}
+
+func (g *UIGame) updateDoors() {
 	neighbours := g.l.GetSliceNeighbours()
 	g.doors = make([]*UIDoor, 0)
 	for i := 0; i < 3; i++ {
@@ -69,10 +79,6 @@ func (g *UIGame) Update() {
 			3,
 		}
 		g.doors = append(g.doors, &door)
-	}
-	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
-		nextDoor := g.doorClicked(ebiten.CursorPosition())
-		go g.l.GoToRoom(Direction(nextDoor))
 	}
 }
 
