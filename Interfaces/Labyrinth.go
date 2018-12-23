@@ -88,6 +88,14 @@ func (l *Labyrinth) GetNeighbours() map[string]bool {
 	return res
 }
 
+func (l *Labyrinth) GetSliceNeighbours() []bool {
+	res := make([]bool, 4)
+	for i, v := range l.current.GetNeighbours() {
+		res[int(getRelativeDirection(i, l.previous))] = v.CanGoThrough()
+	}
+	return res
+}
+
 func (l *Labyrinth) GetCurrentRoom() *Room {
 	return l.current
 }
