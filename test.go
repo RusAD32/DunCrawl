@@ -9,7 +9,6 @@ import (
 	"github.com/hajimehoshi/ebiten"
 	"github.com/hajimehoshi/ebiten/ebitenutil"
 	"image/color"
-	"strconv"
 )
 
 func walkTest() {
@@ -71,38 +70,110 @@ func labGenTest() {
 
 var l Labyrinth
 
-func update(screen *ebiten.Image) error {
-	screen.Fill(color.White)
+func getRoomCoords(i, j, offset, roomW, roomH int) (float64, float64) {
+	return float64(roomW*j + offset), float64(roomH*i + offset)
+}
+
+func DrawPlayer(screen *ebiten.Image, x, y float64, roomW, roomH, dir int, col color.Color) {
+	playerW := float64(roomW) * 0.8
+	playerWoffs := float64(roomW) * 0.1
+	playerH := float64(roomH) * 0.8
+	playerHoffs := float64(roomH) * 0.1
+	switch dir {
+	case 0:
+		{
+			ax := x + playerWoffs
+			ay := y + playerHoffs
+			bx := ax + playerW
+			by := ay + playerH/2.0
+			cx := ax
+			cy := ay + playerH
+			ebitenutil.DrawLine(screen, ax, ay, bx, by, col)
+			ebitenutil.DrawLine(screen, bx, by, cx, cy, col)
+			ebitenutil.DrawLine(screen, cx, cy, ax, ay, col)
+		}
+	case 3:
+		{
+			ax := x + playerWoffs
+			ay := y + playerHoffs + playerH
+			bx := ax + playerW/2
+			by := ay - playerH
+			cx := ax + playerW
+			cy := ay
+			ebitenutil.DrawLine(screen, ax, ay, bx, by, col)
+			ebitenutil.DrawLine(screen, bx, by, cx, cy, col)
+			ebitenutil.DrawLine(screen, cx, cy, ax, ay, col)
+		}
+	case 2:
+		{
+			ax := x + playerWoffs + playerW
+			ay := y + playerHoffs
+			bx := ax - playerW
+			by := ay + playerH/2.0
+			cx := ax
+			cy := ay + playerH
+			ebitenutil.DrawLine(screen, ax, ay, bx, by, col)
+			ebitenutil.DrawLine(screen, bx, by, cx, cy, col)
+			ebitenutil.DrawLine(screen, cx, cy, ax, ay, col)
+		}
+	case 1:
+		{
+			ax := x + playerWoffs
+			ay := y + playerHoffs
+			bx := ax + playerW/2.0
+			by := ay + playerH
+			cx := ax + playerW
+			cy := ay
+			ebitenutil.DrawLine(screen, ax, ay, bx, by, col)
+			ebitenutil.DrawLine(screen, bx, by, cx, cy, col)
+			ebitenutil.DrawLine(screen, cx, cy, ax, ay, col)
+		}
+	}
+}
+
+func DrawLabyrinth(screen *ebiten.Image, col color.Color) {
+	offset := 5
 	w, h := screen.Size()
-	roomW := (w - 1) / l.GetWidth()
-	roomH := (h - 1) / l.GetLength()
+	roomW := (w - offset*2) / l.GetWidth()
+	roomH := (h - offset*2) / l.GetLength()
 	rooms := l.GetRooms()
 	for i := 0; i < l.GetWidth(); i++ {
 		for j := 0; j < l.GetLength(); j++ {
 			room := rooms[i*l.GetLength()+j]
 			walls := room.GetNeighbours()
-			ebitenutil.DebugPrintAt(screen, strconv.Itoa(room.Num), roomW*j, roomH*i)
+			//ebitenutil.DebugPrintAt(screen, strconv.Itoa(room.Num), roomW*j + offset, roomH*i + offset)
+			roomX, roomY := getRoomCoords(i, j, offset, roomW, roomH)
+			nextX := roomX + float64(roomW)
+			nextY := roomY + float64(roomH)
 			if !walls[int(Forward)].CanGoThrough() {
 				//fmt.Println(room.Num, "fwd")
-				ebitenutil.DrawLine(screen, float64(roomW*j), float64(roomH*i), float64(roomW*(j+1)), float64(roomH*i), color.Black)
+				ebitenutil.DrawLine(screen, roomX, roomY, roomX+float64(roomW), roomY, col)
 			}
 			if !walls[int(Left)].CanGoThrough() {
 				//fmt.Println(room.Num, "lft")
-				ebitenutil.DrawLine(screen, float64(roomW*j), float64(roomH*i), float64(roomW*j), float64(roomH*(i+1)), color.Black)
+				ebitenutil.DrawLine(screen, roomX, roomY, roomX, nextY, col)
 			}
 			if !walls[int(Right)].CanGoThrough() {
 				//fmt.Println(room.Num, "right")
-				ebitenutil.DrawLine(screen, float64(roomW*(j+1)), float64(roomH*i), float64(roomW*(j+1)), float64(roomH*(i+1)), color.Black)
+				ebitenutil.DrawLine(screen, nextX, roomY, nextX, nextY, col)
 			}
 			if !walls[int(Back)].CanGoThrough() {
 				//fmt.Println(room.Num, "dwn")
-				ebitenutil.DrawLine(screen, float64(roomW*j), float64(roomH*(i+1)), float64(roomW*(j+1)), float64(roomH*(i+1)), color.Black)
+				ebitenutil.DrawLine(screen, roomX, nextY, nextX, nextY, col)
 			}
 			if rooms[i*l.GetLength()+j] == l.GetCurrentRoom() {
-				//ebitenutil.DebugPrintAt(screen, "p", roomW*i, roomH*i)
+				DrawPlayer(screen, roomX, roomY, roomW, roomH, l.GetPrevious(), col)
 			}
 		}
 	}
+}
+
+func update(screen *ebiten.Image) error {
+	err := screen.Fill(color.White)
+	if err != nil {
+		panic("can't fill the screen with color")
+	}
+	DrawLabyrinth(screen, color.Black)
 	//ebitenutil.DebugPrint(screen, "Hello world!")
 	return nil
 }
@@ -110,7 +181,8 @@ func update(screen *ebiten.Image) error {
 func ebitenTest() {
 	l = GenerateLabyrinth(10, 10)
 	PrintLabyrinth(&l)
-	if err := ebiten.Run(update, 800, 600, 1, "Hello world!"); err != nil {
+	go UI.EnterLabyrinth(&l)
+	if err := ebiten.Run(update, 600, 480, 2, "Hello world!"); err != nil {
 		panic(err.Error())
 	}
 }

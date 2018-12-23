@@ -119,3 +119,7 @@ func getNextDoorNum(direction, previous int) int {
 func getRelativeDirection(newDirection, prevDirection int) Direction {
 	return Direction((-prevDirection + newDirection + DOORS_PER_ROOM + NEW_NEIGHBOUR_OFFSET) % DOORS_PER_ROOM)
 }
+
+func (l *Labyrinth) GetPrevious() int {
+	return l.previous
+}

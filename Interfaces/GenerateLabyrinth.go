@@ -1,7 +1,6 @@
 package Interfaces
 
 import (
-	"fmt"
 	"math/rand"
 	"time"
 )
@@ -9,7 +8,7 @@ import (
 const FirstDirection = int(Back)
 const FirstRoomPath = -1
 const MaxLocks = 3
-const LockProbability = 0.7
+const LockProbability = 0.2
 
 func GenerateLabyrinth(length, width int) Labyrinth {
 	//TODO remove weird constants, they are calculated on paper
@@ -33,6 +32,9 @@ func GenerateLabyrinth(length, width int) Labyrinth {
 	for i := range lab.bossEntryRoomNums {
 		generateBossPath(&lab, width, length, i)
 	}
+	p := GetDefaultPlayer()
+	lab.p = p
+	lab.current.p = p
 	return lab
 }
 
@@ -41,17 +43,20 @@ func getCorners(length, width int) []int {
 }
 
 func generateCenter(lab *Labyrinth, length, width int) {
-	rooms := fillWithRooms(lab, length, width, Door)
+	rooms := fillWithRooms(lab, length, width, Solid)
 	current := rooms[lab.startingRoomNum]
 	lab.rooms = rooms
 	lab.current = current
 	lab.sections = append(lab.sections, &rooms)
-	dfs(lab.current, 0)
+	backTrackerLabGen(lab.current, 0)
 	for i, v := range lab.bossEntryRoomNums {
 		markPath(lab.rooms[v], i+1)
 	}
 	lab.current.pathNum = FirstRoomPath
-	dfsCloseDoors(lab.current)
+	openDoors(*lab.sections[0])
+	for i, v := range lab.current.neighbours {
+		UnockRooms(lab.current, v.leadsTo, i)
+	}
 	dfs(lab.current, 0)
 }
 
@@ -123,15 +128,11 @@ func dfs(room *Room, dist int) {
 	}
 }
 
-func dfsCloseDoors(room *Room) {
-	room.seenInDfs = true
-	room.DistFromCenter = -1
-	for i, v := range room.GetNeighbours() {
-		if v.CanGoThrough() {
-			if ifLock(room, v.GetNextDoor()) {
-				LockRooms(room, v.GetNextDoor(), i)
-			} else if !v.GetNextDoor().seenInDfs {
-				dfsCloseDoors(v.GetNextDoor())
+func openDoors(rooms []*Room) {
+	for _, v := range rooms {
+		for i, d := range v.neighbours {
+			if !d.CanGoThrough() && d.leadsTo != nil && rand.Float32() < LockProbability {
+				UnockRooms(v, d.leadsTo, i)
 			}
 		}
 	}
@@ -157,7 +158,6 @@ func rotateRoomNum(dir, rotAmount int) int {
 func ifLock(room, next *Room) bool {
 	locked := room.GetLocks()
 	nextLocked := next.GetLocks()
-	fmt.Println(room.Num, next.Num, next.seenInDfs, room.pathNum, next.pathNum)
 	return (!next.seenInDfs) &&
 		room.pathNum != -1 &&
 		locked < MaxLocks &&
