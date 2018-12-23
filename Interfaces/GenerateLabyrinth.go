@@ -1,6 +1,7 @@
 package Interfaces
 
 import (
+	"fmt"
 	"math/rand"
 	"time"
 )
@@ -8,7 +9,7 @@ import (
 const FirstDirection = int(Back)
 const FirstRoomPath = -1
 const MaxLocks = 3
-const LockProbability = 0.5
+const LockProbability = 0.7
 
 func GenerateLabyrinth(length, width int) Labyrinth {
 	//TODO remove weird constants, they are calculated on paper
@@ -125,17 +126,13 @@ func dfs(room *Room, dist int) {
 func dfsCloseDoors(room *Room) {
 	room.seenInDfs = true
 	room.DistFromCenter = -1
-	locked := 0
 	for i, v := range room.GetNeighbours() {
 		if v.CanGoThrough() {
-			if ifLock(room, v.GetNextDoor(), locked) {
-				locked++
+			if ifLock(room, v.GetNextDoor()) {
 				LockRooms(room, v.GetNextDoor(), i)
 			} else if !v.GetNextDoor().seenInDfs {
 				dfsCloseDoors(v.GetNextDoor())
 			}
-		} else {
-			locked++
 		}
 	}
 }
@@ -157,10 +154,14 @@ func rotateRoomNum(dir, rotAmount int) int {
 	return (dir + DOORS_PER_ROOM/rotAmount) % DOORS_PER_ROOM
 }
 
-func ifLock(room, next *Room, locked int) bool {
-	return !next.seenInDfs &&
+func ifLock(room, next *Room) bool {
+	locked := room.GetLocks()
+	nextLocked := next.GetLocks()
+	fmt.Println(room.Num, next.Num, next.seenInDfs, room.pathNum, next.pathNum)
+	return (!next.seenInDfs) &&
 		room.pathNum != -1 &&
 		locked < MaxLocks &&
+		nextLocked < MaxLocks-1 &&
 		(room.pathNum == 0 || room.pathNum != next.pathNum) &&
 		rand.Float32() < LockProbability
 }

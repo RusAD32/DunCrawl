@@ -128,7 +128,7 @@ func PrintLabyrinth(l *Labyrinth) {
 	labMap.WriteString("꜒")
 	for j := 0; j < l.length; j++ {
 		if l.rooms[j].GetNeighbours()[int(Forward)].CanGoThrough() {
-			labMap.WriteString("…")
+			labMap.WriteString(" ")
 		} else {
 			labMap.WriteString("-")
 		}
@@ -141,7 +141,7 @@ func PrintLabyrinth(l *Labyrinth) {
 	labMap.WriteString("\n")
 	for i := 0; i < l.width; i++ {
 		if l.rooms[i*l.length].GetNeighbours()[int(Left)].CanGoThrough() {
-			labMap.WriteString(":")
+			labMap.WriteString(" ")
 		} else {
 			labMap.WriteString("|")
 		}
@@ -153,7 +153,7 @@ func PrintLabyrinth(l *Labyrinth) {
 				labMap.WriteString(" ")
 			}
 			if curRoom.GetNeighbours()[int(Right)].CanGoThrough() {
-				labMap.WriteString(":")
+				labMap.WriteString(" ")
 			} else {
 				labMap.WriteString("|")
 			}

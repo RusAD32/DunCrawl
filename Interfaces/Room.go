@@ -230,3 +230,13 @@ func (r *Room) SetChest(chest *Chest) {
 func (r *Room) AddShadowLoot(lootable Lootable) {
 	r.shadowLoot = append(r.shadowLoot, lootable)
 }
+
+func (r *Room) GetLocks() int {
+	locks := 0
+	for _, v := range r.GetNeighbours() {
+		if !v.CanGoThrough() {
+			locks++
+		}
+	}
+	return locks
+}

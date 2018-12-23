@@ -6,6 +6,10 @@ import (
 	. "./Interfaces"
 	"./PlayerSkills"
 	"./UI"
+	"github.com/hajimehoshi/ebiten"
+	"github.com/hajimehoshi/ebiten/ebitenutil"
+	"image/color"
+	"strconv"
 )
 
 func walkTest() {
@@ -65,6 +69,52 @@ func labGenTest() {
 	PrintLabyrinth(&l)
 }
 
+var l Labyrinth
+
+func update(screen *ebiten.Image) error {
+	screen.Fill(color.White)
+	w, h := screen.Size()
+	roomW := (w - 1) / l.GetWidth()
+	roomH := (h - 1) / l.GetLength()
+	rooms := l.GetRooms()
+	for i := 0; i < l.GetWidth(); i++ {
+		for j := 0; j < l.GetLength(); j++ {
+			room := rooms[i*l.GetLength()+j]
+			walls := room.GetNeighbours()
+			ebitenutil.DebugPrintAt(screen, strconv.Itoa(room.Num), roomW*j, roomH*i)
+			if !walls[int(Forward)].CanGoThrough() {
+				//fmt.Println(room.Num, "fwd")
+				ebitenutil.DrawLine(screen, float64(roomW*j), float64(roomH*i), float64(roomW*(j+1)), float64(roomH*i), color.Black)
+			}
+			if !walls[int(Left)].CanGoThrough() {
+				//fmt.Println(room.Num, "lft")
+				ebitenutil.DrawLine(screen, float64(roomW*j), float64(roomH*i), float64(roomW*j), float64(roomH*(i+1)), color.Black)
+			}
+			if !walls[int(Right)].CanGoThrough() {
+				//fmt.Println(room.Num, "right")
+				ebitenutil.DrawLine(screen, float64(roomW*(j+1)), float64(roomH*i), float64(roomW*(j+1)), float64(roomH*(i+1)), color.Black)
+			}
+			if !walls[int(Back)].CanGoThrough() {
+				//fmt.Println(room.Num, "dwn")
+				ebitenutil.DrawLine(screen, float64(roomW*j), float64(roomH*(i+1)), float64(roomW*(j+1)), float64(roomH*(i+1)), color.Black)
+			}
+			if rooms[i*l.GetLength()+j] == l.GetCurrentRoom() {
+				//ebitenutil.DebugPrintAt(screen, "p", roomW*i, roomH*i)
+			}
+		}
+	}
+	//ebitenutil.DebugPrint(screen, "Hello world!")
+	return nil
+}
+
+func ebitenTest() {
+	l = GenerateLabyrinth(10, 10)
+	PrintLabyrinth(&l)
+	if err := ebiten.Run(update, 800, 600, 1, "Hello world!"); err != nil {
+		panic(err.Error())
+	}
+}
+
 func main() {
-	walkTest()
+	ebitenTest()
 }

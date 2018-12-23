@@ -100,6 +100,18 @@ func (l *Labyrinth) GetPlayer() *Player {
 	return l.p
 }
 
+func (l *Labyrinth) GetWidth() int {
+	return l.width
+}
+
+func (l *Labyrinth) GetLength() int {
+	return l.length
+}
+
+func (l *Labyrinth) GetRooms() []*Room {
+	return l.rooms
+}
+
 func getNextDoorNum(direction, previous int) int {
 	return (direction + previous + 1) % DOORS_PER_ROOM
 }
