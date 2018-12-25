@@ -3,6 +3,7 @@ package main
 import (
 	"./EnemySkills"
 	. "./Equipment"
+	. "./Generator"
 	. "./Interfaces"
 	"./PlayerSkills"
 	"./UI"
@@ -41,13 +42,10 @@ func walkTest() {
 
 	//f := Room{&p, *[]*Enemy{&dog, &dog2, &dog3, &dog4}, PriorityQueue, 0{}}
 	r := Room{}
-	uiToBg := make(chan string)
-	bgToUi := make(chan []SkillInfo)
-	confirm := make(chan bool)
 	//events := make(chan Event)
-	r.Init([]*Enemy{}, bgToUi, uiToBg, confirm)
+	r.Init([]*Enemy{}, l)
 	r2 := Room{}
-	r2.Init(make([]*Enemy, 0), bgToUi, uiToBg, confirm)
+	r2.Init(make([]*Enemy, 0), l)
 	r2.AddLoot(GenerateLootable("Stuff", 10))
 	ch := GetDefaultChest()
 	r2.SetChest(ch)
@@ -59,19 +57,19 @@ func walkTest() {
 	ConnectRooms(&r, &r2, Left)
 	l.Init(p, rooms, confirm, bgToUi, uiToBg, events)*/
 	//	UI.TextFight(&r)
-	UI.EnterLabyrinth(&l)
+	UI.EnterLabyrinth(l)
 }
 
 func labGenTest() {
 	l := GenerateLabyrinth(9, 15)
-	PrintLabyrinth(&l)
+	PrintLabyrinth(l)
 }
 
-var l Labyrinth
+var l *Labyrinth
 var g UI.UIGame
 
 func update(screen *ebiten.Image) error {
-	UI.MoveThroughLabyrinth(&l)
+	//UI.MoveThroughLabyrinth(l)
 	err := screen.Fill(color.White)
 	if err != nil {
 		panic("can't fill the screen with color")
@@ -85,8 +83,8 @@ func update(screen *ebiten.Image) error {
 
 func ebitenTest() {
 	l = GenerateLabyrinth(10, 10)
-	g.Init(&l, 600, 480)
-	PrintLabyrinth(&l)
+	g.Init(l, 600, 480)
+	PrintLabyrinth(l)
 	//go UI.EnterLabyrinth(&l)
 	if err := ebiten.Run(update, 600, 480, 2, "Hello world!"); err != nil {
 		panic(err.Error())

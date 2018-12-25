@@ -2,6 +2,7 @@ package Interfaces
 
 import (
 	"fmt"
+	"math/rand"
 	"strconv"
 )
 
@@ -116,7 +117,10 @@ func (r *Room) FightTurn() {
 	RemoveDeadEnemies(r)
 }
 
-func (r *Room) Init(enemies []*Enemy, bgToUi chan []SkillInfo, uiToBg chan string, confirm chan bool) {
+func (r *Room) Init(enemies []*Enemy, l *Labyrinth) {
+	bgToUi := l.fightBgToUi
+	uiToBg := l.fightUiToBg
+	confirm := l.fightConfirmChan
 	r.enemies = enemies
 	r.defeated = make([]*Enemy, 0)
 	r.shadowEnemies = make([]*Enemy, 0)
@@ -239,4 +243,25 @@ func (r *Room) GetLocks() int {
 		}
 	}
 	return locks
+}
+
+func BackTrackerLabGen(room *Room, distFromStart int) {
+	if room.seenInDfs {
+		return
+	}
+	room.seenInDfs = true
+	room.DistFromCenter = distFromStart
+	availNeighbourNums := make([]int, 0)
+	for i, v := range room.neighbours {
+		if v.GetNextDoor() != nil {
+			availNeighbourNums = append(availNeighbourNums, i)
+		}
+	}
+	for _, v := range rand.Perm(len(availNeighbourNums)) {
+		num := availNeighbourNums[v]
+		if !room.neighbours[num].leadsTo.seenInDfs {
+			UnockRooms(room, room.neighbours[num].leadsTo, num)
+			BackTrackerLabGen(room.neighbours[num].leadsTo, distFromStart+1)
+		}
+	}
 }

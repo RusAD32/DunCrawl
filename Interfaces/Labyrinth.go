@@ -131,3 +131,26 @@ func getRelativeDirection(newDirection, prevDirection int) Direction {
 func (l *Labyrinth) GetPrevious() int {
 	return l.previous
 }
+
+func (l *Labyrinth) SetPlayer(p *Player) {
+	if l.current != nil {
+		l.current.p = p
+	}
+	l.p = p
+}
+
+func (l *Labyrinth) AddRooms(rooms []*Room) {
+	l.rooms = append(l.rooms, rooms...)
+}
+
+func (l *Labyrinth) SetCurrentRoom(roomnum int) {
+	l.current = l.rooms[roomnum]
+}
+
+func (l *Labyrinth) AddSection(sec *[]*Room) {
+	l.sections = append(l.sections, sec)
+}
+
+func (l *Labyrinth) GetSection(num int) *[]*Room {
+	return l.sections[num]
+}

@@ -121,6 +121,25 @@ func GetDefaultEnemy(index int) *Enemy {
 	}
 }
 
+func GetDefaultLabyrinth(width, length, FirstDirection int, corners []int) *Labyrinth {
+	l := Labyrinth{
+		nil,
+		make([]*Room, 0),
+		make([]*[]*Room, 0),
+		width/2*length + length/2, // center
+		nil,
+		FirstDirection,
+		make(chan bool),
+		make(chan []SkillInfo),
+		make(chan string),
+		make(chan Event),
+		length,
+		width,
+		corners,
+	}
+	return &l
+}
+
 var PlayerDir = []string{">", "v", "<", "^"}
 
 func PrintLabyrinth(l *Labyrinth) {

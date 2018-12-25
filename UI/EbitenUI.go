@@ -2,10 +2,15 @@ package UI
 
 import (
 	. "../Interfaces"
+	"fmt"
+	"github.com/golang/freetype/truetype"
 	"github.com/hajimehoshi/ebiten"
 	"github.com/hajimehoshi/ebiten/ebitenutil"
 	"github.com/hajimehoshi/ebiten/inpututil"
+	"github.com/hajimehoshi/ebiten/text"
+	"golang.org/x/image/font"
 	"image/color"
+	"io/ioutil"
 )
 
 var keyDirMap = map[ebiten.Key]Direction{
@@ -15,11 +20,21 @@ var keyDirMap = map[ebiten.Key]Direction{
 	ebiten.KeyDown:  Back,
 }
 
+type GameState int
+
+const (
+	Roam GameState = iota
+	Fight
+)
+
 type UIGame struct {
-	w     int
-	h     int
-	l     *Labyrinth
-	doors []*UIDoor
+	w            int
+	h            int
+	l            *Labyrinth
+	state        GameState
+	font         font.Face
+	currentDoors []*UIDoor
+	curEnemies   []*UIEnemy
 }
 
 func (g *UIGame) Init(l *Labyrinth, w, h int) {
@@ -27,10 +42,19 @@ func (g *UIGame) Init(l *Labyrinth, w, h int) {
 	g.w = w
 	g.h = h
 	g.updateDoors()
+	g.state = Roam
+	g.curEnemies = make([]*UIEnemy, 0)
+	fontData, err := ioutil.ReadFile("/home/rusad/GoglandProjects/DunCrawl/resources/Roboto-Regular.ttf")
+	if err != nil {
+		panic("cant load font " + err.Error())
+	}
+	f, err := truetype.Parse(fontData)
+	options := truetype.Options{}
+	g.font = truetype.NewFace(f, &options)
 }
 
 func (g *UIGame) doorClicked(mouseX, mouseY int) int {
-	for _, v := range g.doors {
+	for _, v := range g.currentDoors {
 		if v.isClicked(mouseX, mouseY) {
 			return v.num
 		}
@@ -40,24 +64,60 @@ func (g *UIGame) doorClicked(mouseX, mouseY int) int {
 
 func (g *UIGame) Draw(screen *ebiten.Image) {
 	w, h := screen.Size()
-	DrawLabyrinth(screen, g.l, 5, 5, w/5, h/5, color.Black)
-	for _, v := range g.doors {
-		v.Draw(screen, color.Black)
+	switch g.state {
+	case Roam:
+		{
+			DrawLabyrinth(screen, g.l, 5, 5, w/5, h/5, color.Black)
+			for _, v := range g.currentDoors {
+				v.Draw(screen, color.Black)
+			}
+		}
+	case Fight:
+		{
+			for _, v := range g.curEnemies {
+				v.Draw(screen, g.font)
+			}
+		}
 	}
+
 }
 
 func (g *UIGame) Update() {
-	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
-		nextDoor := g.doorClicked(ebiten.CursorPosition())
-		go g.l.GoToRoom(Direction(nextDoor))
-		<-g.l.GetEventsChan()
-		g.updateDoors()
+	switch g.state {
+	case Roam:
+		{
+			if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
+				nextDoor := g.doorClicked(ebiten.CursorPosition())
+				go g.l.GoToRoom(Direction(nextDoor))
+				event := <-g.l.GetEventsChan()
+				if event == FightEvent {
+					ens := g.l.GetCurrentRoom().GetEnemies()
+					for i, v := range ens {
+						enemy := UIEnemy{
+							g.w/4*i + g.w/16,
+							g.h / 4,
+							g.w / 8,
+							g.h / 4,
+							color.RGBA{200, 0, 100, 255},
+							v,
+						}
+						g.curEnemies = append(g.curEnemies, &enemy)
+					}
+					g.state = Fight
+				}
+				g.updateDoors()
+			}
+		}
+	case Fight:
+		{
+
+		}
 	}
 }
 
 func (g *UIGame) updateDoors() {
 	neighbours := g.l.GetSliceNeighbours()
-	g.doors = make([]*UIDoor, 0)
+	g.currentDoors = make([]*UIDoor, 0)
 	for i := 0; i < 3; i++ {
 		if neighbours[i] {
 			door := UIDoor{
@@ -67,7 +127,7 @@ func (g *UIGame) updateDoors() {
 				float64(g.h) * 0.5,
 				i,
 			}
-			g.doors = append(g.doors, &door)
+			g.currentDoors = append(g.currentDoors, &door)
 		}
 	}
 	if neighbours[3] {
@@ -78,7 +138,7 @@ func (g *UIGame) updateDoors() {
 			float64(g.h) * 0.1,
 			3,
 		}
-		g.doors = append(g.doors, &door)
+		g.currentDoors = append(g.currentDoors, &door)
 	}
 }
 
@@ -93,6 +153,23 @@ func (d *UIDoor) isClicked(mouseX, mouseY int) bool {
 
 func (d *UIDoor) Draw(screen *ebiten.Image, col color.Color) {
 	ebitenutil.DrawRect(screen, float64(d.x), float64(d.y), float64(d.w), float64(d.h), col)
+}
+
+type UIEnemy struct {
+	x, y, w, h int
+	col        color.Color
+	enemy      *Enemy
+}
+
+func (e *UIEnemy) Draw(screen *ebiten.Image, font font.Face) {
+	ebitenutil.DrawRect(screen, float64(e.x), float64(e.y), float64(e.w), float64(e.h), e.col)
+	text.Draw(screen,
+		fmt.Sprintf("%s\n%d/%d\n", e.enemy.GetName(), e.enemy.GetCurHP(), e.enemy.GetMaxHP()),
+		font,
+		e.x,
+		e.y-font.Metrics().Height.Ceil(),
+		e.col,
+	)
 }
 
 func getRoomCoords(i, j, startX, startY, roomW, roomH int) (float64, float64) {
