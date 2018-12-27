@@ -44,7 +44,7 @@ func (g *UIGame) Init(l *Labyrinth, w, h int) {
 	g.updateDoors()
 	g.state = Roam
 	g.curEnemies = make([]*UIEnemy, 0)
-	fontData, err := ioutil.ReadFile("/home/rusad/GoglandProjects/DunCrawl/resources/Roboto-Regular.ttf")
+	fontData, err := ioutil.ReadFile("./resources/Roboto-Regular.ttf")
 	if err != nil {
 		panic("cant load font " + err.Error())
 	}

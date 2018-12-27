@@ -1,6 +1,6 @@
 package Interfaces
 
-import "github.com/pkg/errors"
+import "errors"
 
 type Stat int
 
