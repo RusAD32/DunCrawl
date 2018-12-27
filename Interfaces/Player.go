@@ -32,6 +32,14 @@ type Player struct {
 	money           int
 }
 
+func (p *Player) GetDmgSkillList() []PlayerDmgSkill {
+	return p.dmgSkills
+}
+
+func (p *Player) GetSelfSkillList() []PlayerSelfSkill {
+	return p.selfSkills
+}
+
 func (p *Player) IsAlive() bool {
 	return p.curPhysHP > 0 && p.curMentHP > 0
 }

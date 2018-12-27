@@ -15,13 +15,6 @@ var keyDirMap = map[ebiten.Key]Direction{
 	ebiten.KeyDown:  Back,
 }
 
-type GameState int
-
-const (
-	Roam GameState = iota
-	Fight
-)
-
 func getRoomCoords(i, j, startX, startY, roomW, roomH int) (float64, float64) {
 	return float64(roomW*j + startX), float64(roomH*i + startY)
 }

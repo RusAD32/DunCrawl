@@ -24,11 +24,96 @@ type Room struct {
 	provision        []Stack
 	chest            *Chest
 	neighbours       []*Wall
+	FightState
+	dmgSkillsPushed int
 
 	DistFromCenter int
 	pathNum        int
 	Num            int
 	seenInDfs      bool
+}
+
+type FightState int
+
+const (
+	TurnStart FightState = iota
+	AwaitingSelfSkill
+	AwaitingDmgSkill
+	ResolvingSkills
+	FightEnd
+)
+
+func (r *Room) AtTurnStart() {
+	if r.FightState == TurnStart {
+		if len(r.enemies) == 0 || r.p.curMentHP == 0 || r.p.curPhysHP == 0 {
+			r.FightState = FightEnd
+			return
+		}
+		for _, v := range *r.p.GetEffects() {
+			v.DecreaseCD()
+		}
+		for _, en := range r.enemies {
+			for _, v := range *en.GetEffects() {
+				v.DecreaseCD()
+			}
+		}
+		r.FightState = AwaitingSelfSkill
+	} else {
+		fmt.Println("Error!")
+	}
+}
+
+func (r *Room) SubmitSelfSkill(s PlayerSelfSkill) {
+	if r.FightState == AwaitingSelfSkill {
+		r.pq.Push(s)
+		r.FightState = AwaitingDmgSkill
+		r.dmgSkillsPushed = 0
+	} else {
+		fmt.Println("Error!")
+	}
+}
+
+func (r *Room) SubmitDmgSkill(s PlayerDmgSkill) {
+	if r.FightState == AwaitingDmgSkill {
+		r.pq.Push(s)
+		ensk := r.enemies[r.dmgSkillsPushed].ChooseSkill()
+		ensk.SetTarget(r.p)
+		r.pq.Push(ensk)
+		r.dmgSkillsPushed++
+		if r.dmgSkillsPushed == len(r.enemies) {
+			r.FightState = ResolvingSkills
+		}
+	} else {
+		fmt.Println("Error!")
+	}
+}
+
+func (r *Room) GetNextSkillUsed() SkillInfo {
+	if r.FightState == ResolvingSkills {
+		sk := r.pq.Pop().(Skill)
+		if sk.GetWielder().IsAlive() && !FindEffect(sk.GetWielder(), Stun) {
+			sk.Apply(r)
+		} else if FindEffect(sk.GetWielder(), Stun) {
+			sk.ApplyVoid("stun")
+			RemoveEffect(sk.GetWielder(), Stun)
+		}
+		if len(r.pq) == 0 {
+			for _, v := range r.p.dmgSkills {
+				v.Reset()
+			}
+			RemoveExpiredEffects(r.p)
+			for _, en := range r.enemies {
+				RemoveExpiredEffects(en)
+			}
+			RemoveDeadEnemies(r)
+			r.FightState = TurnStart
+			defer r.AtTurnStart()
+		}
+		return sk
+	} else {
+		fmt.Println("Error!")
+		return nil
+	}
 }
 
 func (r *Room) GetPlayer() *Player {
@@ -129,6 +214,7 @@ func (r *Room) Init(enemies []*Enemy, l *Labyrinth) {
 	r.confirm = confirm
 	r.neighbours = make([]*Wall, 0)
 	r.neighbours = make([]*Wall, 0)
+	r.FightState = TurnStart
 	for i := 0; i < 4; i++ {
 		newWall := Wall{
 			Solid,

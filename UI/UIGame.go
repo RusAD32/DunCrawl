@@ -2,13 +2,39 @@ package UI
 
 import (
 	. "DunCrawl/Interfaces"
+	"fmt"
 	"github.com/golang/freetype/truetype"
 	"github.com/hajimehoshi/ebiten"
+	"github.com/hajimehoshi/ebiten/ebitenutil"
 	"github.com/hajimehoshi/ebiten/inpututil"
+	"github.com/hajimehoshi/ebiten/text"
 	"golang.org/x/image/font"
 	"image/color"
 	"io/ioutil"
+	"strconv"
 )
+
+type GameState int
+
+const (
+	Roam GameState = iota
+	Fight
+)
+
+type SkillButton struct {
+	x, y, w, h float64
+	isSelf     bool
+	sk         Skill
+}
+
+func (sb *SkillButton) Draw(screen *ebiten.Image, font font.Face) {
+	ebitenutil.DrawRect(screen, sb.x, sb.y, sb.w, sb.h, color.RGBA{200, 200, 200, 255})
+	text.Draw(screen, sb.sk.GetName(), font, int(sb.x), int(sb.y)+font.Metrics().Height.Ceil()*2, color.Black)
+}
+
+func (sb *SkillButton) isClicked(mouseX, mouseY int) bool {
+	return !(mouseX < int(sb.x) || mouseX > int(sb.x+sb.w) || mouseY < int(sb.y) || mouseY > int(sb.y+sb.h))
+}
 
 type UIGame struct {
 	w            int
@@ -18,6 +44,8 @@ type UIGame struct {
 	font         font.Face
 	currentDoors []*UIDoor
 	curEnemies   []*UIEnemy
+	nextEnemy    int
+	skButs       []SkillButton
 }
 
 func (g *UIGame) Init(l *Labyrinth, w, h int) {
@@ -50,6 +78,7 @@ func (g *UIGame) Draw(screen *ebiten.Image) {
 	switch g.state {
 	case Roam:
 		{
+			ebitenutil.DebugPrint(screen, strconv.Itoa(int(g.state)))
 			DrawLabyrinth(screen, g.l, 5, 5, w/5, h/5, color.Black)
 			for _, v := range g.currentDoors {
 				v.Draw(screen, color.Black)
@@ -57,7 +86,11 @@ func (g *UIGame) Draw(screen *ebiten.Image) {
 		}
 	case Fight:
 		{
+			ebitenutil.DebugPrint(screen, strconv.Itoa(g.l.GetPlayer().GetCurHP())+"\n"+strconv.Itoa(int(g.l.GetCurrentRoom().FightState)))
 			for _, v := range g.curEnemies {
+				v.Draw(screen, g.font)
+			}
+			for _, v := range g.skButs {
 				v.Draw(screen, g.font)
 			}
 		}
@@ -85,15 +118,66 @@ func (g *UIGame) Update() {
 							v,
 						}
 						g.curEnemies = append(g.curEnemies, &enemy)
+						g.skButs = make([]SkillButton, 0)
+						for i, v := range g.l.GetPlayer().GetSelfSkillList() {
+							button := SkillButton{
+								float64(g.w)/16 + float64(g.w)/8*float64(i),
+								float64(g.h) * 0.8,
+								float64(g.w) / 10,
+								float64(g.h) / 10,
+								true,
+								v,
+							}
+							g.skButs = append(g.skButs, button)
+						}
+						for i, v := range g.l.GetPlayer().GetDmgSkillList() {
+							button := SkillButton{
+								float64(g.w)/2 + float64(g.w)/16 + float64(g.w)/8*float64(i),
+								float64(g.h) * 0.8,
+								float64(g.w) / 10,
+								float64(g.h) / 10,
+								false,
+								v,
+							}
+							g.skButs = append(g.skButs, button)
+						}
 					}
 					g.state = Fight
+					g.l.GetCurrentRoom().AtTurnStart()
 				}
 				g.updateDoors()
 			}
 		}
 	case Fight:
 		{
+			switch g.l.GetCurrentRoom().FightState {
+			case AwaitingSelfSkill:
+				if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
+					for _, v := range g.skButs {
+						if v.isClicked(ebiten.CursorPosition()) && v.isSelf {
+							g.nextEnemy = 0
+							g.l.GetCurrentRoom().SubmitSelfSkill(v.sk.(PlayerSelfSkill))
 
+						}
+					}
+				}
+			case AwaitingDmgSkill:
+				if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
+					for _, v := range g.skButs {
+						if v.isClicked(ebiten.CursorPosition()) && !v.isSelf {
+							skill := v.sk.(PlayerDmgSkill)
+							skill.SetTarget(g.curEnemies[g.nextEnemy].enemy)
+							g.nextEnemy++
+							g.l.GetCurrentRoom().SubmitDmgSkill(skill)
+
+						}
+					}
+				}
+			case ResolvingSkills:
+				fmt.Println(g.l.GetCurrentRoom().GetNextSkillUsed().GetRes())
+			case FightEnd:
+				g.state = Roam
+			}
 		}
 	}
 }

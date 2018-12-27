@@ -2,7 +2,9 @@ package Generator
 
 import (
 	"DunCrawl/EnemySkills"
+	. "DunCrawl/Equipment"
 	. "DunCrawl/Interfaces"
+	"DunCrawl/PlayerSkills"
 	"math/rand"
 	"time"
 )
@@ -19,6 +21,21 @@ func GenerateLabyrinth(length, width int) *Labyrinth {
 		generateBossPath(lab, width, length, i)
 	}
 	p := GetDefaultPlayer()
+	h := Hatchet{}
+	h.Init()
+	p.Equip(Equippable(h), MainHand)
+	heal := PlayerSkills.Heal{}
+	heal.Init(p)
+	p.AddSelfSkill(&heal)
+	cntr := PlayerSkills.Counter{}
+	cntr.Init(p)
+	p.AddSelfSkill(&cntr)
+	atk := PlayerSkills.SimpleAttack{}
+	atk.Init(p)
+	p.AddDmgSkill(&atk)
+	stn := PlayerSkills.StunningBlow{}
+	stn.Init(p)
+	p.AddDmgSkill(&stn)
 	lab.SetPlayer(p)
 	return lab
 }
