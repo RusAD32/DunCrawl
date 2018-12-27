@@ -59,7 +59,7 @@ func (r *Room) AtTurnStart() {
 		}
 		r.FightState = AwaitingSelfSkill
 	} else {
-		fmt.Println("Error!")
+		fmt.Println("Error at start!")
 	}
 }
 
@@ -69,12 +69,12 @@ func (r *Room) SubmitSelfSkill(s PlayerSelfSkill) {
 		r.FightState = AwaitingDmgSkill
 		r.dmgSkillsPushed = 0
 	} else {
-		fmt.Println("Error!")
+		fmt.Println("Error submitting self!")
 	}
 }
 
 func (r *Room) SubmitDmgSkill(s PlayerDmgSkill) {
-	if r.FightState == AwaitingDmgSkill {
+	if r.FightState == AwaitingDmgSkill && s.GetUses() >= 0 {
 		r.pq.Push(s)
 		ensk := r.enemies[r.dmgSkillsPushed].ChooseSkill()
 		ensk.SetTarget(r.p)
@@ -84,34 +84,38 @@ func (r *Room) SubmitDmgSkill(s PlayerDmgSkill) {
 			r.FightState = ResolvingSkills
 		}
 	} else {
-		fmt.Println("Error!")
+		fmt.Println("Error at submitting dmg!", s.GetUses(), s.GetName())
 	}
 }
 
 func (r *Room) GetNextSkillUsed() SkillInfo {
 	if r.FightState == ResolvingSkills {
-		sk := r.pq.Pop().(Skill)
-		if sk.GetWielder().IsAlive() && !FindEffect(sk.GetWielder(), Stun) {
-			sk.Apply(r)
-		} else if FindEffect(sk.GetWielder(), Stun) {
-			sk.ApplyVoid("stun")
-			RemoveEffect(sk.GetWielder(), Stun)
-		}
-		if len(r.pq) == 0 {
-			for _, v := range r.p.dmgSkills {
-				v.Reset()
+		for {
+			sk := r.pq.Pop().(Skill)
+			if sk.GetWielder().IsAlive() && !FindEffect(sk.GetWielder(), Stun) {
+				sk.Apply(r)
+			} else if FindEffect(sk.GetWielder(), Stun) {
+				sk.ApplyVoid("stun")
+				RemoveEffect(sk.GetWielder(), Stun)
+			} else {
+				continue
 			}
-			RemoveExpiredEffects(r.p)
-			for _, en := range r.enemies {
-				RemoveExpiredEffects(en)
+			if len(r.pq) == 0 {
+				for _, v := range r.p.dmgSkills {
+					v.Reset()
+				}
+				RemoveExpiredEffects(r.p)
+				for _, en := range r.enemies {
+					RemoveExpiredEffects(en)
+				}
+				RemoveDeadEnemies(r)
+				r.FightState = TurnStart
+				defer r.AtTurnStart()
 			}
-			RemoveDeadEnemies(r)
-			r.FightState = TurnStart
-			defer r.AtTurnStart()
+			return sk
 		}
-		return sk
 	} else {
-		fmt.Println("Error!")
+		fmt.Println("Error at resolving!")
 		return nil
 	}
 }

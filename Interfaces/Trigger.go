@@ -17,6 +17,7 @@ func (t *Trigger) AddEvent(event Triggerable) {
 func (t *Trigger) RemoveEvent(event Triggerable) {
 	for i, v := range t.events {
 		if v == event {
+
 			t.events[i] = nil
 			t.events = append(t.events[:i], t.events[i+1:]...)
 			return

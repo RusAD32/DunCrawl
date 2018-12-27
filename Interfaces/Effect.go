@@ -5,6 +5,7 @@ type EffectID int
 const (
 	Stun EffectID = iota
 	Confusion
+	CounterAtk
 )
 
 type Effect interface {
