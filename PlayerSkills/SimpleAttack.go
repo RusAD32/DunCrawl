@@ -1,7 +1,7 @@
 package PlayerSkills
 
 import (
-	. "../Interfaces"
+	. "DunCrawl/Interfaces"
 	"fmt"
 	"math"
 )

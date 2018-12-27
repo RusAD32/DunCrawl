@@ -1,6 +1,6 @@
 package Effects
 
-import . "../Interfaces"
+import . "DunCrawl/Interfaces"
 
 type StunEffect struct {
 	id EffectID

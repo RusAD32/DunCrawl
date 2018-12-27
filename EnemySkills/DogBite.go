@@ -1,6 +1,6 @@
 package EnemySkills
 
-import . "../Interfaces"
+import . "DunCrawl/Interfaces"
 
 type DogBite struct {
 	baseDmg int

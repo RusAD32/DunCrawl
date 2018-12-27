@@ -1,7 +1,7 @@
 package Triggerables
 
 import (
-	"../Interfaces"
+	"DunCrawl/Interfaces"
 	"fmt"
 )
 

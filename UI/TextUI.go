@@ -1,7 +1,7 @@
 package UI
 
 import (
-	. "../Interfaces"
+	. "DunCrawl/Interfaces"
 	"fmt"
 	"strconv"
 	"strings"

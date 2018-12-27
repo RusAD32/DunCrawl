@@ -1,6 +1,6 @@
 package Traps
 
-import . "../Interfaces"
+import . "DunCrawl/Interfaces"
 
 type NoTrap struct{}
 

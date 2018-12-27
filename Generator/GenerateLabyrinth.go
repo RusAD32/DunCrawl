@@ -1,8 +1,8 @@
 package Generator
 
 import (
-	"../EnemySkills"
-	. "../Interfaces"
+	"DunCrawl/EnemySkills"
+	. "DunCrawl/Interfaces"
 	"math/rand"
 	"time"
 )

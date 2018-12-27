@@ -1,12 +1,12 @@
 package main
 
 import (
-	"./EnemySkills"
-	. "./Equipment"
-	. "./Generator"
-	. "./Interfaces"
-	"./PlayerSkills"
-	"./UI"
+	"DunCrawl/EnemySkills"
+	. "DunCrawl/Equipment"
+	. "DunCrawl/Generator"
+	. "DunCrawl/Interfaces"
+	"DunCrawl/PlayerSkills"
+	"DunCrawl/UI"
 	"github.com/hajimehoshi/ebiten"
 	"image/color"
 )

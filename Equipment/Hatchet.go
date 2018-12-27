@@ -1,6 +1,6 @@
 package Equipment
 
-import . "../Interfaces"
+import . "DunCrawl/Interfaces"
 
 type Hatchet Equippable
 

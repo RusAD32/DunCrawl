@@ -1,8 +1,8 @@
 package PlayerSkills
 
 import (
-	. "../Interfaces"
-	. "../Triggerables"
+	. "DunCrawl/Interfaces"
+	. "DunCrawl/Triggerables"
 	"fmt"
 )
 

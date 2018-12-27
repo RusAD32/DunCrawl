@@ -1,8 +1,8 @@
 package PlayerSkills
 
 import (
-	"../Effects"
-	. "../Interfaces"
+	"DunCrawl/Effects"
+	. "DunCrawl/Interfaces"
 	"fmt"
 	"math"
 )
