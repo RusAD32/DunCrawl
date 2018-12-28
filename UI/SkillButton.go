@@ -10,20 +10,25 @@ import (
 )
 
 type SkillButton struct {
-	x, y, w, h     float64
-	isSelf, active bool
-	sk             Skill
+	x, y, w, h             int
+	isSelf, active         bool
+	activeCol, disabledCol color.Color
+	sk                     Skill
+}
+
+func (sb *SkillButton) GetColor() color.Color {
+	if sb.active {
+		return sb.activeCol
+	}
+	return sb.disabledCol
 }
 
 func (sb *SkillButton) Draw(screen *ebiten.Image, font font.Face) {
-	col := color.RGBA{200, 200, 255, 255}
-	if !sb.active {
-		col = color.RGBA{200, 200, 200, 255}
-	}
-	ebitenutil.DrawRect(screen, sb.x, sb.y, sb.w, sb.h, col)
-	text.Draw(screen, sb.sk.GetName(), font, int(sb.x), int(sb.y)+font.Metrics().Height.Ceil()*2, color.Black)
+	ebitenutil.DrawRect(screen, float64(sb.x), float64(sb.y), float64(sb.w), float64(sb.h), sb.GetColor())
+	text.Draw(screen, sb.sk.GetName(), font, sb.x, sb.y+font.Metrics().Height.Ceil()*2, color.Black)
 }
 
 func (sb *SkillButton) isClicked(mouseX, mouseY int) bool {
-	return !(mouseX < int(sb.x) || mouseX > int(sb.x+sb.w) || mouseY < int(sb.y) || mouseY > int(sb.y+sb.h) || !sb.isSelf && sb.sk.(PlayerDmgSkill).GetUses() == 0)
+	return !(mouseX < sb.x || mouseX > sb.x+sb.w || mouseY < sb.y || mouseY > sb.y+sb.h ||
+		!sb.isSelf && sb.sk.(PlayerDmgSkill).GetUses() == 0 || !sb.active)
 }

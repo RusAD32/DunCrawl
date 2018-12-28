@@ -7,12 +7,12 @@ import (
 )
 
 type UIDoor struct {
-	x, y, w, h float64
+	x, y, w, h int
 	num        int
 }
 
 func (d *UIDoor) isClicked(mouseX, mouseY int) bool {
-	return !(mouseX < int(d.x) || mouseX > int(d.x+d.w) || mouseY < int(d.y) || mouseY > int(d.y+d.h))
+	return !(mouseX < d.x || mouseX > d.x+d.w || mouseY < d.y || mouseY > d.y+d.h)
 }
 
 func (d *UIDoor) Draw(screen *ebiten.Image, col color.Color) {

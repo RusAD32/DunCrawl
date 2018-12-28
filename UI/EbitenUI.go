@@ -2,10 +2,14 @@ package UI
 
 import (
 	. "DunCrawl/Interfaces"
+	"fmt"
 	"github.com/hajimehoshi/ebiten"
 	"github.com/hajimehoshi/ebiten/ebitenutil"
 	"github.com/hajimehoshi/ebiten/inpututil"
 	"image/color"
+	"io/ioutil"
+	"net/http"
+	"runtime"
 )
 
 var keyDirMap = map[ebiten.Key]Direction{
@@ -13,6 +17,23 @@ var keyDirMap = map[ebiten.Key]Direction{
 	ebiten.KeyUp:    Forward,
 	ebiten.KeyRight: Right,
 	ebiten.KeyDown:  Back,
+}
+
+func LoadResource(name string) ([]byte, error) {
+	if runtime.GOOS == "js" || runtime.GOARCH == "js" {
+		resp, err := http.Get(fmt.Sprintf("/%s", name))
+		if err != nil {
+			return nil, err
+		}
+		result := make([]byte, 200000)
+		n, err := resp.Body.Read(result)
+		if err != nil {
+			return nil, err
+		}
+		return result[:n], nil
+	} else {
+		return ioutil.ReadFile(fmt.Sprintf("./resources/%s", name))
+	}
 }
 
 func getRoomCoords(i, j, startX, startY, roomW, roomH int) (float64, float64) {
