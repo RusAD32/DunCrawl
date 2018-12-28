@@ -44,62 +44,13 @@ type UIGame struct {
 	consts
 }
 
-type consts struct {
-	// constants regarding position of different elements of UI
-	labXPos, labYPos, labW, labH                             int
-	doorX, doorXOff, doorY, doorH, doorW                     int
-	backdoorX, backdoorY, backdoorH, backdoorW               int
-	enemyX, enemyXOff, enemyY, enemyH, enemyW                int
-	hpX, hpY, hpW, hpH, infoX, infoY, statusX, statusY       int
-	selfSkButX, skButXOff, skButY, skButW, skButH, dmgSkButX int
-	// end of constant declaration
-}
-
 func (g *UIGame) Init(l *Labyrinth, w, h int) {
-	// Constants go into UIGame object and are united here!
 	g.l = l
 	g.w = w
 	g.h = h
 
-	g.consts.labXPos = 5
-	g.consts.labYPos = 5
-	g.consts.labW = w / 5
-	g.consts.labH = h / 5
+	g.consts = getConstants(w, h)
 
-	g.consts.doorX = w * 2 / 10
-	g.consts.doorXOff = w / 4
-	g.consts.doorY = h * 2 / 10
-	g.consts.doorW = w * 15 / 100
-	g.consts.doorH = h / 2
-
-	g.consts.enemyX = w / 16
-	g.consts.enemyXOff = w / 4
-	g.consts.enemyY = h / 4
-	g.consts.enemyW = w / 8
-	g.consts.enemyH = h / 4
-
-	g.consts.hpX = w / 10
-	g.consts.hpY = h * 8 / 10
-	g.consts.hpW = w * 8 / 10
-	g.consts.hpH = h / 16
-	g.consts.infoX = w / 3
-	g.consts.infoY = h * 9 / 10
-	g.consts.statusX = w * 8 / 10
-	g.consts.statusY = h * 9 / 10
-
-	g.consts.backdoorX = w * 2 / 10
-	g.consts.backdoorY = h * 8 / 10
-	g.consts.backdoorW = w * 66 / 100
-	g.consts.backdoorH = h / 10
-
-	g.consts.selfSkButX = w / 16
-	g.consts.dmgSkButX = w/2 + w/16
-	g.consts.skButY = h * 66 / 100
-	g.consts.skButXOff = w / 8
-	g.consts.skButW = w / 10
-	g.consts.skButH = h / 10
-
-	// end of constant declaration
 	g.updateDoors()
 	g.state = Roam
 	g.curEnemies = make([]*UIEnemy, 0)
@@ -184,6 +135,140 @@ func (g *UIGame) Draw(screen *ebiten.Image) {
 
 }
 
+func (g *UIGame) prepareForFight() {
+	ens := g.l.GetCurrentRoom().GetEnemies()
+	for i, v := range ens {
+		enemy := new(UIEnemy).Init(g.consts.enemyXOff*i+g.consts.enemyX,
+			g.consts.enemyY,
+			g.consts.enemyW,
+			g.consts.enemyH,
+			Violet,
+			v)
+		g.enemyNums[v] = i
+		g.curEnemies = append(g.curEnemies, enemy)
+	}
+	for i, v := range g.l.GetPlayer().GetSelfSkillList() {
+		button := new(SkillButton).Init(
+			g.consts.selfSkButX+i*g.consts.skButXOff,
+			g.consts.skButY,
+			g.consts.skButW,
+			g.consts.skButH,
+			v,
+			LightGreen,
+			Gray)
+		g.selfSkButs = append(g.selfSkButs, button)
+	}
+	for i, v := range g.l.GetPlayer().GetDmgSkillList() {
+		button := new(SkillButton).Init(
+			g.consts.dmgSkButX+i*g.consts.skButXOff,
+			g.consts.skButY,
+			g.consts.skButW,
+			g.consts.skButH,
+			v,
+			LightBlue,
+			Gray)
+		g.dmgSkButs = append(g.dmgSkButs, button)
+	}
+	g.state = Fight
+}
+
+func (g *UIGame) submitSelfSkill() {
+	for _, v := range g.selfSkButs {
+		v.active = true
+	}
+	for _, v := range g.curEnemies {
+		v.col = Violet
+	}
+	g.pl.dmgProcessing = ""
+	g.pl.healProcessing = ""
+	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
+		butNum := g.selfSkillButtonClicked(ebiten.CursorPosition())
+		if butNum >= 0 {
+			g.l.GetCurrentRoom().SubmitSelfSkill(g.selfSkButs[butNum].sk.(PlayerSelfSkill))
+			g.curEnemies[0].isTargeted = true
+			for _, v := range g.selfSkButs {
+				v.active = false
+			}
+			for _, v := range g.dmgSkButs {
+				v.active = v.sk.(PlayerDmgSkill).GetUses() > 0
+			}
+			return
+		}
+	}
+}
+
+func (g *UIGame) submitDmgSkill() {
+	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
+		skNum := g.dmgSkillButtonClicked(ebiten.CursorPosition())
+		if skNum >= 0 {
+			var curEn *UIEnemy
+			for _, v := range g.curEnemies {
+				if v.isTargeted {
+					curEn = v
+				}
+			}
+			skill := g.dmgSkButs[skNum].sk.(PlayerDmgSkill)
+			skill.SetTarget(curEn.enemy)
+			curEn.skillUsed = skill
+			for _, v := range g.curEnemies {
+				if !v.isTargeted && v.skillUsed == nil {
+					v.isTargeted = true
+					break
+				}
+			}
+			curEn.isTargeted = false
+			g.l.GetCurrentRoom().SubmitDmgSkill(skill)
+			g.dmgSkButs[skNum].active = skill.GetUses() != 0
+			return
+		}
+		for _, v := range g.curEnemies {
+			if v.isClicked(ebiten.CursorPosition()) && v.skillUsed == nil {
+				for _, v := range g.curEnemies {
+					v.isTargeted = false
+				}
+				v.isTargeted = true
+				return
+			}
+		}
+	}
+}
+
+func (g *UIGame) resolveSkill() {
+	for _, v := range append(g.selfSkButs, g.dmgSkButs...) {
+		v.active = false
+	}
+	for _, v := range g.curEnemies {
+		v.col = Violet
+	}
+	sk := g.l.GetCurrentRoom().GetNextSkillUsed()
+	target := sk.GetTarget()
+	switch sk.(type) {
+	case PlayerDmgSkill:
+		{
+			en := g.curEnemies[g.enemyNums[target.(*Enemy)]]
+			en.col = Firebrick
+			en.skillUsed = nil
+			g.cd = 60
+			g.pl.dmgProcessing = sk.GetRes()
+			g.pl.healProcessing = ""
+		}
+	case EnemySkill:
+		{
+			en := g.curEnemies[g.enemyNums[sk.GetWielder().(*Enemy)]]
+			en.col = OrangeRed
+			g.cd = 60
+			g.pl.dmgProcessing = sk.GetRes()
+			g.pl.healProcessing = ""
+		}
+	case PlayerSelfSkill:
+		{
+			g.pl.dmgProcessing = ""
+			g.pl.healProcessing = sk.GetRes()
+			g.cd = 60
+		}
+	}
+}
+
 func (g *UIGame) Update() {
 	if g.cd > 0 {
 		g.cd--
@@ -194,53 +279,10 @@ func (g *UIGame) Update() {
 		{
 			if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
 				nextDoor := g.doorClicked(ebiten.CursorPosition())
-				go g.l.GoToRoom(Direction(nextDoor))
+				go g.l.GoToRoom(Direction(nextDoor)) // TODO this part should be stateful imho
 				event := <-g.l.GetEventsChan()
 				if event == FightEvent {
-					ens := g.l.GetCurrentRoom().GetEnemies()
-					for i, v := range ens {
-						enemy := UIEnemy{
-							g.consts.enemyXOff*i + g.consts.enemyX,
-							g.consts.enemyY,
-							g.consts.enemyW,
-							g.consts.enemyH,
-							Violet,
-							v,
-							false,
-							nil,
-						}
-						g.enemyNums[v] = i
-						g.curEnemies = append(g.curEnemies, &enemy)
-					}
-					for i, v := range g.l.GetPlayer().GetSelfSkillList() {
-						button := SkillButton{
-							g.consts.selfSkButX + i*g.consts.skButXOff,
-							g.consts.skButY,
-							g.consts.skButW,
-							g.consts.skButH,
-							true,
-							true,
-							LightGreen,
-							Gray,
-							v,
-						}
-						g.selfSkButs = append(g.selfSkButs, &button)
-					}
-					for i, v := range g.l.GetPlayer().GetDmgSkillList() {
-						button := SkillButton{
-							g.consts.dmgSkButX + i*g.consts.skButXOff,
-							g.consts.skButY,
-							g.consts.skButW,
-							g.consts.skButH,
-							false,
-							false,
-							LightBlue,
-							Gray,
-							v,
-						}
-						g.dmgSkButs = append(g.dmgSkButs, &button)
-					}
-					g.state = Fight
+					g.prepareForFight()
 					g.l.GetCurrentRoom().AtTurnStart()
 				}
 				g.updateDoors()
@@ -250,96 +292,11 @@ func (g *UIGame) Update() {
 		{
 			switch g.l.GetCurrentRoom().FightState {
 			case AwaitingSelfSkill:
-				for _, v := range g.selfSkButs {
-					v.active = true
-				}
-				for _, v := range g.curEnemies {
-					v.col = Violet
-				}
-				g.pl.dmgProcessing = ""
-				g.pl.healProcessing = ""
-				if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
-					butNum := g.selfSkillButtonClicked(ebiten.CursorPosition())
-					if butNum >= 0 {
-						g.l.GetCurrentRoom().SubmitSelfSkill(g.selfSkButs[butNum].sk.(PlayerSelfSkill))
-						g.curEnemies[0].isTargeted = true
-						for _, v := range g.selfSkButs {
-							v.active = false
-						}
-						for _, v := range g.dmgSkButs {
-							v.active = v.sk.(PlayerDmgSkill).GetUses() > 0
-						}
-						return
-					}
-				}
+				g.submitSelfSkill()
 			case AwaitingDmgSkill:
-				if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
-					skNum := g.dmgSkillButtonClicked(ebiten.CursorPosition())
-					if skNum >= 0 {
-						var curEn *UIEnemy
-						for _, v := range g.curEnemies {
-							if v.isTargeted {
-								curEn = v
-							}
-						}
-						skill := g.dmgSkButs[skNum].sk.(PlayerDmgSkill)
-						skill.SetTarget(curEn.enemy)
-						curEn.skillUsed = skill
-						for _, v := range g.curEnemies {
-							if !v.isTargeted && v.skillUsed == nil {
-								v.isTargeted = true
-								break
-							}
-						}
-						curEn.isTargeted = false
-						g.l.GetCurrentRoom().SubmitDmgSkill(skill)
-						g.dmgSkButs[skNum].active = skill.GetUses() != 0
-						return
-					}
-					for _, v := range g.curEnemies {
-						if v.isClicked(ebiten.CursorPosition()) && v.skillUsed == nil {
-							for _, v := range g.curEnemies {
-								v.isTargeted = false
-							}
-							v.isTargeted = true
-							return
-						}
-					}
-				}
+				g.submitDmgSkill()
 			case ResolvingSkills:
-				for _, v := range append(g.selfSkButs, g.dmgSkButs...) {
-					v.active = false
-				}
-				for _, v := range g.curEnemies {
-					v.col = Violet
-				}
-				sk := g.l.GetCurrentRoom().GetNextSkillUsed()
-				target := sk.GetTarget()
-				switch sk.(type) {
-				case PlayerDmgSkill:
-					{
-						en := g.curEnemies[g.enemyNums[target.(*Enemy)]]
-						en.col = Firebrick
-						en.skillUsed = nil
-						g.cd = 60
-						g.pl.dmgProcessing = sk.GetRes()
-						g.pl.healProcessing = ""
-					}
-				case EnemySkill:
-					{
-						en := g.curEnemies[g.enemyNums[sk.GetWielder().(*Enemy)]]
-						en.col = OrangeRed
-						g.cd = 60
-						g.pl.dmgProcessing = sk.GetRes()
-						g.pl.healProcessing = ""
-					}
-				case PlayerSelfSkill:
-					{
-						g.pl.dmgProcessing = ""
-						g.pl.healProcessing = sk.GetRes()
-						g.cd = 60
-					}
-				}
+				g.resolveSkill()
 			case FightEnd:
 				g.curEnemies = make([]*UIEnemy, 0)
 				g.selfSkButs = make([]*SkillButton, 0)
@@ -355,25 +312,22 @@ func (g *UIGame) updateDoors() {
 	g.currentDoors = make([]*UIDoor, 0)
 	for i := 0; i < 3; i++ {
 		if neighbours[i] {
-			door := UIDoor{
-				g.consts.doorX + i*g.consts.doorXOff,
+			door := new(UIDoor).Init(
+				g.consts.doorX+i*g.consts.doorXOff,
 				g.consts.doorY,
 				g.consts.doorW,
 				g.consts.doorH,
-				i,
-			}
-			g.currentDoors = append(g.currentDoors, &door)
+				i)
+			g.currentDoors = append(g.currentDoors, door)
 		}
 	}
 	if neighbours[3] { // should always be true
-		door := UIDoor{
-
+		door := new(UIDoor).Init(
 			g.consts.backdoorX,
 			g.consts.backdoorY,
 			g.consts.backdoorW,
 			g.consts.backdoorH,
-			3,
-		}
-		g.currentDoors = append(g.currentDoors, &door)
+			3)
+		g.currentDoors = append(g.currentDoors, door)
 	}
 }

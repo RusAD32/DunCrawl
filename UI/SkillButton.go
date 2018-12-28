@@ -3,7 +3,6 @@ package UI
 import (
 	. "DunCrawl/Interfaces"
 	"github.com/hajimehoshi/ebiten"
-	"github.com/hajimehoshi/ebiten/ebitenutil"
 	"github.com/hajimehoshi/ebiten/text"
 	"golang.org/x/image/font"
 	"image/color"
@@ -14,17 +13,53 @@ type SkillButton struct {
 	isSelf, active         bool
 	activeCol, disabledCol color.Color
 	sk                     Skill
+	picActive, picDisbled  *ebiten.Image
+	opts                   *ebiten.DrawImageOptions
 }
 
-func (sb *SkillButton) GetColor() color.Color {
-	if sb.active {
-		return sb.activeCol
+func (sb *SkillButton) Init(x, y, w, h int, sk Skill, activeCol, disabledCol color.Color) *SkillButton {
+	sb.x = x
+	sb.y = y
+	sb.w = w
+	sb.h = h
+	sb.activeCol = activeCol
+	sb.disabledCol = disabledCol
+	sb.sk = sk
+	sb.active = false
+	switch sk.(type) {
+	case PlayerSelfSkill:
+		sb.isSelf = true
+	default:
+		sb.isSelf = false
 	}
-	return sb.disabledCol
+	sb.picDisbled, _ = ebiten.NewImage(w, h, ebiten.FilterDefault)
+	err := sb.picDisbled.Fill(disabledCol)
+	if err != nil {
+		panic(err)
+	}
+	sb.picActive, _ = ebiten.NewImage(w, h, ebiten.FilterDefault)
+	err = sb.picActive.Fill(disabledCol)
+	if err != nil {
+		panic(err)
+	}
+	sb.opts = &ebiten.DrawImageOptions{}
+	sb.opts.GeoM.Translate(float64(x), float64(y))
+	return sb
+}
+
+func (sb *SkillButton) GetImage() *ebiten.Image {
+	if sb.active {
+		return sb.picActive
+	}
+	return sb.picDisbled
 }
 
 func (sb *SkillButton) Draw(screen *ebiten.Image, font font.Face) {
-	ebitenutil.DrawRect(screen, float64(sb.x), float64(sb.y), float64(sb.w), float64(sb.h), sb.GetColor())
+	err := screen.DrawImage(sb.GetImage(), sb.opts)
+	if err != nil {
+		panic(err)
+	}
+	//ebitenutil.DrawRect(screen, float64(sb.x), float64(sb.y), float64(sb.w), float64(sb.h), sb.GetImage())
 	text.Draw(screen, sb.sk.GetName(), font, sb.x, sb.y+font.Metrics().Height.Ceil()*2, color.Black)
 }
 

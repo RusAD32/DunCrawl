@@ -5,12 +5,65 @@ import (
 	"fmt"
 	"github.com/hajimehoshi/ebiten"
 	"github.com/hajimehoshi/ebiten/ebitenutil"
-	"github.com/hajimehoshi/ebiten/inpututil"
 	"image/color"
 	"io/ioutil"
 	"net/http"
 	"runtime"
 )
+
+type consts struct {
+	// constants regarding position of different elements of UI
+	labXPos, labYPos, labW, labH                             int
+	doorX, doorXOff, doorY, doorH, doorW                     int
+	backdoorX, backdoorY, backdoorH, backdoorW               int
+	enemyX, enemyXOff, enemyY, enemyH, enemyW                int
+	hpX, hpY, hpW, hpH, infoX, infoY, statusX, statusY       int
+	selfSkButX, skButXOff, skButY, skButW, skButH, dmgSkButX int
+	// end of constant declaration
+}
+
+func getConstants(w, h int) consts {
+	c := consts{}
+	c.labXPos = 5
+	c.labYPos = 5
+	c.labW = w / 5
+	c.labH = h / 5
+
+	c.doorX = w * 2 / 10
+	c.doorXOff = w / 4
+	c.doorY = h * 2 / 10
+	c.doorW = w * 15 / 100
+	c.doorH = h / 2
+
+	c.enemyX = w / 16
+	c.enemyXOff = w / 4
+	c.enemyY = h / 4
+	c.enemyW = w / 8
+	c.enemyH = h / 4
+
+	c.hpX = w / 10
+	c.hpY = h * 8 / 10
+	c.hpW = w * 8 / 10
+	c.hpH = h / 16
+	c.infoX = w / 3
+	c.infoY = h * 9 / 10
+	c.statusX = w * 8 / 10
+	c.statusY = h * 9 / 10
+
+	c.backdoorX = w * 2 / 10
+	c.backdoorY = h * 8 / 10
+	c.backdoorW = w * 66 / 100
+	c.backdoorH = h / 10
+
+	c.selfSkButX = w / 16
+	c.dmgSkButX = w/2 + w/16
+	c.skButY = h * 66 / 100
+	c.skButXOff = w / 8
+	c.skButW = w / 10
+	c.skButH = h / 10
+	return c
+	// end of constant declaration
+}
 
 var keyDirMap = map[ebiten.Key]Direction{
 	ebiten.KeyLeft:  Left,
@@ -123,25 +176,4 @@ func DrawLabyrinth(screen *ebiten.Image, l *Labyrinth, startX, startY, w, h int,
 			}
 		}
 	}
-}
-
-func checkKey(key ebiten.Key, l *Labyrinth) {
-	if inpututil.IsKeyJustPressed(key) {
-		dir, ok := keyDirMap[key]
-		if !ok {
-			panic("no such button should be checked!")
-		}
-		neighbour := l.GetSliceNeighbours()[int(dir)]
-		if neighbour {
-			go func() { l.GoToRoom(dir) }()
-			<-l.GetEventsChan()
-		}
-	}
-}
-
-func MoveThroughLabyrinth(l *Labyrinth) {
-	checkKey(ebiten.KeyDown, l)
-	checkKey(ebiten.KeyUp, l)
-	checkKey(ebiten.KeyLeft, l)
-	checkKey(ebiten.KeyRight, l)
 }
