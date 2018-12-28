@@ -21,7 +21,7 @@ var keyDirMap = map[ebiten.Key]Direction{
 
 func LoadResource(name string) ([]byte, error) {
 	if runtime.GOOS == "js" || runtime.GOARCH == "js" {
-		resp, err := http.Get(fmt.Sprintf("/%s", name))
+		resp, err := http.Get(fmt.Sprintf("resources/%s", name))
 		if err != nil {
 			return nil, err
 		}
@@ -32,7 +32,7 @@ func LoadResource(name string) ([]byte, error) {
 		}
 		return result[:n], nil
 	} else {
-		return ioutil.ReadFile(fmt.Sprintf("./resources/%s", name))
+		return ioutil.ReadFile(fmt.Sprintf("resources/%s", name))
 	}
 }
 
