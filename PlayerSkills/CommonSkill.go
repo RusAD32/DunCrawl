@@ -12,33 +12,33 @@ type CommonPlSkill struct {
 	wielder  Unit
 }
 
-func (b *CommonPlSkill) GetWielder() Unit {
-	return b.wielder
+func (psk *CommonPlSkill) GetWielder() Unit {
+	return psk.wielder
 }
 
-func (b *CommonPlSkill) GetSpeed() int {
-	return b.speed
+func (psk *CommonPlSkill) GetSpeed() int {
+	return psk.speed
 }
 
-func (b *CommonPlSkill) GetName() string {
-	return b.name
+func (psk *CommonPlSkill) GetName() string {
+	return psk.name
 }
 
-func (c *CommonPlSkill) LvlUp() {
-	c.lvl++
+func (psk *CommonPlSkill) LvlUp() {
+	psk.lvl++
 }
 
-func (s *CommonPlSkill) AddExp(amount int) {
-	if s.lvl < s.maxLvl {
-		s.curExp += amount
-		if s.curExp >= s.lvlupExp[s.lvl-1] {
-			s.LvlUp()
+func (psk *CommonPlSkill) AddExp(amount int) {
+	if psk.lvl < psk.maxLvl {
+		psk.curExp += amount
+		if psk.curExp >= psk.lvlupExp[psk.lvl-1] {
+			psk.LvlUp()
 		}
 	}
 }
 
-func (s *CommonPlSkill) GetTarget() Unit         { return nil }
-func (s *CommonPlSkill) GetRes() string          { return "" }
-func (s *CommonPlSkill) ApplyVoid(string)        {}
-func (s *CommonPlSkill) Apply(*Room) string      { return "" }
-func (b *CommonPlSkill) Init(wielder Unit) Skill { return nil }
+func (psk *CommonPlSkill) GetTarget() Unit         { return nil }
+func (psk *CommonPlSkill) GetRes() string          { return "" }
+func (psk *CommonPlSkill) ApplyVoid(string)        {}
+func (psk *CommonPlSkill) Apply(*Room) string      { return "" }
+func (psk *CommonPlSkill) Init(wielder Unit) Skill { return nil }

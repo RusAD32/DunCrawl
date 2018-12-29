@@ -7,14 +7,14 @@ type CommonSelfSkill struct {
 	CommonPlSkill
 }
 
-func (s *CommonSelfSkill) GetRes() string {
-	return s.res
+func (ssk *CommonSelfSkill) GetRes() string {
+	return ssk.res
 }
 
-func (s *CommonSelfSkill) GetTarget() Unit {
-	return s.wielder
+func (ssk *CommonSelfSkill) GetTarget() Unit {
+	return ssk.wielder
 }
 
-func (s *CommonSelfSkill) ApplyVoid(res string) {
-	s.res = res
+func (ssk *CommonSelfSkill) ApplyVoid(res string) {
+	ssk.res = res
 }

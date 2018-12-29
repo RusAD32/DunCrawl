@@ -10,34 +10,34 @@ type CommonDmgSkill struct {
 	CommonPlSkill
 }
 
-func (s *CommonDmgSkill) Reset() {
-	s.uses = 4
+func (dsk *CommonDmgSkill) Reset() {
+	dsk.uses = 4
 }
 
-func (s *CommonDmgSkill) SetTarget(enemy Unit) {
-	s.uses--
-	if s.lastTarget == nil {
-		s.lastTarget = enemy
+func (dsk *CommonDmgSkill) SetTarget(enemy Unit) {
+	dsk.uses--
+	if dsk.lastTarget == nil {
+		dsk.lastTarget = enemy
 	}
-	s.targets = append(s.targets, enemy)
+	dsk.targets = append(dsk.targets, enemy)
 }
 
-func (s *CommonDmgSkill) GetUses() int {
-	return s.uses
+func (dsk *CommonDmgSkill) GetUses() int {
+	return dsk.uses
 }
 
-func (s *CommonDmgSkill) GetRes() string {
-	res := s.res[0]
-	s.res = s.res[1:]
+func (dsk *CommonDmgSkill) GetRes() string {
+	res := dsk.res[0]
+	dsk.res = dsk.res[1:]
 	return res
 }
 
-func (s *CommonDmgSkill) ApplyVoid(res string) {
-	s.lastTarget = s.targets[0]
-	s.targets = s.targets[1:]
-	s.res = append(s.res, res)
+func (dsk *CommonDmgSkill) ApplyVoid(res string) {
+	dsk.lastTarget = dsk.targets[0]
+	dsk.targets = dsk.targets[1:]
+	dsk.res = append(dsk.res, res)
 }
 
-func (b *CommonDmgSkill) GetTarget() Unit {
-	return b.lastTarget
+func (dsk *CommonDmgSkill) GetTarget() Unit {
+	return dsk.lastTarget
 }

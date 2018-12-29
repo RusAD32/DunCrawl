@@ -10,33 +10,33 @@ type commonSkill struct {
 	res     string
 }
 
-func (b *commonSkill) GetRes() string {
-	return b.res
+func (esk *commonSkill) GetRes() string {
+	return esk.res
 }
 
-func (b *commonSkill) ApplyVoid(res string) {
-	b.res = res
+func (esk *commonSkill) ApplyVoid(res string) {
+	esk.res = res
 }
 
-func (b *commonSkill) SetTarget(player Unit) {
-	b.target = player
+func (esk *commonSkill) SetTarget(player Unit) {
+	esk.target = player
 }
 
-func (b *commonSkill) GetTarget() Unit {
-	return b.target
+func (esk *commonSkill) GetTarget() Unit {
+	return esk.target
 }
 
-func (b *commonSkill) GetWielder() Unit {
-	return b.wielder
+func (esk *commonSkill) GetWielder() Unit {
+	return esk.wielder
 }
 
-func (b *commonSkill) GetSpeed() int {
-	return b.speed
+func (esk *commonSkill) GetSpeed() int {
+	return esk.speed
 }
 
-func (b *commonSkill) GetName() string {
-	return b.name
+func (esk *commonSkill) GetName() string {
+	return esk.name
 }
 
-func (b *commonSkill) Init(wielder Unit) Skill { return b }
-func (b *commonSkill) Apply(r *Room) string    { return "" }
+func (esk *commonSkill) Init(wielder Unit) Skill { return esk }
+func (esk *commonSkill) Apply(r *Room) string    { return "" }
