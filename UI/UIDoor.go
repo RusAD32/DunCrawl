@@ -8,8 +8,7 @@ import (
 type UIDoor struct {
 	x, y, w, h int
 	num        int
-	pic        *ebiten.Image
-	opts       *ebiten.DrawImageOptions
+	DrawableImage
 }
 
 func (d *UIDoor) Init(x, y, w, h, num int) *UIDoor {
@@ -33,7 +32,7 @@ func (d *UIDoor) isClicked(mouseX, mouseY int) bool {
 }
 
 func (d *UIDoor) Draw(screen *ebiten.Image, col color.Color) {
-	err := screen.DrawImage(d.pic, d.opts)
+	err := d.DrawImg(screen)
 	if err != nil {
 		panic(err)
 	}

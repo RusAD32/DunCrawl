@@ -16,8 +16,7 @@ type UIEnemy struct {
 	enemy      *Enemy
 	isTargeted bool
 	skillUsed  Skill
-	pic        *ebiten.Image
-	opts       *ebiten.DrawImageOptions
+	DrawableImage
 }
 
 func (e *UIEnemy) Init(x, y, w, h int, col color.Color, enemy *Enemy) *UIEnemy {
@@ -42,7 +41,7 @@ func (e *UIEnemy) isClicked(mouseX, mouseY int) bool {
 }
 
 func (e *UIEnemy) Draw(screen *ebiten.Image, font font.Face) {
-	err := screen.DrawImage(e.pic, e.opts)
+	err := e.DrawImg(screen)
 	if err != nil {
 		panic(err)
 	}
