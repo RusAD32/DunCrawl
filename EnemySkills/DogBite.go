@@ -4,7 +4,7 @@ import . "DunCrawl/Interfaces"
 
 type DogBite struct {
 	baseDmg int
-	commonSkill
+	CommonEnSkill
 }
 
 func (b *DogBite) Init(enemy Unit) Skill {

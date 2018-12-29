@@ -37,8 +37,22 @@ func (psk *CommonPlSkill) AddExp(amount int) {
 	}
 }
 
-func (psk *CommonPlSkill) GetTarget() Unit         { return nil }
-func (psk *CommonPlSkill) GetRes() string          { return "" }
-func (psk *CommonPlSkill) ApplyVoid(string)        {}
-func (psk *CommonPlSkill) Apply(*Room) string      { return "" }
-func (psk *CommonPlSkill) Init(wielder Unit) Skill { return nil }
+func (psk *CommonPlSkill) GetTarget() Unit {
+	panic("implement me")
+}
+
+func (psk *CommonPlSkill) GetRes() string {
+	panic("implement me")
+}
+
+func (psk *CommonPlSkill) Init(wielder Unit) Skill {
+	panic("implement me")
+}
+
+func (psk *CommonPlSkill) Apply(r *Room) string {
+	panic("implement me")
+}
+
+func (psk *CommonPlSkill) ApplyVoid(res string) {
+	panic("implement me")
+}

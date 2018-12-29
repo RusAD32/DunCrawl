@@ -2,7 +2,7 @@ package EnemySkills
 
 import . "DunCrawl/Interfaces"
 
-type commonSkill struct {
+type CommonEnSkill struct {
 	speed   int
 	name    string
 	wielder Unit
@@ -10,33 +10,38 @@ type commonSkill struct {
 	res     string
 }
 
-func (esk *commonSkill) GetRes() string {
+func (esk *CommonEnSkill) GetRes() string {
 	return esk.res
 }
 
-func (esk *commonSkill) ApplyVoid(res string) {
+func (esk *CommonEnSkill) ApplyVoid(res string) {
 	esk.res = res
 }
 
-func (esk *commonSkill) SetTarget(player Unit) {
+func (esk *CommonEnSkill) SetTarget(player Unit) {
 	esk.target = player
 }
 
-func (esk *commonSkill) GetTarget() Unit {
+func (esk *CommonEnSkill) GetTarget() Unit {
 	return esk.target
 }
 
-func (esk *commonSkill) GetWielder() Unit {
+func (esk *CommonEnSkill) GetWielder() Unit {
 	return esk.wielder
 }
 
-func (esk *commonSkill) GetSpeed() int {
+func (esk *CommonEnSkill) GetSpeed() int {
 	return esk.speed
 }
 
-func (esk *commonSkill) GetName() string {
+func (esk *CommonEnSkill) GetName() string {
 	return esk.name
 }
 
-func (esk *commonSkill) Init(wielder Unit) Skill { return esk }
-func (esk *commonSkill) Apply(r *Room) string    { return "" }
+func (esk *CommonEnSkill) Init(wielder Unit) Skill {
+	panic("implement me")
+}
+
+func (esk *CommonEnSkill) Apply(r *Room) string {
+	panic("implement me")
+}
