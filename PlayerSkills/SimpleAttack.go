@@ -7,42 +7,17 @@ import (
 )
 
 type SimpleAttack struct {
-	name       string
-	baseDMG    int
-	lvl        int
-	maxLvl     int
-	curExp     int
-	speed      int
-	uses       int
-	lvlupExp   []int
-	wielder    Unit
-	targets    []Unit
-	lastTarget Unit
-	res        []string
-}
-
-func (s *SimpleAttack) GetRes() string {
-	res := s.res[0]
-	s.res = s.res[1:]
-	return res
+	baseDMG  int
+	lvl      int
+	maxLvl   int
+	curExp   int
+	uses     int
+	lvlupExp []int
+	commonSkill
 }
 
 func (s *SimpleAttack) Reset() {
 	s.uses = 4
-}
-
-func (s *SimpleAttack) ApplyVoid(res string) {
-	s.lastTarget = s.targets[0]
-	s.targets = s.targets[1:]
-	s.res = append(s.res, res)
-}
-
-func (s *SimpleAttack) GetTarget() Unit {
-	return s.lastTarget
-}
-
-func (s *SimpleAttack) GetWielder() Unit {
-	return s.wielder
 }
 
 func (s *SimpleAttack) SetTarget(enemy Unit) {
@@ -63,14 +38,6 @@ func (s *SimpleAttack) Apply(r *Room) string {
 	res := DealDamage(s.wielder, s.lastTarget, s.baseDMG+equipDmg)
 	s.res = append(s.res, res)
 	return res
-}
-
-func (s *SimpleAttack) GetSpeed() int {
-	return s.speed
-}
-
-func (s *SimpleAttack) GetName() string {
-	return s.name
 }
 
 func (s *SimpleAttack) GetUses() int {

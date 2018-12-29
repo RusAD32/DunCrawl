@@ -4,39 +4,7 @@ import . "DunCrawl/Interfaces"
 
 type DogBite struct {
 	baseDmg int
-	speed   int
-	name    string
-	wielder Unit
-	target  Unit
-	res     string
-}
-
-func (b *DogBite) GetRes() string {
-	return b.res
-}
-
-func (b *DogBite) ApplyVoid(res string) {
-	b.res = res
-}
-
-func (b *DogBite) SetTarget(player Unit) {
-	b.target = player
-}
-
-func (b *DogBite) GetTarget() Unit {
-	return b.target
-}
-
-func (b *DogBite) GetWielder() Unit {
-	return b.wielder
-}
-
-func (b *DogBite) GetSpeed() int {
-	return b.speed
-}
-
-func (b *DogBite) GetName() string {
-	return b.name
+	commonSkill
 }
 
 func (b *DogBite) Init(enemy Unit) Skill {
