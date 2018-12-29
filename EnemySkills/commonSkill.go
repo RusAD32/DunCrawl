@@ -37,3 +37,6 @@ func (b *commonSkill) GetSpeed() int {
 func (b *commonSkill) GetName() string {
 	return b.name
 }
+
+func (b *commonSkill) Init(wielder Unit) Skill { return b }
+func (b *commonSkill) Apply(r *Room) string    { return "" }

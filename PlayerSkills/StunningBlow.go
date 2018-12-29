@@ -8,50 +8,8 @@ import (
 )
 
 type StunningBlow struct {
-	name       string
-	baseDMG    int
-	lvl        int
-	maxLvl     int
-	curExp     int
-	speed      int
-	uses       int
-	lvlupExps  []int
-	wielder    Unit
-	targets    []Unit
-	lastTarget Unit
-	res        []string
-}
-
-func (s *StunningBlow) GetRes() string {
-	res := s.res[0]
-	s.res = s.res[1:]
-	return res
-}
-
-func (s *StunningBlow) ApplyVoid(res string) {
-	s.lastTarget = s.targets[0]
-	s.targets = s.targets[1:]
-	s.res = append(s.res, res)
-}
-
-func (s *StunningBlow) Reset() {
-	s.uses = 2
-}
-
-func (s *StunningBlow) GetTarget() Unit {
-	return s.lastTarget
-}
-
-func (s *StunningBlow) GetWielder() Unit {
-	return s.wielder
-}
-
-func (s *StunningBlow) SetTarget(enemy Unit) {
-	s.uses--
-	if s.lastTarget == nil {
-		s.lastTarget = enemy
-	}
-	s.targets = append(s.targets, enemy)
+	baseDMG int
+	CommonDmgSkill
 }
 
 func (s *StunningBlow) Apply(r *Room) string {
@@ -66,18 +24,6 @@ func (s *StunningBlow) Apply(r *Room) string {
 	effect := (&Effects.StunEffect{}).Init()
 	AddEffect(s.lastTarget, effect)
 	return res
-}
-
-func (s *StunningBlow) GetSpeed() int {
-	return s.speed
-}
-
-func (s *StunningBlow) GetName() string {
-	return s.name
-}
-
-func (s *StunningBlow) GetUses() int {
-	return s.uses
 }
 
 func (s *StunningBlow) Init(player Unit) Skill {
@@ -104,14 +50,5 @@ func (s *StunningBlow) LvlUp() {
 		s.baseDMG = int(math.Pow(3.0, math.Sqrt(float64(s.lvl))))
 	} else {
 		fmt.Sprintln("Error: Requirements for levelling up skill %s not met", s.name)
-	}
-}
-
-func (s *StunningBlow) AddExp(amount int) {
-	if s.lvl < s.maxLvl {
-		s.curExp += amount
-		if s.curExp >= s.lvlupExps[s.lvl-1] {
-			s.LvlUp()
-		}
 	}
 }

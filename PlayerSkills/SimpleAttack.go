@@ -11,21 +11,8 @@ type SimpleAttack struct {
 	lvl      int
 	maxLvl   int
 	curExp   int
-	uses     int
 	lvlupExp []int
-	commonSkill
-}
-
-func (s *SimpleAttack) Reset() {
-	s.uses = 4
-}
-
-func (s *SimpleAttack) SetTarget(enemy Unit) {
-	s.uses--
-	if s.lastTarget == nil {
-		s.lastTarget = enemy
-	}
-	s.targets = append(s.targets, enemy)
+	CommonDmgSkill
 }
 
 func (s *SimpleAttack) Apply(r *Room) string {
@@ -38,10 +25,6 @@ func (s *SimpleAttack) Apply(r *Room) string {
 	res := DealDamage(s.wielder, s.lastTarget, s.baseDMG+equipDmg)
 	s.res = append(s.res, res)
 	return res
-}
-
-func (s *SimpleAttack) GetUses() int {
-	return s.uses
 }
 
 func (s *SimpleAttack) Init(player Unit) Skill {
@@ -67,14 +50,5 @@ func (s *SimpleAttack) LvlUp() {
 		s.baseDMG = int(math.Pow(5.0, math.Sqrt(float64(s.lvl))))
 	} else {
 		fmt.Sprintln("Error: Requirements for levelling up skill %s not met", s.name)
-	}
-}
-
-func (s *SimpleAttack) AddExp(amount int) {
-	if s.lvl < s.maxLvl {
-		s.curExp += amount
-		if s.curExp >= s.lvlupExp[s.lvl-1] {
-			s.LvlUp()
-		}
 	}
 }
