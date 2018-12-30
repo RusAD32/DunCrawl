@@ -6,11 +6,12 @@ type CommonDmgSkill struct {
 	targets Unit
 	res     string
 	uses    int
+	maxUses int
 	CommonPlSkill
 }
 
 func (dsk *CommonDmgSkill) Reset() {
-	dsk.uses = 4
+	dsk.uses = dsk.maxUses
 }
 
 func (dsk *CommonDmgSkill) SetTarget(enemy Unit) {

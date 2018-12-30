@@ -49,10 +49,7 @@ func (e *UIEnemy) isClicked(mouseX, mouseY int) bool {
 }
 
 func (e *UIEnemy) Draw(screen *ebiten.Image, font font.Face) {
-	err := e.DrawImg(screen)
-	if err != nil {
-		panic(err)
-	}
+	e.DrawImg(screen)
 	//ebitenutil.DrawRect(screen, float64(e.x), float64(e.y), float64(e.w), float64(e.h), e.col)
 	text.Draw(screen,
 		fmt.Sprintf("%s\n%d/%d\n", e.enemy.GetName(), e.enemy.GetCurHP(), e.enemy.GetMaxHP()),

@@ -26,10 +26,7 @@ func (sb *SkillIcon) Init(w, h int, sk SkillInfo, col color.Color, font font.Fac
 }
 
 func (sb *SkillIcon) Draw(screen *ebiten.Image) {
-	err := sb.DrawImg(screen)
-	if err != nil {
-		panic(err)
-	}
+	sb.DrawImg(screen)
 	//ebitenutil.DrawRect(screen, float64(sb.x), float64(sb.y), float64(sb.w), float64(sb.h), sb.GetImage())
 	text.Draw(screen, sb.sk.GetName(), sb.font, sb.x, sb.y+sb.font.Metrics().Height.Ceil()*3/2, color.Black)
 	text.Draw(screen, sb.sk.GetTarget().GetName(), sb.font, sb.x, sb.y+sb.font.Metrics().Height.Ceil()*3, color.Black)

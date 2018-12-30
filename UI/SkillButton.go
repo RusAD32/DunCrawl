@@ -49,10 +49,7 @@ func (sb *SkillButton) Init(x, y, w, h int, sk Skill, activeCol, disabledCol col
 }
 
 func (sb *SkillButton) Draw(screen *ebiten.Image) {
-	err := sb.DrawImg(screen)
-	if err != nil {
-		panic(err)
-	}
+	sb.DrawImg(screen)
 	//ebitenutil.DrawRect(screen, float64(sb.x), float64(sb.y), float64(sb.w), float64(sb.h), sb.GetImage())
 	text.Draw(screen, sb.sk.GetName(), sb.font, sb.x, sb.y+sb.font.Metrics().Height.Ceil()*2, color.Black)
 }

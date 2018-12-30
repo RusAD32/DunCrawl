@@ -19,10 +19,7 @@ func (d *UIDoor) Init(x, y, w, h, num int) *UIDoor {
 	d.num = num
 	d.pic = make([]*ebiten.Image, 1)
 	d.pic[0], _ = ebiten.NewImage(w, h, ebiten.FilterDefault)
-	err := d.pic[0].Fill(color.Black)
-	if err != nil {
-		panic(err)
-	}
+	_ = d.pic[0].Fill(color.Black)
 	d.opts = &ebiten.DrawImageOptions{}
 	d.opts.GeoM.Translate(float64(x), float64(y))
 	return d
@@ -33,9 +30,6 @@ func (d *UIDoor) isClicked(mouseX, mouseY int) bool {
 }
 
 func (d *UIDoor) Draw(screen *ebiten.Image, col color.Color) {
-	err := d.DrawImg(screen)
-	if err != nil {
-		panic(err)
-	}
+	d.DrawImg(screen)
 	//ebitenutil.DrawRect(screen, float64(d.x), float64(d.y), float64(d.w), float64(d.h), col)
 }

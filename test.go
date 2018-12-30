@@ -9,6 +9,8 @@ import (
 	"DunCrawl/UI"
 	"github.com/hajimehoshi/ebiten"
 	"image/color"
+	"math"
+	//"math"
 )
 
 func walkTest() {
@@ -90,7 +92,11 @@ func ebitenTest() {
 	g.Init(l, 600, 480)
 	PrintLabyrinth(l)
 	//go UI.EnterLabyrinth(&l)
-	if err := ebiten.Run(update, 600, 480, 1.8/ebiten.DeviceScaleFactor(), "Hello world!"); err != nil {
+	x, y := ebiten.ScreenSizeInFullscreen()
+	//scale := ebiten.DeviceScaleFactor()
+	scale := math.Max(ebiten.DeviceScaleFactor(), 1200/float64(x))
+	scale = math.Max(scale, 960/float64(y))
+	if err := ebiten.Run(update, 600, 480, 2.0/scale, "DunCrawl"); err != nil {
 		panic(err.Error())
 	}
 }

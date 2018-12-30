@@ -34,6 +34,7 @@ func (s *StunningBlow) Init(player Unit) Skill {
 	s.curExp = 0
 	s.speed = 5
 	s.uses = 2
+	s.maxUses = 2
 	s.lvlupExp = make([]int, 4)
 	s.wielder = player
 	//	s.res = make([]string, 0)

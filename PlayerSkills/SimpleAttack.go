@@ -37,6 +37,7 @@ func (s *SimpleAttack) Init(player Unit) Skill {
 	s.uses = 4
 	s.lvlupExp = make([]int, 4)
 	s.wielder = player
+	s.maxUses = 4
 	for i := range s.lvlupExp {
 		s.lvlupExp[i] = int(math.Pow(float64(i+2), 2.0) / 4.0)
 	}

@@ -16,6 +16,6 @@ func (d *DrawableImage) ChoosePic() *ebiten.Image {
 	return d.pic[d.state]
 }
 
-func (d *DrawableImage) DrawImg(screen *ebiten.Image) error {
-	return screen.DrawImage(d.ChoosePic(), d.opts)
+func (d *DrawableImage) DrawImg(screen *ebiten.Image) {
+	_ = screen.DrawImage(d.ChoosePic(), d.opts)
 }
