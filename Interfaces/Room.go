@@ -76,11 +76,13 @@ func (r *Room) SubmitSelfSkill(s PlayerSelfSkill) {
 func (r *Room) SubmitDmgSkill(s PlayerDmgSkill) {
 	if r.FightState == AwaitingDmgSkill && s.GetUses() >= 0 {
 		r.pq.Push(s)
-		ensk := r.enemies[r.dmgSkillsPushed].ChooseSkill()
-		ensk.SetTarget(r.p)
-		r.pq.Push(ensk)
 		r.dmgSkillsPushed++
 		if r.dmgSkillsPushed == len(r.enemies) {
+			for _, v := range r.enemies {
+				ensk := v.ChooseSkill()
+				ensk.SetTarget(r.p)
+				r.pq.Push(ensk)
+			}
 			r.FightState = ResolvingSkills
 		}
 	} else {
@@ -354,4 +356,12 @@ func BackTrackerLabGen(room *Room, distFromStart int) {
 			BackTrackerLabGen(room.neighbours[num].leadsTo, distFromStart+1)
 		}
 	}
+}
+
+func (r *Room) GetSkQueue() []SkillInfo {
+	res := make([]SkillInfo, 0)
+	for _, v := range r.pq {
+		res = append(res, v.(SkillInfo))
+	}
+	return res
 }

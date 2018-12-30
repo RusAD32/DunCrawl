@@ -26,6 +26,7 @@ var (
 	Gray       = color.RGBA{R: 200, G: 200, B: 200, A: 255}
 	LightGreen = color.RGBA{R: 200, G: 255, B: 200, A: 255}
 	LightBlue  = color.RGBA{R: 200, G: 200, B: 255, A: 255}
+	LightRed   = color.RGBA{R: 255, G: 200, B: 200, A: 255}
 )
 
 type UIGame struct {
@@ -41,6 +42,7 @@ type UIGame struct {
 	enemyNums    map[*Enemy]int
 	pl           *PlayerStats
 	cd           int
+	queue        SkQueue
 	consts
 }
 
@@ -81,6 +83,12 @@ func (g *UIGame) Init(l *Labyrinth, w, h int) {
 		Red,
 		color.Black,
 		"", "",
+	}
+	g.queue = SkQueue{
+		x:      w / 10,
+		y:      h / 10,
+		xOffs:  g.consts.skButW * 10 / 8,
+		skills: make([]*SkillIcon, 0),
 	}
 	g.pl = &plst
 }
@@ -127,9 +135,10 @@ func (g *UIGame) Draw(screen *ebiten.Image) {
 				v.Draw(screen, g.font)
 			}
 			for _, v := range append(g.selfSkButs, g.dmgSkButs...) {
-				v.Draw(screen, g.font)
+				v.Draw(screen)
 			}
 			g.pl.Draw(screen, g.font)
+			g.queue.Draw(screen)
 		}
 	}
 
@@ -155,7 +164,8 @@ func (g *UIGame) prepareForFight() {
 			g.consts.skButH,
 			v,
 			LightGreen,
-			Gray)
+			Gray,
+			g.font)
 		g.selfSkButs = append(g.selfSkButs, button)
 	}
 	for i, v := range g.l.GetPlayer().GetDmgSkillList() {
@@ -166,13 +176,34 @@ func (g *UIGame) prepareForFight() {
 			g.consts.skButH,
 			v,
 			LightBlue,
-			Gray)
+			Gray,
+			g.font)
 		g.dmgSkButs = append(g.dmgSkButs, button)
 	}
 	g.state = Fight
 }
 
+func (g *UIGame) updateQueue() {
+	g.queue.skills = make([]*SkillIcon, 0)
+	skQ := g.l.GetCurrentRoom().GetSkQueue()
+	for _, v := range skQ {
+		var col color.Color
+		switch v.(type) {
+		case PlayerSelfSkill:
+			col = LightGreen
+		case PlayerDmgSkill:
+			col = LightBlue
+		default:
+			{
+				col = LightRed
+			}
+		}
+		g.queue.skills = append(g.queue.skills, new(SkillIcon).Init(g.consts.skButW, g.consts.skButH, v, col, g.font))
+	}
+}
+
 func (g *UIGame) submitSelfSkill() {
+	g.queue.skills = make([]*SkillIcon, 0)
 	for _, v := range g.selfSkButs {
 		v.active = true
 	}
@@ -192,6 +223,7 @@ func (g *UIGame) submitSelfSkill() {
 			for _, v := range g.dmgSkButs {
 				v.active = v.sk.(PlayerDmgSkill).GetUses() > 0
 			}
+			g.updateQueue()
 			return
 		}
 	}
@@ -218,6 +250,7 @@ func (g *UIGame) submitDmgSkill() {
 			}
 			curEn.isTargeted = false
 			g.l.GetCurrentRoom().SubmitDmgSkill(skill)
+			g.updateQueue()
 			g.dmgSkButs[skNum].active = skill.GetUses() != 0
 			return
 		}
@@ -241,6 +274,7 @@ func (g *UIGame) resolveSkill() {
 		v.col = Violet
 	}
 	sk := g.l.GetCurrentRoom().GetNextSkillUsed()
+	g.updateQueue()
 	target := sk.GetTarget()
 	switch sk.(type) {
 	case PlayerDmgSkill:
