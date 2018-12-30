@@ -34,18 +34,18 @@ func (s *StunningBlow) Init(player Unit) Skill {
 	s.curExp = 0
 	s.speed = 5
 	s.uses = 2
-	s.lvlupExps = make([]int, 4)
+	s.lvlupExp = make([]int, 4)
 	s.wielder = player
 	s.res = make([]string, 0)
-	for i := range s.lvlupExps {
-		s.lvlupExps[i] = int(math.Pow(float64(i+2), 2.0) / 3.0)
+	for i := range s.lvlupExp {
+		s.lvlupExp[i] = int(math.Pow(float64(i+2), 2.0) / 3.0)
 	}
 	return s
 }
 
 func (s *StunningBlow) LvlUp() {
-	if s.lvl < s.maxLvl && s.curExp >= s.lvlupExps[s.lvl-1] {
-		s.curExp -= s.lvlupExps[s.lvl+1]
+	if s.lvl < s.maxLvl && s.curExp >= s.lvlupExp[s.lvl-1] {
+		s.curExp -= s.lvlupExp[s.lvl+1]
 		s.lvl++
 		s.baseDMG = int(math.Pow(3.0, math.Sqrt(float64(s.lvl))))
 	} else {

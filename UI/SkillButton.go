@@ -38,7 +38,7 @@ func (sb *SkillButton) Init(x, y, w, h int, sk Skill, activeCol, disabledCol col
 		panic(err)
 	}
 	sb.picActive, _ = ebiten.NewImage(w, h, ebiten.FilterDefault)
-	err = sb.picActive.Fill(disabledCol)
+	err = sb.picActive.Fill(activeCol)
 	if err != nil {
 		panic(err)
 	}
