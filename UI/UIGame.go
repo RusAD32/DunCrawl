@@ -14,7 +14,6 @@ type GameState int
 const (
 	Roam GameState = iota
 	Fight
-	PreparingForFight
 )
 
 var (
@@ -31,19 +30,20 @@ var (
 )
 
 type UIGame struct {
-	w            int
-	h            int
-	l            *Labyrinth
-	state        GameState
-	font         font.Face
-	currentDoors []*UIDoor
-	curEnemies   []*UIEnemy
-	selfSkButs   []*SkillButton
-	dmgSkButs    []*SkillButton
-	enemyNums    map[*Enemy]int
-	pl           *PlayerStats
-	cd           int
-	queue        SkQueue
+	w                                   int
+	h                                   int
+	l                                   *Labyrinth
+	state                               GameState
+	font                                font.Face
+	currentDoors                        []*UIDoor
+	curEnemies                          []*UIEnemy
+	selfSkButs                          []*SkillButton
+	dmgSkButs                           []*SkillButton
+	enemyNums                           map[*Enemy]int
+	pl                                  *PlayerStats
+	cd                                  int
+	queue                               SkQueue
+	turnStartActions, preResolveActions bool
 	consts
 }
 
@@ -153,6 +153,8 @@ func (g *UIGame) prepareForFight() {
 			g.consts.enemyW,
 			g.consts.enemyH,
 			Violet,
+			Firebrick,
+			OrangeRed,
 			v)
 		g.enemyNums[v] = i
 		g.curEnemies = append(g.curEnemies, enemy)
@@ -181,6 +183,7 @@ func (g *UIGame) prepareForFight() {
 			g.font)
 		g.dmgSkButs = append(g.dmgSkButs, button)
 	}
+	g.turnStartActions = true
 	g.state = Fight
 }
 
@@ -222,25 +225,33 @@ func getNewClicks() [][]int {
 }
 
 func (g *UIGame) submitSelfSkill() {
-	g.queue.skills = make([]*SkillIcon, 0)
-	for _, v := range g.selfSkButs {
-		v.active = true
+	if g.turnStartActions {
+		g.queue.skills = make([]*SkillIcon, 0)
+		for _, v := range g.selfSkButs {
+			v.state = butActive
+		}
+		for _, v := range g.curEnemies {
+			v.state = enemyDefault
+		}
+		g.pl.dmgProcessing = ""
+		g.pl.healProcessing = ""
+		g.preResolveActions = true
+		g.turnStartActions = false
 	}
-	for _, v := range g.curEnemies {
-		v.pic.Fill(Violet)
-	}
-	g.pl.dmgProcessing = ""
-	g.pl.healProcessing = ""
 	for _, v := range getNewClicks() {
 		butNum := g.selfSkillButtonClicked(v[0], v[1])
 		if butNum >= 0 {
 			g.l.GetCurrentRoom().SubmitSelfSkill(g.selfSkButs[butNum].sk.(PlayerSelfSkill))
 			g.curEnemies[0].isTargeted = true
 			for _, v := range g.selfSkButs {
-				v.active = false
+				v.state = butInactive
 			}
 			for _, v := range g.dmgSkButs {
-				v.active = v.sk.(PlayerDmgSkill).GetUses() > 0
+				if v.sk.(PlayerDmgSkill).GetUses() != 0 {
+					v.state = butActive
+				} else {
+					v.state = butInactive
+				}
 			}
 			g.updateQueue()
 			return
@@ -270,7 +281,11 @@ func (g *UIGame) submitDmgSkill() {
 			curEn.isTargeted = false
 			g.l.GetCurrentRoom().SubmitDmgSkill(skill)
 			g.updateQueue()
-			g.dmgSkButs[skNum].active = skill.GetUses() != 0
+			if skill.GetUses() != 0 {
+				g.dmgSkButs[skNum].state = butActive
+			} else {
+				g.dmgSkButs[skNum].state = butInactive
+			}
 			return
 		}
 		for _, v := range g.curEnemies {
@@ -286,11 +301,15 @@ func (g *UIGame) submitDmgSkill() {
 }
 
 func (g *UIGame) resolveSkill() {
-	for _, v := range append(g.selfSkButs, g.dmgSkButs...) {
-		v.active = false
+	if g.preResolveActions {
+		for _, v := range append(g.selfSkButs, g.dmgSkButs...) {
+			v.state = butInactive
+		}
+		g.preResolveActions = false
+		g.turnStartActions = true
 	}
 	for _, v := range g.curEnemies {
-		v.pic.Fill(Violet)
+		v.state = enemyDefault
 	}
 	sk := g.l.GetCurrentRoom().GetNextSkillUsed()
 	g.updateQueue()
@@ -299,7 +318,7 @@ func (g *UIGame) resolveSkill() {
 	case PlayerDmgSkill:
 		{
 			en := g.curEnemies[g.enemyNums[target.(*Enemy)]]
-			en.pic.Fill(Firebrick)
+			en.state = enemyAttacked
 			en.skillUsed = nil
 			g.cd = 60
 			g.pl.dmgProcessing = sk.GetRes()
@@ -308,7 +327,7 @@ func (g *UIGame) resolveSkill() {
 	case EnemySkill:
 		{
 			en := g.curEnemies[g.enemyNums[sk.GetWielder().(*Enemy)]]
-			en.pic.Fill(OrangeRed)
+			en.state = enemyAttacking
 			g.cd = 60
 			g.pl.dmgProcessing = sk.GetRes()
 			g.pl.healProcessing = ""
@@ -356,10 +375,6 @@ func (g *UIGame) Update() {
 				g.dmgSkButs = make([]*SkillButton, 0)
 				g.state = Roam
 			}
-		}
-	case PreparingForFight:
-		{
-
 		}
 	}
 }

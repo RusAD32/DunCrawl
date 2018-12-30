@@ -7,10 +7,15 @@ type Drawable interface {
 }
 
 type DrawableImage struct {
-	pic  *ebiten.Image
-	opts *ebiten.DrawImageOptions
+	pic   []*ebiten.Image
+	opts  *ebiten.DrawImageOptions
+	state int
+}
+
+func (d *DrawableImage) ChoosePic() *ebiten.Image {
+	return d.pic[d.state]
 }
 
 func (d *DrawableImage) DrawImg(screen *ebiten.Image) error {
-	return screen.DrawImage(d.pic, d.opts)
+	return screen.DrawImage(d.ChoosePic(), d.opts)
 }

@@ -17,8 +17,9 @@ func (d *UIDoor) Init(x, y, w, h, num int) *UIDoor {
 	d.w = w
 	d.h = h
 	d.num = num
-	d.pic, _ = ebiten.NewImage(w, h, ebiten.FilterDefault)
-	err := d.pic.Fill(color.Black)
+	d.pic = make([]*ebiten.Image, 1)
+	d.pic[0], _ = ebiten.NewImage(w, h, ebiten.FilterDefault)
+	err := d.pic[0].Fill(color.Black)
 	if err != nil {
 		panic(err)
 	}

@@ -8,14 +8,18 @@ import (
 	"image/color"
 )
 
+const (
+	butInactive = iota
+	butActive
+)
+
 type SkillButton struct {
 	x, y, w, h             int
 	font                   font.Face
-	isSelf, active         bool
+	isSelf                 bool
 	activeCol, disabledCol color.Color
 	sk                     Skill
-	picActive, picDisbled  *ebiten.Image
-	opts                   *ebiten.DrawImageOptions
+	DrawableImage
 }
 
 func (sb *SkillButton) Init(x, y, w, h int, sk Skill, activeCol, disabledCol color.Color, font font.Face) *SkillButton {
@@ -26,7 +30,7 @@ func (sb *SkillButton) Init(x, y, w, h int, sk Skill, activeCol, disabledCol col
 	sb.activeCol = activeCol
 	sb.disabledCol = disabledCol
 	sb.sk = sk
-	sb.active = false
+	sb.state = butInactive
 	sb.font = font
 	switch sk.(type) {
 	case PlayerSelfSkill:
@@ -34,30 +38,18 @@ func (sb *SkillButton) Init(x, y, w, h int, sk Skill, activeCol, disabledCol col
 	default:
 		sb.isSelf = false
 	}
-	sb.picDisbled, _ = ebiten.NewImage(w, h, ebiten.FilterDefault)
-	err := sb.picDisbled.Fill(disabledCol)
-	if err != nil {
-		panic(err)
-	}
-	sb.picActive, _ = ebiten.NewImage(w, h, ebiten.FilterDefault)
-	err = sb.picActive.Fill(activeCol)
-	if err != nil {
-		panic(err)
-	}
+	sb.pic = make([]*ebiten.Image, 2)
+	sb.pic[butInactive], _ = ebiten.NewImage(w, h, ebiten.FilterDefault)
+	_ = sb.pic[butInactive].Fill(disabledCol)
+	sb.pic[butActive], _ = ebiten.NewImage(w, h, ebiten.FilterDefault)
+	_ = sb.pic[butActive].Fill(activeCol)
 	sb.opts = &ebiten.DrawImageOptions{}
 	sb.opts.GeoM.Translate(float64(x), float64(y))
 	return sb
 }
 
-func (sb *SkillButton) GetImage() *ebiten.Image {
-	if sb.active {
-		return sb.picActive
-	}
-	return sb.picDisbled
-}
-
 func (sb *SkillButton) Draw(screen *ebiten.Image) {
-	err := screen.DrawImage(sb.GetImage(), sb.opts)
+	err := sb.DrawImg(screen)
 	if err != nil {
 		panic(err)
 	}
@@ -67,5 +59,5 @@ func (sb *SkillButton) Draw(screen *ebiten.Image) {
 
 func (sb *SkillButton) isClicked(mouseX, mouseY int) bool {
 	return !(mouseX < sb.x || mouseX > sb.x+sb.w || mouseY < sb.y || mouseY > sb.y+sb.h ||
-		!sb.isSelf && sb.sk.(PlayerDmgSkill).GetUses() == 0 || !sb.active)
+		!sb.isSelf && sb.sk.(PlayerDmgSkill).GetUses() == 0 || sb.state == butInactive)
 }

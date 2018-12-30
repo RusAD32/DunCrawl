@@ -10,6 +10,12 @@ import (
 	"image/color"
 )
 
+const (
+	enemyDefault = iota
+	enemyAttacking
+	enemyAttacked
+)
+
 type UIEnemy struct {
 	x, y, w, h int
 	col        color.Color
@@ -19,18 +25,20 @@ type UIEnemy struct {
 	DrawableImage
 }
 
-func (e *UIEnemy) Init(x, y, w, h int, col color.Color, enemy *Enemy) *UIEnemy {
+func (e *UIEnemy) Init(x, y, w, h int, colDef, colAttacking, colAttacked color.Color, enemy *Enemy) *UIEnemy {
 	e.x = x
 	e.y = y
 	e.w = w
 	e.h = h
-	e.col = col
+	e.col = colDef
 	e.enemy = enemy
-	e.pic, _ = ebiten.NewImage(w, h, ebiten.FilterDefault)
-	err := e.pic.Fill(col)
-	if err != nil {
-		panic(err)
-	}
+	e.pic = make([]*ebiten.Image, 3)
+	e.pic[int(enemyDefault)], _ = ebiten.NewImage(w, h, ebiten.FilterDefault)
+	_ = e.pic[int(enemyDefault)].Fill(colDef)
+	e.pic[int(enemyAttacking)], _ = ebiten.NewImage(w, h, ebiten.FilterDefault)
+	_ = e.pic[int(enemyAttacking)].Fill(colAttacking)
+	e.pic[int(enemyAttacked)], _ = ebiten.NewImage(w, h, ebiten.FilterDefault)
+	_ = e.pic[int(enemyAttacked)].Fill(colAttacked)
 	e.opts = &ebiten.DrawImageOptions{}
 	e.opts.GeoM.Translate(float64(x), float64(y))
 	return e
