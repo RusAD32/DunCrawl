@@ -14,6 +14,7 @@ type GameState int
 const (
 	Roam GameState = iota
 	Fight
+	PreparingForFight
 )
 
 var (
@@ -200,6 +201,26 @@ func (g *UIGame) updateQueue() {
 	}
 }
 
+func getNewClicks() [][]int {
+	res := make([][]int, 0)
+	for _, v := range inpututil.JustPressedTouchIDs() {
+		click := make([]int, 2)
+		x, y := ebiten.TouchPosition(v)
+		click[0] = x
+		click[1] = y
+		res = append(res, click)
+	}
+	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
+		click := make([]int, 2)
+		x, y := ebiten.CursorPosition()
+		click[0] = x
+		click[1] = y
+		res = append(res, click)
+
+	}
+	return res
+}
+
 func (g *UIGame) submitSelfSkill() {
 	g.queue.skills = make([]*SkillIcon, 0)
 	for _, v := range g.selfSkButs {
@@ -210,8 +231,8 @@ func (g *UIGame) submitSelfSkill() {
 	}
 	g.pl.dmgProcessing = ""
 	g.pl.healProcessing = ""
-	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
-		butNum := g.selfSkillButtonClicked(ebiten.CursorPosition())
+	for _, v := range getNewClicks() {
+		butNum := g.selfSkillButtonClicked(v[0], v[1])
 		if butNum >= 0 {
 			g.l.GetCurrentRoom().SubmitSelfSkill(g.selfSkButs[butNum].sk.(PlayerSelfSkill))
 			g.curEnemies[0].isTargeted = true
@@ -228,8 +249,8 @@ func (g *UIGame) submitSelfSkill() {
 }
 
 func (g *UIGame) submitDmgSkill() {
-	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
-		skNum := g.dmgSkillButtonClicked(ebiten.CursorPosition())
+	for _, touch := range getNewClicks() {
+		skNum := g.dmgSkillButtonClicked(touch[0], touch[1])
 		if skNum >= 0 {
 			var curEn *UIEnemy
 			for _, v := range g.curEnemies {
@@ -253,7 +274,7 @@ func (g *UIGame) submitDmgSkill() {
 			return
 		}
 		for _, v := range g.curEnemies {
-			if v.isClicked(ebiten.CursorPosition()) && v.skillUsed == nil {
+			if v.isClicked(touch[0], touch[1]) && v.skillUsed == nil {
 				for _, v := range g.curEnemies {
 					v.isTargeted = false
 				}
@@ -309,8 +330,8 @@ func (g *UIGame) Update() {
 	switch g.state {
 	case Roam:
 		{
-			if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
-				nextDoor := g.doorClicked(ebiten.CursorPosition())
+			for _, v := range getNewClicks() {
+				nextDoor := g.doorClicked(v[0], v[1])
 				go g.l.GoToRoom(Direction(nextDoor)) // TODO this part should be stateful imho
 				event := <-g.l.GetEventsChan()
 				if event == FightEvent {
@@ -335,6 +356,10 @@ func (g *UIGame) Update() {
 				g.dmgSkButs = make([]*SkillButton, 0)
 				g.state = Roam
 			}
+		}
+	case PreparingForFight:
+		{
+
 		}
 	}
 }

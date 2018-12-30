@@ -75,7 +75,11 @@ func update(screen *ebiten.Image) error {
 		panic("can't fill the screen with color")
 	}
 	g.Update()
+	if ebiten.IsDrawingSkipped() {
+		return nil
+	}
 	g.Draw(screen)
+	//ebitenutil.DebugPrintAt(screen, fmt.Sprintf("%f", scale), 300, 200)
 	//w, h := screen.Size()
 	//UI.DrawLabyrinth(screen, &l,5, 5, w/5, h/5, color.Black)
 	return nil
@@ -86,7 +90,7 @@ func ebitenTest() {
 	g.Init(l, 600, 480)
 	PrintLabyrinth(l)
 	//go UI.EnterLabyrinth(&l)
-	if err := ebiten.Run(update, 600, 480, 2, "Hello world!"); err != nil {
+	if err := ebiten.Run(update, 600, 480, 1.8/ebiten.DeviceScaleFactor(), "Hello world!"); err != nil {
 		panic(err.Error())
 	}
 }
