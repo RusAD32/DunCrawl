@@ -227,7 +227,7 @@ func (g *UIGame) submitSelfSkill() {
 		v.active = true
 	}
 	for _, v := range g.curEnemies {
-		v.col = Violet
+		v.pic.Fill(Violet)
 	}
 	g.pl.dmgProcessing = ""
 	g.pl.healProcessing = ""
@@ -290,7 +290,7 @@ func (g *UIGame) resolveSkill() {
 		v.active = false
 	}
 	for _, v := range g.curEnemies {
-		v.col = Violet
+		v.pic.Fill(Violet)
 	}
 	sk := g.l.GetCurrentRoom().GetNextSkillUsed()
 	g.updateQueue()
@@ -299,7 +299,7 @@ func (g *UIGame) resolveSkill() {
 	case PlayerDmgSkill:
 		{
 			en := g.curEnemies[g.enemyNums[target.(*Enemy)]]
-			en.col = Firebrick
+			en.pic.Fill(Firebrick)
 			en.skillUsed = nil
 			g.cd = 60
 			g.pl.dmgProcessing = sk.GetRes()
@@ -308,7 +308,7 @@ func (g *UIGame) resolveSkill() {
 	case EnemySkill:
 		{
 			en := g.curEnemies[g.enemyNums[sk.GetWielder().(*Enemy)]]
-			en.col = OrangeRed
+			en.pic.Fill(OrangeRed)
 			g.cd = 60
 			g.pl.dmgProcessing = sk.GetRes()
 			g.pl.healProcessing = ""
