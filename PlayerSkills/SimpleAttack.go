@@ -20,10 +20,10 @@ func (s *SimpleAttack) Apply(r *Room) string {
 	for _, v := range s.wielder.(*Player).GetEquipment() {
 		equipDmg += v.GetAttack()
 	}
-	s.lastTarget = s.targets[0]
-	s.targets = s.targets[1:]
-	res := DealDamage(s.wielder, s.lastTarget, s.baseDMG+equipDmg)
-	s.res = append(s.res, res)
+	/*s.lastTarget = s.targets[0]
+	s.targets = s.targets[1:]*/
+	res := DealDamage(s.wielder, s.targets, s.baseDMG+equipDmg)
+	s.res = res
 	return res
 }
 
@@ -51,4 +51,9 @@ func (s *SimpleAttack) LvlUp() {
 	} else {
 		fmt.Sprintln("Error: Requirements for levelling up skill %s not met", s.name)
 	}
+}
+
+func (dsk *SimpleAttack) Copy() PlayerDmgSkill {
+	sk := *dsk
+	return &sk
 }

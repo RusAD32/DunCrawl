@@ -17,12 +17,12 @@ func (s *StunningBlow) Apply(r *Room) string {
 	for _, v := range s.wielder.(*Player).GetEquipment() {
 		equipDmg += v.GetAttack()
 	}
-	s.lastTarget = s.targets[0]
-	s.targets = s.targets[1:]
-	res := DealDamage(s.wielder, s.lastTarget, s.baseDMG+equipDmg)
-	s.res = append(s.res, res)
+	/*s.lastTarget = s.targets[0]
+	s.targets = s.targets[1:]*/
+	res := DealDamage(s.wielder, s.targets, s.baseDMG+equipDmg)
+	s.res = res //append(s.res, res)
 	effect := (&Effects.StunEffect{}).Init()
-	AddEffect(s.lastTarget, effect)
+	AddEffect(s.targets, effect)
 	return res
 }
 
@@ -36,7 +36,7 @@ func (s *StunningBlow) Init(player Unit) Skill {
 	s.uses = 2
 	s.lvlupExp = make([]int, 4)
 	s.wielder = player
-	s.res = make([]string, 0)
+	//	s.res = make([]string, 0)
 	for i := range s.lvlupExp {
 		s.lvlupExp[i] = int(math.Pow(float64(i+2), 2.0) / 3.0)
 	}
@@ -51,4 +51,9 @@ func (s *StunningBlow) LvlUp() {
 	} else {
 		fmt.Sprintln("Error: Requirements for levelling up skill %s not met", s.name)
 	}
+}
+
+func (dsk *StunningBlow) Copy() PlayerDmgSkill {
+	sk := *dsk
+	return &sk
 }

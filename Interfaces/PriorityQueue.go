@@ -18,6 +18,7 @@ func (pq PriorityQueue) Swap(i, j int) {
 
 func (pq *PriorityQueue) Push(obj HasSpeed) {
 	*pq = append(*pq, obj)
+	sort.Sort(pq)
 }
 
 func (pq *PriorityQueue) Pop() HasSpeed {

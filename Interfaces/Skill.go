@@ -28,9 +28,11 @@ type PlayerDmgSkill interface {
 	GetUses() int
 	SetTarget(target Unit)
 	Reset()
+	Copy() PlayerDmgSkill
 }
 
 type PlayerSelfSkill interface {
+	// No, playerDmgSkill can't be a playerSelfSkill.
 	HasSpeed
 	Skill
 	LvlUp()

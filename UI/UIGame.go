@@ -189,14 +189,12 @@ func (g *UIGame) updateQueue() {
 	for _, v := range skQ {
 		var col color.Color
 		switch v.(type) {
-		case PlayerSelfSkill:
-			col = LightGreen
 		case PlayerDmgSkill:
 			col = LightBlue
+		case PlayerSelfSkill:
+			col = LightGreen
 		default:
-			{
-				col = LightRed
-			}
+			col = LightRed
 		}
 		g.queue.skills = append(g.queue.skills, new(SkillIcon).Init(g.consts.skButW, g.consts.skButH, v, col, g.font))
 	}

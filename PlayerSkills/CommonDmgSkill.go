@@ -3,10 +3,9 @@ package PlayerSkills
 import . "DunCrawl/Interfaces"
 
 type CommonDmgSkill struct {
-	targets    []Unit
-	res        []string
-	lastTarget Unit
-	uses       int
+	targets Unit
+	res     string
+	uses    int
 	CommonPlSkill
 }
 
@@ -16,10 +15,7 @@ func (dsk *CommonDmgSkill) Reset() {
 
 func (dsk *CommonDmgSkill) SetTarget(enemy Unit) {
 	dsk.uses--
-	if dsk.lastTarget == nil {
-		dsk.lastTarget = enemy
-	}
-	dsk.targets = append(dsk.targets, enemy)
+	dsk.targets = enemy
 }
 
 func (dsk *CommonDmgSkill) GetUses() int {
@@ -27,17 +23,18 @@ func (dsk *CommonDmgSkill) GetUses() int {
 }
 
 func (dsk *CommonDmgSkill) GetRes() string {
-	res := dsk.res[0]
-	dsk.res = dsk.res[1:]
-	return res
+	return dsk.res
 }
 
 func (dsk *CommonDmgSkill) ApplyVoid(res string) {
-	dsk.lastTarget = dsk.targets[0]
-	dsk.targets = dsk.targets[1:]
-	dsk.res = append(dsk.res, res)
+	dsk.res = res
 }
 
 func (dsk *CommonDmgSkill) GetTarget() Unit {
-	return dsk.lastTarget
+	return dsk.targets
+}
+
+func (dsk *CommonDmgSkill) Copy() PlayerDmgSkill {
+	sk := *dsk
+	return &sk
 }

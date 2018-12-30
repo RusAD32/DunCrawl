@@ -75,7 +75,8 @@ func (r *Room) SubmitSelfSkill(s PlayerSelfSkill) {
 
 func (r *Room) SubmitDmgSkill(s PlayerDmgSkill) {
 	if r.FightState == AwaitingDmgSkill && s.GetUses() >= 0 {
-		r.pq.Push(s)
+		sk := s.Copy()
+		r.pq.Push(sk)
 		r.dmgSkillsPushed++
 		if r.dmgSkillsPushed == len(r.enemies) {
 			for _, v := range r.enemies {
