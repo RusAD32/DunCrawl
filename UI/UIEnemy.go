@@ -70,4 +70,7 @@ func (e *UIEnemy) Draw(screen *ebiten.Image, font font.Face) {
 			color.Black,
 		)
 	}
+	for _, v := range *e.enemy.GetEffects() {
+		text.Draw(screen, v.GetInfo(), font, e.x, e.y+e.h*11/10, e.col)
+	}
 }

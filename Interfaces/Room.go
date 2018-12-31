@@ -97,6 +97,7 @@ func (r *Room) GetNextSkillUsed() SkillInfo {
 			sk := r.pq.Pop().(Skill)
 			if sk.GetWielder().IsAlive() && !FindEffect(sk.GetWielder(), Stun) {
 				sk.Apply(r)
+				RemoveSkillsOfDeadUnits(&r.pq)
 			} else if sk.GetWielder().IsAlive() {
 				sk.ApplyVoid("stun")
 				RemoveEffect(sk.GetWielder(), Stun)

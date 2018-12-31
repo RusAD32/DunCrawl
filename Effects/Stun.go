@@ -36,7 +36,7 @@ func (s *StunEffect) GetAmount() int {
 }
 
 func (s *StunEffect) GetInfo() string {
-	return ""
+	return "Stunned!"
 }
 
 func (s *StunEffect) DecreaseCD() {

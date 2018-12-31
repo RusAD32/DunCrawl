@@ -43,6 +43,7 @@ type UIGame struct {
 	pl                                  *PlayerStats
 	cd                                  int
 	queue                               SkQueue
+	resolvingSk                         *SkillIcon
 	turnStartActions, preResolveActions bool
 	consts
 }
@@ -86,8 +87,8 @@ func (g *UIGame) Init(l *Labyrinth, w, h int) {
 		"", "",
 	}
 	g.queue = SkQueue{
-		x:      w / 10,
-		y:      h / 10,
+		x:      w / 7,
+		y:      h / 12,
 		xOffs:  g.consts.skButW * 10 / 8,
 		skills: make([]*SkillIcon, 0),
 	}
@@ -140,6 +141,9 @@ func (g *UIGame) Draw(screen *ebiten.Image) {
 			}
 			g.pl.Draw(screen, g.font)
 			g.queue.Draw(screen)
+			if g.resolvingSk != nil {
+				g.resolvingSk.Draw(screen)
+			}
 		}
 	}
 
@@ -187,20 +191,24 @@ func (g *UIGame) prepareForFight() {
 	g.state = Fight
 }
 
+func (g *UIGame) ConstructSkillIcon(skill SkillInfo, w, h int) *SkillIcon {
+	var col color.Color
+	switch skill.(type) {
+	case PlayerDmgSkill:
+		col = LightBlue
+	case PlayerSelfSkill:
+		col = LightGreen
+	default:
+		col = LightRed
+	}
+	return new(SkillIcon).Init(w, h, skill, col, g.font)
+}
+
 func (g *UIGame) updateQueue() {
 	g.queue.skills = make([]*SkillIcon, 0)
 	skQ := g.l.GetCurrentRoom().GetSkQueue()
 	for _, v := range skQ {
-		var col color.Color
-		switch v.(type) {
-		case PlayerDmgSkill:
-			col = LightBlue
-		case PlayerSelfSkill:
-			col = LightGreen
-		default:
-			col = LightRed
-		}
-		g.queue.skills = append(g.queue.skills, new(SkillIcon).Init(g.consts.skButW, g.consts.skButH, v, col, g.font))
+		g.queue.skills = append(g.queue.skills, g.ConstructSkillIcon(v, g.consts.skButW, g.consts.skButH))
 	}
 }
 
@@ -226,6 +234,7 @@ func getNewClicks() [][]int {
 
 func (g *UIGame) submitSelfSkill() {
 	if g.turnStartActions {
+		g.resolvingSk = nil
 		g.queue.skills = make([]*SkillIcon, 0)
 		for _, v := range g.selfSkButs {
 			v.state = butActive
@@ -312,6 +321,10 @@ func (g *UIGame) resolveSkill() {
 		v.state = enemyDefault
 	}
 	sk := g.l.GetCurrentRoom().GetNextSkillUsed()
+	g.resolvingSk = g.ConstructSkillIcon(sk, g.consts.skButW*4/3, g.consts.skButH*4/3)
+	g.resolvingSk.x = 0
+	g.resolvingSk.y = g.h / 14
+	g.resolvingSk.opts.GeoM.Translate(float64(g.resolvingSk.x), float64(g.resolvingSk.y))
 	g.updateQueue()
 	target := sk.GetTarget()
 	switch sk.(type) {

@@ -6,9 +6,6 @@ import (
 	"github.com/hajimehoshi/ebiten"
 	"github.com/hajimehoshi/ebiten/ebitenutil"
 	"image/color"
-	"io/ioutil"
-	"net/http"
-	"runtime"
 )
 
 type consts struct {
@@ -65,28 +62,14 @@ func getConstants(w, h int) consts {
 	// end of constant declaration
 }
 
-var keyDirMap = map[ebiten.Key]Direction{
-	ebiten.KeyLeft:  Left,
-	ebiten.KeyUp:    Forward,
-	ebiten.KeyRight: Right,
-	ebiten.KeyDown:  Back,
-}
-
 func LoadResource(name string) ([]byte, error) {
-	if runtime.GOOS == "js" || runtime.GOARCH == "js" {
-		resp, err := http.Get(fmt.Sprintf("resources/%s", name))
-		if err != nil {
-			return nil, err
-		}
-		result := make([]byte, 200000)
-		n, err := resp.Body.Read(result)
-		if err != nil {
-			return nil, err
-		}
-		return result[:n], nil
-	} else {
-		return ioutil.ReadFile(fmt.Sprintf("resources/%s", name))
+	reader, err := ebitenutil.OpenFile(fmt.Sprintf("resources/%s", name))
+	result := make([]byte, 200000)
+	n, err := reader.Read(result)
+	if err != nil {
+		return nil, err
 	}
+	return result[:n], nil
 }
 
 func getRoomCoords(i, j, startX, startY, roomW, roomH int) (float64, float64) {

@@ -36,29 +36,30 @@ func AddEffect(unit Unit, effect Effect) {
 
 func RemoveExpiredEffects(unit Unit) {
 	s := unit.GetEffects()
-	numToRemove := make([]int, 0)
-	for i, x := range *s {
-		if x.GetCD() == 0 {
-			numToRemove = append(numToRemove, i-len(numToRemove))
+	for i := len(*s) - 1; i >= 0; i-- {
+		if (*s)[i].GetCD() == 0 {
+			(*s)[i] = nil
+			*s = append((*s)[:i], (*s)[i+1:]...)
 		}
 	}
-	for _, i := range numToRemove {
-		(*s)[i] = nil
-		*s = append((*s)[:i], (*s)[i+1:]...)
+}
+
+func RemoveSkillsOfDeadUnits(pq *PriorityQueue) {
+	for i := len(*pq) - 1; i >= 0; i-- {
+		if !(*pq)[i].(Skill).GetWielder().IsAlive() {
+			(*pq)[i] = nil
+			*pq = append((*pq)[:i], (*pq)[i+1:]...)
+		}
 	}
 }
 
 func RemoveEffect(unit Unit, id EffectID) {
 	s := unit.GetEffects()
-	numToRemove := make([]int, 0)
-	for i, x := range *s {
-		if x.GetID() == id {
-			numToRemove = append(numToRemove, i-len(numToRemove))
+	for i := len(*s) - 1; i >= 0; i-- {
+		if (*s)[i].GetID() == id {
+			(*s)[i] = nil
+			*s = append((*s)[:i], (*s)[i+1:]...)
 		}
-	}
-	for _, i := range numToRemove {
-		(*s)[i] = nil
-		*s = append((*s)[:i], (*s)[i+1:]...)
 	}
 }
 
