@@ -222,7 +222,11 @@ func (r *Room) Init(enemies []*Enemy, l *Labyrinth) {
 	r.confirm = confirm
 	r.neighbours = make([]*Wall, 0)
 	r.neighbours = make([]*Wall, 0)
-	r.FightState = TurnStart
+	if enemies != nil && len(enemies) > 0 {
+		r.FightState = TurnStart
+	} else {
+		r.FightState = FightEnd
+	}
 	for i := 0; i < 4; i++ {
 		newWall := Wall{
 			Solid,

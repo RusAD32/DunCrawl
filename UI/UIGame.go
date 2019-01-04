@@ -2,6 +2,7 @@ package UI
 
 import (
 	. "DunCrawl/Interfaces"
+	"fmt"
 	"github.com/golang/freetype/truetype"
 	"github.com/hajimehoshi/ebiten"
 	"github.com/hajimehoshi/ebiten/inpututil"
@@ -10,11 +11,6 @@ import (
 )
 
 type GameState int
-
-const (
-	Roam GameState = iota
-	Fight
-)
 
 var (
 	Red        = color.RGBA{R: 255, A: 255}
@@ -56,7 +52,6 @@ func (g *UIGame) Init(l *Labyrinth, w, h int) {
 	g.consts = getConstants(w, h)
 
 	g.updateDoors()
-	g.state = Roam
 	g.curEnemies = make([]*UIEnemy, 0)
 	fontRaw, err := LoadResource("Roboto-Regular.ttf")
 	if err != nil {
@@ -123,7 +118,7 @@ func (g *UIGame) dmgSkillButtonClicked(mouseX, mouseY int) int {
 }
 
 func (g *UIGame) Draw(screen *ebiten.Image) {
-	switch g.state {
+	switch g.l.GetState() {
 	case Roam:
 		{
 			DrawLabyrinth(screen, g.l, g.consts.labXPos, g.consts.labYPos, g.consts.labW, g.consts.labH, color.Black)
@@ -159,6 +154,7 @@ func (g *UIGame) prepareForFight() {
 			Violet,
 			Firebrick,
 			OrangeRed,
+			color.Black,
 			v)
 		g.enemyNums[v] = i
 		g.curEnemies = append(g.curEnemies, enemy)
@@ -188,7 +184,6 @@ func (g *UIGame) prepareForFight() {
 		g.dmgSkButs = append(g.dmgSkButs, button)
 	}
 	g.turnStartActions = true
-	g.state = Fight
 }
 
 func (g *UIGame) ConstructSkillIcon(skill SkillInfo, w, h int) *SkillIcon {
@@ -359,14 +354,18 @@ func (g *UIGame) Update() {
 		g.cd--
 		return
 	}
-	switch g.state {
+	switch g.l.GetState() {
 	case Roam:
 		{
 			for _, v := range getNewClicks() {
 				nextDoor := g.doorClicked(v[0], v[1])
-				go g.l.GoToRoom(Direction(nextDoor)) // TODO this part should be stateful imho
+				/*go g.l.GoToRoom(Direction(nextDoor)) // TODO this part should be stateful imho
 				event := <-g.l.GetEventsChan()
 				if event == FightEvent {
+					g.prepareForFight()
+					g.l.GetCurrentRoom().AtTurnStart()
+				}*/
+				if g.l.GoToRoomNew(Direction(nextDoor)) {
 					g.prepareForFight()
 					g.l.GetCurrentRoom().AtTurnStart()
 				}
@@ -383,10 +382,10 @@ func (g *UIGame) Update() {
 			case ResolvingSkills:
 				g.resolveSkill()
 			case FightEnd:
+				fmt.Println(g.l.GetValues()) // TODO display this on screen
 				g.curEnemies = make([]*UIEnemy, 0)
 				g.selfSkButs = make([]*SkillButton, 0)
 				g.dmgSkButs = make([]*SkillButton, 0)
-				g.state = Roam
 			}
 		}
 	}

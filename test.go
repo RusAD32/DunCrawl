@@ -72,10 +72,7 @@ var g UI.UIGame
 
 func update(screen *ebiten.Image) error {
 	//UI.MoveThroughLabyrinth(l)
-	err := screen.Fill(color.White)
-	if err != nil {
-		panic("can't fill the screen with color")
-	}
+	_ = screen.Fill(color.White)
 	g.Update()
 	if ebiten.IsDrawingSkipped() {
 		return nil

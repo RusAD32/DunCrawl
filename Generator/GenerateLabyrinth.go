@@ -37,6 +37,7 @@ func GenerateLabyrinth(length, width int) *Labyrinth {
 	stn.Init(p)
 	p.AddDmgSkill(&stn)
 	lab.SetPlayer(p)
+	lab.MarkInited()
 	return lab
 }
 

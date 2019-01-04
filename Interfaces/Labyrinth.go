@@ -7,6 +7,15 @@ const (
 	FightEvent
 )
 
+type LabyrinthState int
+
+const (
+	Initializing LabyrinthState = iota
+	Roam
+	Fight
+	Exited
+)
+
 const DOORS_PER_ROOM = 4
 const NEW_NEIGHBOUR_OFFSET = -1
 
@@ -27,6 +36,7 @@ type Labyrinth struct {
 	length            int
 	width             int
 	bossEntryRoomNums []int
+	state             LabyrinthState
 }
 
 func (l *Labyrinth) Init(p *Player, rooms []*Room, fightConfirm chan bool, fightBgToUi chan []SkillInfo, fightUiToBg chan string, events chan Event) {
@@ -38,13 +48,17 @@ func (l *Labyrinth) Init(p *Player, rooms []*Room, fightConfirm chan bool, fight
 	l.eventsChannel = events
 }
 
-func (l *Labyrinth) GoToRoom(direction Direction) (int, []Stack) {
+func (l *Labyrinth) MarkInited() {
+	l.state = Roam
+}
+
+func (l *Labyrinth) switchRooms(direction Direction) bool {
 	if l.current == nil {
 		l.current = l.rooms[l.startingRoomNum]
 	} else if int(direction) >= 0 {
 		neighbourWall := l.current.GetNeighbours()[getNextDoorNum(int(direction), l.previous)]
 		if !neighbourWall.CanGoThrough() {
-			return 0, nil
+			return false
 		}
 		l.current.p = nil
 		if neighbourWall.kind == NextSection {
@@ -52,6 +66,13 @@ func (l *Labyrinth) GoToRoom(direction Direction) (int, []Stack) {
 		}
 		l.current = neighbourWall.leadsTo
 		l.previous = (l.previous + int(direction) + DOORS_PER_ROOM + NEW_NEIGHBOUR_OFFSET) % len(l.current.neighbours)
+	}
+	return true
+}
+
+func (l *Labyrinth) GoToRoom(direction Direction) (int, []Stack) {
+	if !l.switchRooms(direction) {
+		return 0, nil
 	}
 	l.current.p = l.p
 	if l.current.HasEnemies() {
@@ -63,8 +84,29 @@ func (l *Labyrinth) GoToRoom(direction Direction) (int, []Stack) {
 	}
 }
 
+func (l *Labyrinth) GoToRoomNew(direction Direction) bool {
+	// Returning true if the fight starts in that room
+	if !l.switchRooms(direction) {
+		return false
+	}
+	l.current.p = l.p
+	if l.current.FightState == TurnStart {
+		l.state = Fight
+		return true
+	}
+	return false
+}
+
 func (l *Labyrinth) GetValues() (int, []Stack) {
-	return l.current.GetValues()
+	if l.state != Fight || l.current.FightState == FightEnd {
+		l.state = Roam
+		return l.current.GetValues()
+	}
+	return 0, nil
+}
+
+func (l *Labyrinth) GetState() LabyrinthState {
+	return l.state
 }
 
 func (l *Labyrinth) Light() (int, []Stack) {

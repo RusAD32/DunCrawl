@@ -14,6 +14,7 @@ const (
 	enemyDefault = iota
 	enemyAttacking
 	enemyAttacked
+	enemyDead
 )
 
 type UIEnemy struct {
@@ -25,20 +26,22 @@ type UIEnemy struct {
 	DrawableImage
 }
 
-func (e *UIEnemy) Init(x, y, w, h int, colDef, colAttacking, colAttacked color.Color, enemy *Enemy) *UIEnemy {
+func (e *UIEnemy) Init(x, y, w, h int, colDef, colAttacking, colAttacked, colDead color.Color, enemy *Enemy) *UIEnemy {
 	e.x = x
 	e.y = y
 	e.w = w
 	e.h = h
 	e.col = colDef
 	e.enemy = enemy
-	e.pic = make([]*ebiten.Image, 3)
+	e.pic = make([]*ebiten.Image, 4)
 	e.pic[int(enemyDefault)], _ = ebiten.NewImage(w, h, ebiten.FilterDefault)
 	_ = e.pic[int(enemyDefault)].Fill(colDef)
 	e.pic[int(enemyAttacking)], _ = ebiten.NewImage(w, h, ebiten.FilterDefault)
 	_ = e.pic[int(enemyAttacking)].Fill(colAttacking)
 	e.pic[int(enemyAttacked)], _ = ebiten.NewImage(w, h, ebiten.FilterDefault)
 	_ = e.pic[int(enemyAttacked)].Fill(colAttacked)
+	e.pic[int(enemyDead)], _ = ebiten.NewImage(w, h, ebiten.FilterDefault)
+	_ = e.pic[int(enemyDead)].Fill(colDead)
 	e.opts = &ebiten.DrawImageOptions{}
 	e.opts.GeoM.Translate(float64(x), float64(y))
 	return e
@@ -49,6 +52,9 @@ func (e *UIEnemy) isClicked(mouseX, mouseY int) bool {
 }
 
 func (e *UIEnemy) Draw(screen *ebiten.Image, font font.Face) {
+	if !e.enemy.IsAlive() {
+		e.state = enemyDead
+	}
 	e.DrawImg(screen)
 	//ebitenutil.DrawRect(screen, float64(e.x), float64(e.y), float64(e.w), float64(e.h), e.col)
 	text.Draw(screen,

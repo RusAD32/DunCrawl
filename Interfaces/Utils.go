@@ -123,6 +123,7 @@ func GetDefaultEnemy(index int) *Enemy {
 }
 
 func GetDefaultLabyrinth(width, length, FirstDirection int, corners []int) *Labyrinth {
+	// Move this to Init?
 	l := Labyrinth{
 		nil,
 		make([]*Room, 0),
@@ -137,6 +138,7 @@ func GetDefaultLabyrinth(width, length, FirstDirection int, corners []int) *Laby
 		length,
 		width,
 		corners,
+		Initializing,
 	}
 	return &l
 }
