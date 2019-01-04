@@ -3,7 +3,7 @@ package UI
 import "github.com/hajimehoshi/ebiten"
 
 type Drawable interface {
-	DrawImg(screen *ebiten.Image) error
+	DrawImg(screen *ebiten.Image)
 }
 
 type DrawableImage struct {
