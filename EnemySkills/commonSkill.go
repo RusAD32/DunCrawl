@@ -45,3 +45,7 @@ func (esk *CommonEnSkill) Init(wielder Unit) Skill {
 func (esk *CommonEnSkill) Apply(r *Room) string {
 	panic("implement me")
 }
+
+func (esk *CommonEnSkill) GetSkillType() SkillType {
+	return Enemies
+}

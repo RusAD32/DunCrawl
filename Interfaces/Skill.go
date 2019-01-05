@@ -2,6 +2,14 @@ package Interfaces
 
 type SkillType int
 
+const (
+	Self SkillType = iota
+	Enemies
+	Allies
+	OnlyPlayer
+	OnlyPet
+)
+
 type SkillInfo interface {
 	GetName() string
 	GetTarget() Unit
@@ -14,6 +22,7 @@ type Skill interface {
 	Init(wielder Unit) Skill
 	Apply(r *Room) string
 	ApplyVoid(res string)
+	GetSkillType() SkillType
 }
 
 type HasSpeed interface {
@@ -39,7 +48,7 @@ type PlayerSelfSkill interface {
 	AddExp(amount int)
 }
 
-type EnemySkill interface {
+type NPCSkill interface {
 	HasSpeed
 	Skill
 	SetTarget(player Unit)

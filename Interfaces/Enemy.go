@@ -2,10 +2,10 @@ package Interfaces
 
 import "math/rand"
 
-type EnemyType int
+type CreatureType int
 
 const (
-	Human EnemyType = iota
+	Human CreatureType = iota
 	Undead
 	Vampire
 	Animal
@@ -20,50 +20,17 @@ const (
 )
 
 type Enemy struct {
-	enemyType       EnemyType
-	name            string
-	skills          []EnemySkill
-	stats           map[Stat]int
-	effects         []Effect
-	equipment       []Equippable
-	loot            []Lootable
-	provision       []Carriable
-	aiLevel         AiLevel
-	curHP           int
-	maxHP           int
-	dmgTakenTrigger *Trigger
-}
-
-func (e *Enemy) GetCurHP() int {
-	return e.curHP
+	enemyType CreatureType
+	skills    []NPCSkill
+	equipment []Equippable
+	loot      []Lootable
+	provision []Carriable
+	aiLevel   AiLevel
+	BasicUnit
 }
 
 func (e *Enemy) GetMaxHP() int {
 	return e.maxHP
-}
-
-func (e *Enemy) IsAlive() bool {
-	return e.curHP > 0
-}
-
-func (e *Enemy) GetDamageTrigger() *Trigger {
-	return e.dmgTakenTrigger
-}
-
-func (e *Enemy) AddDamageTriggerable(t Triggerable) {
-	e.dmgTakenTrigger.AddEvent(t)
-}
-
-func (e *Enemy) GetHP() int {
-	return e.curHP
-}
-
-func (e *Enemy) GetName() string {
-	return e.name
-}
-
-func (e *Enemy) AddEffect(effect Effect) {
-	e.effects = append(e.effects, effect)
 }
 
 func (e *Enemy) ChangeHealth(damage int) int {
@@ -89,20 +56,17 @@ func (e *Enemy) ChangeHealth(damage int) int {
 	return damage
 }
 
-func (e *Enemy) GetEffects() *[]Effect {
-	return &e.effects
-}
-
-func (e *Enemy) ChooseSkill() EnemySkill {
+func (e *Enemy) ChooseSkill() NPCSkill {
 	switch e.aiLevel {
 	case Usual:
 		return e.skills[rand.Intn(len(e.skills))]
 	case Miniboss: //TODO write the minimap or another algorithm for their ai
+		return nil
 	case Boss:
+		return nil
 	default:
 		return e.skills[rand.Intn(len(e.skills))]
 	}
-	return nil
 }
 
 func (e *Enemy) GetMoney() int {
@@ -128,6 +92,43 @@ func (e *Enemy) GetProvision() []Stack {
 	return res
 }
 
-func (e *Enemy) AddSkill(skill EnemySkill) {
+func (e *Enemy) AddSkill(skill NPCSkill) {
 	e.skills = append(e.skills, skill)
+}
+
+func (e *Enemy) ChooseTarget(r *Room, skillType SkillType) Unit {
+	switch skillType {
+	case Allies:
+		switch e.aiLevel {
+		case Miniboss: //TODO write the minimap or another algorithm for their ai
+			return nil
+		case Boss:
+			return nil
+		default:
+			return r.enemies[rand.Intn(len(r.enemies))]
+		}
+	case Enemies:
+		{
+			switch e.aiLevel {
+			case Miniboss: //TODO write the minimap or another algorithm for their ai
+				return nil
+			case Boss:
+				return nil
+			default:
+				{
+					coin := rand.Intn(1)
+					if r.p.pet == nil || coin == 0 {
+						return r.p
+					}
+					return r.p.pet
+				}
+			}
+		}
+	case OnlyPlayer:
+		return r.p
+	case OnlyPet:
+		return r.p.pet
+	default:
+		return e
+	}
 }

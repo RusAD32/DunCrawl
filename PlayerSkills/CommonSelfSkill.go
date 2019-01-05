@@ -18,3 +18,7 @@ func (ssk *CommonSelfSkill) GetTarget() Unit {
 func (ssk *CommonSelfSkill) ApplyVoid(res string) {
 	ssk.res = res
 }
+
+func (ssk *CommonSelfSkill) GetSkillType() SkillType {
+	return Self
+}

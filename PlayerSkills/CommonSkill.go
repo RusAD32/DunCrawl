@@ -56,3 +56,7 @@ func (psk *CommonPlSkill) Apply(r *Room) string {
 func (psk *CommonPlSkill) ApplyVoid(res string) {
 	panic("implement me")
 }
+
+func (psk *CommonPlSkill) GetSkillType() SkillType {
+	panic("implement me")
+}

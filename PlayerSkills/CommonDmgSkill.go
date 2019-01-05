@@ -39,3 +39,7 @@ func (dsk *CommonDmgSkill) Copy() PlayerDmgSkill {
 	sk := *dsk
 	return &sk
 }
+
+func (dsk *CommonDmgSkill) GetSkillType() SkillType {
+	return Enemies
+}

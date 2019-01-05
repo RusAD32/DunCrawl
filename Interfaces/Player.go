@@ -15,21 +15,22 @@ const (
 )
 
 type Player struct {
-	stats           map[Stat]int
-	equipment       map[Slot]Equippable
-	inventory       []Carriable
-	dmgSkills       []PlayerDmgSkill
-	selfSkills      []PlayerSelfSkill
-	effects         []Effect
-	lvl             int
-	exp             int
-	curPhysHP       int
-	maxPhysHP       int
-	curMentHP       int
-	maxMentHP       int
-	dmgTakenTrigger *Trigger
-	inv             *Inventory
-	money           int
+	equipment  map[Slot]Equippable
+	inventory  []Carriable
+	dmgSkills  []PlayerDmgSkill
+	selfSkills []PlayerSelfSkill
+	lvl        int
+	exp        int
+	curMentHP  int
+	maxMentHP  int
+	inv        *Inventory
+	money      int
+	pet        *Pet
+	BasicUnit
+}
+
+func (p *Player) GetPet() *Pet {
+	return p.pet
 }
 
 func (p *Player) GetDmgSkillList() []PlayerDmgSkill {
@@ -40,35 +41,11 @@ func (p *Player) GetSelfSkillList() []PlayerSelfSkill {
 	return p.selfSkills
 }
 
-func (p *Player) IsAlive() bool {
-	return p.curPhysHP > 0 && p.curMentHP > 0
-}
-
-func (p *Player) GetDamageTrigger() *Trigger {
-	return p.dmgTakenTrigger
-}
-
-func (p *Player) AddDamageTriggerable(t Triggerable) {
-	p.dmgTakenTrigger.AddEvent(t)
-}
-
-func (p *Player) GetHP() int {
-	return p.curPhysHP
-}
-
-func (p *Player) GetName() string {
-	return "you"
-}
-
-func (p *Player) AddEffect(effect Effect) {
-	p.effects = append(p.effects, effect)
-}
-
 func (p *Player) ChangeHealth(damage int) int {
 	if damage < 0 { // значит, это хил
-		p.curPhysHP -= damage
-		if p.curPhysHP > p.maxPhysHP {
-			p.curPhysHP = p.maxPhysHP
+		p.curHP -= damage
+		if p.curHP > p.maxHP {
+			p.curHP = p.maxHP
 		}
 		return -damage
 	}
@@ -80,24 +57,16 @@ func (p *Player) ChangeHealth(damage int) int {
 		def = 80
 	}
 	damage -= damage * def / 100
-	p.curPhysHP -= damage
+	p.curHP -= damage
 
-	if p.curPhysHP < 0 {
-		p.curPhysHP = 0
+	if p.curHP < 0 {
+		p.curHP = 0
 	}
 	return damage
 }
 
-func (p *Player) GetEffects() *[]Effect {
-	return &p.effects
-}
-
-func (p *Player) GetCurHP() int {
-	return p.curPhysHP
-}
-
 func (p *Player) GetMaxHP() int {
-	return p.maxPhysHP
+	return p.maxHP
 }
 
 func (p *Player) GetEquipment() map[Slot]Equippable {

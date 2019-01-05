@@ -332,7 +332,7 @@ func (g *UIGame) resolveSkill() {
 			g.pl.dmgProcessing = sk.GetRes()
 			g.pl.healProcessing = ""
 		}
-	case EnemySkill:
+	case NPCSkill:
 		{
 			en := g.curEnemies[g.enemyNums[sk.GetWielder().(*Enemy)]]
 			en.state = enemyAttacking

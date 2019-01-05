@@ -45,7 +45,7 @@ const (
 
 func (r *Room) AtTurnStart() {
 	if r.FightState == TurnStart {
-		if len(r.enemies) == 0 || r.p.curMentHP == 0 || r.p.curPhysHP == 0 {
+		if len(r.enemies) == 0 || !r.p.IsAlive() {
 			r.FightState = FightEnd
 			return
 		}
@@ -56,6 +56,11 @@ func (r *Room) AtTurnStart() {
 			for _, v := range *en.GetEffects() {
 				v.DecreaseCD()
 			}
+		}
+		if r.p.pet != nil {
+			petsk := r.p.pet.ChooseSkill()
+			petsk.SetTarget(r.p.pet.ChooseTarget(r, petsk.GetSkillType()))
+			r.pq.Push(petsk)
 		}
 		r.FightState = AwaitingSelfSkill
 	} else {
@@ -81,7 +86,7 @@ func (r *Room) SubmitDmgSkill(s PlayerDmgSkill) {
 		if r.dmgSkillsPushed == len(r.enemies) {
 			for _, v := range r.enemies {
 				ensk := v.ChooseSkill()
-				ensk.SetTarget(r.p)
+				ensk.SetTarget(v.ChooseTarget(r, ensk.GetSkillType()))
 				r.pq.Push(ensk)
 			}
 			r.FightState = ResolvingSkills
@@ -238,7 +243,7 @@ func (r *Room) Init(enemies []*Enemy, l *Labyrinth) {
 }
 
 func (r *Room) StartFight() (int, []Stack) {
-	for len(r.enemies) > 0 && r.p.curMentHP > 0 && r.p.curPhysHP > 0 {
+	for len(r.enemies) > 0 && r.p.IsAlive() {
 		r.FightTurn()
 	}
 	if r.p.IsAlive() {

@@ -89,36 +89,44 @@ func RemoveDeadEnemies(r *Room) {
 func GetDefaultPlayer() *Player {
 	inv := Inventory{}
 	inv.Init(8)
-	return &Player{
+	du := BasicUnit{
+		name:            "you",
 		stats:           map[Stat]int{},
-		equipment:       map[Slot]Equippable{},
-		inventory:       []Carriable{},
-		dmgSkills:       []PlayerDmgSkill{},
-		selfSkills:      []PlayerSelfSkill{},
 		effects:         []Effect{},
 		dmgTakenTrigger: TriggerInit(),
-		curPhysHP:       100,
-		maxPhysHP:       100,
-		lvl:             1,
-		exp:             0,
-		curMentHP:       100,
-		maxMentHP:       100,
-		money:           0,
-		inv:             &inv,
+		curHP:           100,
+		maxHP:           100,
+	}
+	return &Player{
+		equipment:  map[Slot]Equippable{},
+		inventory:  []Carriable{},
+		dmgSkills:  []PlayerDmgSkill{},
+		selfSkills: []PlayerSelfSkill{},
+		lvl:        1,
+		exp:        0,
+		curMentHP:  100,
+		maxMentHP:  100,
+		money:      0,
+		inv:        &inv,
+		BasicUnit:  du,
 	}
 }
 
 func GetDefaultEnemy(index int) *Enemy {
-	return &Enemy{
-		enemyType:       Animal,
+	du := BasicUnit{
 		name:            fmt.Sprintf("Rabid dog %d", index),
-		skills:          []EnemySkill{},
+		stats:           map[Stat]int{},
 		effects:         []Effect{},
-		equipment:       []Equippable{},
 		dmgTakenTrigger: TriggerInit(),
-		aiLevel:         Usual,
 		curHP:           15,
 		maxHP:           15,
+	}
+	return &Enemy{
+		enemyType: Animal,
+		skills:    []NPCSkill{},
+		equipment: []Equippable{},
+		aiLevel:   Usual,
+		BasicUnit: du,
 	}
 }
 
