@@ -58,7 +58,7 @@ func (e *UIEnemy) Draw(screen *ebiten.Image, font font.Face) {
 	e.DrawImg(screen)
 	//ebitenutil.DrawRect(screen, float64(e.x), float64(e.y), float64(e.w), float64(e.h), e.col)
 	text.Draw(screen,
-		fmt.Sprintf("%s\n%d/%d\n", e.enemy.GetName(), e.enemy.GetCurHP(), e.enemy.GetMaxHP()),
+		fmt.Sprintf("%s\n%d/%d\n", e.enemy.GetName(), e.enemy.GetHP(), e.enemy.GetMaxHP()),
 		font,
 		e.x,
 		e.y-font.Metrics().Height.Ceil(),

@@ -63,9 +63,9 @@ func TextFight( /*p *Player, enemies []*Enemy*/ r Room) {
 					Inform("You died\n")
 					return
 				}
-				Inform(fmt.Sprintf("Your hp: %d/%d\n", r.GetPlayer().GetCurHP(), r.GetPlayer().GetMaxHP()))
+				Inform(fmt.Sprintf("Your hp: %d/%d\n", r.GetPlayer().GetHP(), r.GetPlayer().GetMaxHP()))
 				for _, v := range r.GetEnemies() {
-					Inform(fmt.Sprintf("%s's hp: %d/%d\n", v.GetName(), v.GetCurHP(), v.GetMaxHP()))
+					Inform(fmt.Sprintf("%s's hp: %d/%d\n", v.GetName(), v.GetHP(), v.GetMaxHP()))
 				}
 				prompt := "Choose a skill to use on yourself\n"
 				for i, v := range selfSkills {
@@ -84,7 +84,7 @@ func TextFight( /*p *Player, enemies []*Enemy*/ r Room) {
 						Inform("The turn ended in the middle!!")
 						return // Не должно!!!
 					}
-					Inform(fmt.Sprintf("%s. hp: %d/%d\n", v.GetName(), v.GetCurHP(), v.GetMaxHP()))
+					Inform(fmt.Sprintf("%s. hp: %d/%d\n", v.GetName(), v.GetHP(), v.GetMaxHP()))
 					info := "Your skills:\n"
 					for i, sk := range dmgSkills {
 						// this is not quite safe, but __should__ work

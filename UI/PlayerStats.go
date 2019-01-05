@@ -20,9 +20,9 @@ type PlayerStats struct {
 }
 
 func (p *PlayerStats) Draw(screen *ebiten.Image, font font.Face) {
-	realW := p.hpW * p.pl.GetCurHP() / p.pl.GetMaxHP()
+	realW := p.hpW * p.pl.GetHP() / p.pl.GetMaxHP()
 	ebitenutil.DrawRect(screen, float64(p.hpX), float64(p.hpY), float64(realW), float64(p.hpH), p.hpCol)
-	text.Draw(screen, fmt.Sprintf("%d/%d", p.pl.GetCurHP(), p.pl.GetMaxHP()), font, p.hpX, p.hpY+font.Metrics().Height.Ceil(), p.textCol)
+	text.Draw(screen, fmt.Sprintf("%d/%d", p.pl.GetHP(), p.pl.GetMaxHP()), font, p.hpX, p.hpY+font.Metrics().Height.Ceil(), p.textCol)
 	if p.healProcessing != "" {
 		text.Draw(screen, p.healProcessing, font, p.infoX, p.infoY+font.Metrics().Height.Ceil(), p.hpCol)
 	}
