@@ -33,6 +33,10 @@ func (p *Player) GetPet() *Pet {
 	return p.pet
 }
 
+func (p *Player) SetPet(pet *Pet) {
+	p.pet = pet
+}
+
 func (p *Player) GetDmgSkillList() []PlayerDmgSkill {
 	return p.dmgSkills
 }

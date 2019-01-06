@@ -5,6 +5,7 @@ import (
 	"DunCrawl/EnemySkills"
 	. "DunCrawl/Equipment"
 	. "DunCrawl/Interfaces"
+	"DunCrawl/Pets"
 	"DunCrawl/PlayerSkills"
 	"math/rand"
 	"time"
@@ -36,6 +37,7 @@ func GenerateLabyrinth(length, width int) *Labyrinth {
 	stn := PlayerSkills.StunningBlow{}
 	stn.Init(p)
 	p.AddDmgSkill(&stn)
+	p.SetPet(new(Pets.DefaultPet).Init())
 	lab.SetPlayer(p)
 	lab.MarkInited()
 	return lab

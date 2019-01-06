@@ -9,6 +9,20 @@ type Pet struct {
 	BasicUnit
 }
 
+func (e *Pet) Initialize(typ CreatureType, skills []NPCSkill, level AiLevel,
+	name string, hp int, stats map[Stat]int) *Pet {
+	e.creatureType = typ
+	e.skills = skills
+	e.aiLevel = level
+	e.name = name
+	e.maxHP = hp
+	e.curHP = hp
+	e.stats = stats
+	e.dmgTakenTrigger = new(Trigger).Init()
+	e.effects = make([]Effect, 0)
+	return e
+}
+
 func (p *Pet) ChooseSkill() NPCSkill {
 	switch p.aiLevel {
 	case Usual:
