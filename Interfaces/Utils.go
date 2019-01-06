@@ -93,7 +93,7 @@ func GetDefaultPlayer() *Player {
 		name:            "you",
 		stats:           map[Stat]int{},
 		effects:         []Effect{},
-		dmgTakenTrigger: TriggerInit(),
+		dmgTakenTrigger: new(Trigger).Init(),
 		curHP:           100,
 		maxHP:           100,
 	}
@@ -109,24 +109,6 @@ func GetDefaultPlayer() *Player {
 		money:      0,
 		inv:        &inv,
 		BasicUnit:  du,
-	}
-}
-
-func GetDefaultEnemy(index int) *Enemy {
-	du := BasicUnit{
-		name:            fmt.Sprintf("Rabid dog %d", index),
-		stats:           map[Stat]int{},
-		effects:         []Effect{},
-		dmgTakenTrigger: TriggerInit(),
-		curHP:           15,
-		maxHP:           15,
-	}
-	return &Enemy{
-		enemyType: Animal,
-		skills:    []NPCSkill{},
-		equipment: []Equippable{},
-		aiLevel:   Usual,
-		BasicUnit: du,
 	}
 }
 

@@ -4,8 +4,7 @@ type Trigger struct {
 	events []Triggerable
 }
 
-func TriggerInit() *Trigger {
-	t := &Trigger{}
+func (t *Trigger) Init() *Trigger {
 	t.events = make([]Triggerable, 0)
 	return t
 }

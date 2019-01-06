@@ -1,13 +1,15 @@
 package EnemySkills
 
-import . "DunCrawl/Interfaces"
+import (
+	. "DunCrawl/Interfaces"
+)
 
 type DogBite struct {
 	baseDmg int
 	CommonEnSkill
 }
 
-func (b *DogBite) Init(enemy Unit) Skill {
+func (b *DogBite) Init(enemy Unit) *DogBite {
 	b.baseDmg = 5
 	b.speed = 6
 	b.name = "Bite"

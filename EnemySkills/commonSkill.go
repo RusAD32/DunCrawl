@@ -47,5 +47,5 @@ func (esk *CommonEnSkill) Apply(r *Room) string {
 }
 
 func (esk *CommonEnSkill) GetSkillType() SkillType {
-	return Enemies
+	return OppositeSide
 }

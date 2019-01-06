@@ -27,7 +27,7 @@ func (p *Pet) AddSkill(skill NPCSkill) {
 
 func (p *Pet) ChooseTarget(r *Room, skillType SkillType) Unit {
 	switch skillType {
-	case Enemies:
+	case OppositeSide:
 		switch p.aiLevel {
 		case Miniboss: //TODO write the minimap or another algorithm for their ai
 			return nil

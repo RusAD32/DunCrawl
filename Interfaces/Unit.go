@@ -15,7 +15,6 @@ type BasicUnit struct {
 	name            string
 	stats           map[Stat]int
 	effects         []Effect
-	provision       []Carriable
 	curHP           int
 	maxHP           int
 	dmgTakenTrigger *Trigger

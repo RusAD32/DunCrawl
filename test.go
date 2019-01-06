@@ -1,6 +1,7 @@
 package main
 
 import (
+	. "DunCrawl/Enemies"
 	"DunCrawl/EnemySkills"
 	. "DunCrawl/Equipment"
 	. "DunCrawl/Generator"
@@ -10,7 +11,6 @@ import (
 	"github.com/hajimehoshi/ebiten"
 	"image/color"
 	"math"
-	//"math"
 )
 
 func walkTest() {
@@ -34,7 +34,7 @@ func walkTest() {
 	//dog := GetDefaultEnemy(index)
 	enemies := make([]*Enemy, 4)
 	for i := range enemies {
-		enemies[i] = GetDefaultEnemy(i)
+		enemies[i] = new(DefaultDog).Init(i)
 		//enemies[i].name += fmt.Sprintf(" %d", i)
 		bite := EnemySkills.DogBite{}
 		bite.Init(enemies[i])

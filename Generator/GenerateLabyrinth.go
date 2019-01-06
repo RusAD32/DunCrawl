@@ -1,6 +1,7 @@
 package Generator
 
 import (
+	. "DunCrawl/Enemies"
 	"DunCrawl/EnemySkills"
 	. "DunCrawl/Equipment"
 	. "DunCrawl/Interfaces"
@@ -13,7 +14,6 @@ const FirstDirection = int(Back)
 const LockProbability = 0.2
 
 func GenerateLabyrinth(length, width int) *Labyrinth {
-	//TODO remove weird constants, they are calculated on paper
 	lab := GetDefaultLabyrinth(length, width, FirstDirection, getCorners(length, width))
 	rand.Seed(time.Now().UnixNano())
 	generateCenter(lab, length, width, width/2*length+length/2)
@@ -57,7 +57,7 @@ func generateCenter(lab *Labyrinth, length, width, startingRoomNum int) {
 	}
 	enemies := make([]*Enemy, 4)
 	for i := range enemies {
-		enemies[i] = GetDefaultEnemy(i)
+		enemies[i] = new(DefaultDog).Init(i)
 		//enemies[i].name += fmt.Sprintf(" %d", i)
 		//enemies[i].skills = append(enemies[i].skills, &bite)
 	}
@@ -96,7 +96,7 @@ func GenerateRoom(l *Labyrinth, num int) *Room {
 	if rand.Float32() < 0.3 {
 		enemies = make([]*Enemy, 4)
 		for i := range enemies {
-			enemies[i] = GetDefaultEnemy(i)
+			enemies[i] = new(DefaultDog).Init(i)
 			//enemies[i].name += fmt.Sprintf(" %d", i)
 			bite := EnemySkills.DogBite{}
 			bite.Init(enemies[i])

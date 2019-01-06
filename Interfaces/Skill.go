@@ -4,7 +4,7 @@ type SkillType int
 
 const (
 	Self SkillType = iota
-	Enemies
+	OppositeSide
 	Allies
 	OnlyPlayer
 	OnlyPet
@@ -19,7 +19,6 @@ type SkillInfo interface {
 
 type Skill interface {
 	SkillInfo
-	Init(wielder Unit) Skill
 	Apply(r *Room) string
 	ApplyVoid(res string)
 	GetSkillType() SkillType

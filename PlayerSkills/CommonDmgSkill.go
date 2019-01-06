@@ -41,5 +41,5 @@ func (dsk *CommonDmgSkill) Copy() PlayerDmgSkill {
 }
 
 func (dsk *CommonDmgSkill) GetSkillType() SkillType {
-	return Enemies
+	return OppositeSide
 }

@@ -29,6 +29,25 @@ type Enemy struct {
 	BasicUnit
 }
 
+func (e *Enemy) Initialize(typ CreatureType, skills []NPCSkill, eqiup []Equippable,
+	loot []Lootable, provision []Carriable, level AiLevel,
+	name string, hp int, stats map[Stat]int) *Enemy {
+	e.enemyType = typ
+	e.skills = skills
+	e.equipment = eqiup
+	e.loot = loot
+	e.provision = provision
+	e.aiLevel = level
+	e.name = name
+	e.maxHP = hp
+	e.curHP = hp
+	e.stats = stats
+	e.dmgTakenTrigger = new(Trigger).Init()
+	e.effects = make([]Effect, 0)
+	return e
+
+}
+
 func (e *Enemy) GetMaxHP() int {
 	return e.maxHP
 }
@@ -107,7 +126,7 @@ func (e *Enemy) ChooseTarget(r *Room, skillType SkillType) Unit {
 		default:
 			return r.enemies[rand.Intn(len(r.enemies))]
 		}
-	case Enemies:
+	case OppositeSide:
 		{
 			switch e.aiLevel {
 			case Miniboss: //TODO write the minimap or another algorithm for their ai
