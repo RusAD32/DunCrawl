@@ -1,6 +1,8 @@
 package Interfaces
 
-import "math/rand"
+import (
+	"math/rand"
+)
 
 type CreatureType int
 
@@ -46,10 +48,6 @@ func (e *Enemy) Initialize(typ CreatureType, skills []NPCSkill, eqiup []Equippab
 	e.effects = make([]Effect, 0)
 	return e
 
-}
-
-func (e *Enemy) GetMaxHP() int {
-	return e.maxHP
 }
 
 func (e *Enemy) ChangeHealth(damage int) int {
@@ -135,7 +133,7 @@ func (e *Enemy) ChooseTarget(r *Room, skillType SkillType) Unit {
 				return nil
 			default:
 				{
-					coin := rand.Intn(1)
+					coin := rand.Intn(2)
 					if r.p.pet == nil || coin == 0 {
 						return r.p
 					}

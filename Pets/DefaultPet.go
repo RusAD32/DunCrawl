@@ -1,6 +1,7 @@
 package Pets
 
 import (
+	"DunCrawl/Effects"
 	. "DunCrawl/EnemySkills"
 	. "DunCrawl/Interfaces"
 )
@@ -18,6 +19,7 @@ func (d *DefaultPet) Init() *Pet {
 		"Doggy",
 		25,
 		make(map[Stat]int))
-	d = (*DefaultPet)(e)
-	return e
+	*d = *(*DefaultPet)(e)
+	d.AddEffect(new(Effects.CounterEff).Init())
+	return (*Pet)(d)
 }

@@ -22,6 +22,6 @@ func (d *DefaultDog) Init(index int) *Enemy {
 		fmt.Sprintf("Rabid dog %d", index),
 		15,
 		make(map[Stat]int))
-	d = (*DefaultDog)(e)
-	return e
+	*d = *(*DefaultDog)(e)
+	return (*Enemy)(d)
 }

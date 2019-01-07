@@ -6,6 +6,7 @@ type Unit interface {
 	AddEffect(effect Effect)
 	GetName() string
 	GetHP() int
+	GetMaxHP() int
 	IsAlive() bool
 	GetDamageTrigger() *Trigger
 	AddDamageTriggerable(t Triggerable)
@@ -34,6 +35,10 @@ func (bu *BasicUnit) AddDamageTriggerable(t Triggerable) {
 
 func (bu *BasicUnit) GetHP() int {
 	return bu.curHP
+}
+
+func (bu *BasicUnit) GetMaxHP() int {
+	return bu.maxHP
 }
 
 func (bu *BasicUnit) GetName() string {

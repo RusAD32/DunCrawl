@@ -230,7 +230,7 @@ func getNewClicks() [][]int {
 func (g *UIGame) submitSelfSkill() {
 	if g.turnStartActions {
 		g.resolvingSk = nil
-		g.queue.skills = make([]*SkillIcon, 0)
+		//g.queue.skills = make([]*SkillIcon, 0)
 		for _, v := range g.selfSkButs {
 			v.state = butActive
 		}
@@ -241,6 +241,7 @@ func (g *UIGame) submitSelfSkill() {
 		g.pl.healProcessing = ""
 		g.preResolveActions = true
 		g.turnStartActions = false
+		g.updateQueue()
 	}
 	for _, v := range getNewClicks() {
 		butNum := g.selfSkillButtonClicked(v[0], v[1])
@@ -316,11 +317,15 @@ func (g *UIGame) resolveSkill() {
 		v.state = enemyDefault
 	}
 	sk := g.l.GetCurrentRoom().GetNextSkillUsed()
+	if g.l.GetCurrentRoom().FightState != AwaitingSelfSkill {
+		g.updateQueue()
+	} else {
+		g.queue.skills = make([]*SkillIcon, 0)
+	}
 	g.resolvingSk = g.ConstructSkillIcon(sk, g.consts.skButW*4/3, g.consts.skButH*4/3)
 	g.resolvingSk.x = 0
 	g.resolvingSk.y = g.h / 14
 	g.resolvingSk.opts.GeoM.Translate(float64(g.resolvingSk.x), float64(g.resolvingSk.y))
-	g.updateQueue()
 	target := sk.GetTarget()
 	switch sk.(type) {
 	case PlayerDmgSkill:
@@ -334,11 +339,24 @@ func (g *UIGame) resolveSkill() {
 		}
 	case NPCSkill:
 		{
-			en := g.curEnemies[g.enemyNums[sk.GetWielder().(*Enemy)]]
-			en.state = enemyAttacking
+			//TODO: NPCSkill may target anyone, should account for that
+			switch sk.GetWielder().(type) {
+			case *Enemy:
+				{
+					en := g.curEnemies[g.enemyNums[sk.GetWielder().(*Enemy)]]
+					en.state = enemyAttacking
+
+				}
+			case *Pet:
+				{
+					en := g.curEnemies[g.enemyNums[sk.GetTarget().(*Enemy)]]
+					en.state = enemyAttacked
+				}
+			}
 			g.cd = 60
 			g.pl.dmgProcessing = sk.GetRes()
 			g.pl.healProcessing = ""
+
 		}
 	case PlayerSelfSkill:
 		{

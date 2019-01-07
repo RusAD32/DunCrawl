@@ -69,10 +69,6 @@ func (p *Player) ChangeHealth(damage int) int {
 	return damage
 }
 
-func (p *Player) GetMaxHP() int {
-	return p.maxHP
-}
-
 func (p *Player) GetEquipment() map[Slot]Equippable {
 	return p.equipment
 }
