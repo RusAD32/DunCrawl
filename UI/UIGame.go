@@ -40,6 +40,7 @@ type UIGame struct {
 	cd                                  int
 	queue                               SkQueue
 	resolvingSk                         *SkillIcon
+	loot                                *LootPopup
 	turnStartActions, preResolveActions bool
 	consts
 }
@@ -124,6 +125,9 @@ func (g *UIGame) Draw(screen *ebiten.Image) {
 			DrawLabyrinth(screen, g.l, g.consts.labXPos, g.consts.labYPos, g.consts.labW, g.consts.labH, color.Black)
 			for _, v := range g.currentDoors {
 				v.Draw(screen, color.Black)
+			}
+			if g.loot != nil {
+				g.loot.Draw(screen)
 			}
 		}
 	case Fight:
@@ -344,24 +348,30 @@ func (g *UIGame) resolveSkill() {
 		}
 	case NPCSkill:
 		{
-			//TODO: NPCSkill may target anyone, should account for that
 			switch sk.GetWielder().(type) {
 			case *Enemy:
 				{
 					en := g.curEnemies[g.enemyNums[sk.GetWielder().(*Enemy)]]
 					en.state = enemyAttacking
-
+					g.pl.dmgProcessing = sk.GetRes()
+					g.pl.healProcessing = ""
 				}
 			case *Pet:
-				{
+				switch sk.(NPCSkill).GetSkillType() {
+				case Self, OnlyPlayer, OnlyPet, Allies:
+					{
+						g.pl.dmgProcessing = ""
+						g.pl.healProcessing = sk.GetRes()
+					}
+				default:
 					en := g.curEnemies[g.enemyNums[sk.GetTarget().(*Enemy)]]
 					en.state = enemyAttacked
+					g.pl.dmgProcessing = sk.GetRes()
+					g.pl.healProcessing = ""
 				}
+
 			}
 			g.cd = 60
-			g.pl.dmgProcessing = sk.GetRes()
-			g.pl.healProcessing = ""
-
 		}
 	case PlayerSelfSkill:
 		{
@@ -381,18 +391,25 @@ func (g *UIGame) Update() {
 	case Roam:
 		{
 			for _, v := range getNewClicks() {
-				nextDoor := g.doorClicked(v[0], v[1])
-				/*go g.l.GoToRoom(Direction(nextDoor)) // TODO this part should be stateful imho
-				event := <-g.l.GetEventsChan()
-				if event == FightEvent {
-					g.prepareForFight()
-					g.l.GetCurrentRoom().AtTurnStart()
-				}*/
-				if g.l.GotoRoom(Direction(nextDoor)) {
-					g.prepareForFight()
-					g.l.GetCurrentRoom().AtTurnStart()
+				if g.loot != nil {
+					if g.loot.IsClicked(v[0], v[1]) {
+						g.loot = nil // TODO давать игроку то, что он нашел, в конце концов
+					}
+					return
 				}
-				g.updateDoors()
+				nextDoor := g.doorClicked(v[0], v[1])
+				if nextDoor != -1 {
+					if g.l.GotoRoom(Direction(nextDoor)) {
+						g.prepareForFight()
+						g.l.GetCurrentRoom().AtTurnStart()
+					} else {
+						loot, goodies := g.l.GetCurrentRoom().GetValues()
+						if len(loot) != 0 || len(goodies) != 0 {
+							g.loot = new(LootPopup).Init(g.w/3, g.h/3, g.w/3, g.h/3, g.font, loot, goodies)
+						}
+					}
+					g.updateDoors()
+				}
 			}
 		}
 	case Fight:
@@ -405,7 +422,9 @@ func (g *UIGame) Update() {
 			case ResolvingSkills:
 				g.resolveSkill()
 			case FightEnd:
-				fmt.Println(g.l.GetValues()) // TODO display this on screen
+				loot, values := g.l.GetValues() // TODO display this on screen
+				fmt.Println(loot, values)
+				g.loot = new(LootPopup).Init(g.w/3, g.h/3, g.w/3, g.h/3, g.font, loot, values)
 				g.curEnemies = make([]*UIEnemy, 0)
 				g.selfSkButs = make([]*SkillButton, 0)
 				g.dmgSkButs = make([]*SkillButton, 0)

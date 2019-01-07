@@ -75,12 +75,12 @@ func (l *Labyrinth) GotoRoom(direction Direction) bool {
 	return false
 }
 
-func (l *Labyrinth) GetValues() (int, []Stack) {
+func (l *Labyrinth) GetValues() ([]Lootable, []Stack) {
 	if l.state != Fight || l.current.FightState == FightEnd {
 		l.state = Roam
 		return l.current.GetValues()
 	}
-	return 0, nil
+	return nil, nil
 }
 
 func (l *Labyrinth) GetState() LabyrinthState {

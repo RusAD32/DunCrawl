@@ -26,13 +26,13 @@ type Enemy struct {
 	skills    []NPCSkill
 	equipment []Equippable
 	loot      []Lootable
-	provision []Carriable
+	provision []Stack
 	aiLevel   AiLevel
 	BasicUnit
 }
 
 func (e *Enemy) Initialize(typ CreatureType, skills []NPCSkill, eqiup []Equippable,
-	loot []Lootable, provision []Carriable, level AiLevel,
+	loot []Lootable, provision []Stack, level AiLevel,
 	name string, hp int, stats map[Stat]int) *Enemy {
 	e.enemyType = typ
 	e.skills = skills
@@ -101,12 +101,7 @@ func (e *Enemy) GetProvision() []Stack {
 		st.Init(v, 1)
 		res = append(res, &st)
 	}
-	for _, v := range e.provision {
-		st := CarriableStack{}
-		st.Init(v, 1)
-		res = append(res, &st)
-	}
-	return res
+	return append(e.provision, res...)
 }
 
 func (e *Enemy) AddSkill(skill NPCSkill) {

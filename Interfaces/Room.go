@@ -42,6 +42,11 @@ const (
 func (r *Room) AtTurnStart() {
 	if r.FightState == TurnStart {
 		if len(r.enemies) == 0 || !r.p.IsAlive() {
+			for _, v := range r.defeated {
+				r.loot = append(r.loot, v.loot...)
+				r.provision = append(r.provision, v.GetProvision()...)
+			}
+			r.defeated = make([]*Enemy, 0)
 			r.FightState = FightEnd
 			return
 		}
@@ -154,20 +159,15 @@ func (r *Room) Init(enemies []*Enemy, l *Labyrinth) {
 	}
 }
 
-func (r *Room) GetValues() (int, []Stack) {
-	return r.GetMoney(), r.GetLoot()
+func (r *Room) GetValues() ([]Lootable, []Stack) {
+	return r.GetLoot(), r.GetGoodies()
 }
 
-func (r *Room) GetMoney() int {
-	total := 0
-	for _, v := range r.loot {
-		total += v.GetValue()
-	}
-	r.loot = make([]Lootable, 0)
-	return total
+func (r *Room) GetLoot() []Lootable {
+	return r.loot
 }
 
-func (r *Room) GetLoot() []Stack {
+func (r *Room) GetGoodies() []Stack {
 	res := r.provision
 	r.provision = make([]Stack, 0)
 	return res

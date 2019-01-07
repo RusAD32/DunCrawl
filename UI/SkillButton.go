@@ -45,13 +45,15 @@ func (sb *SkillButton) Init(x, y, w, h int, sk Skill, activeCol, disabledCol col
 	_ = sb.pic[butActive].Fill(activeCol)
 	sb.opts = &ebiten.DrawImageOptions{}
 	sb.opts.GeoM.Translate(float64(x), float64(y))
+	text.Draw(sb.pic[butActive], sb.sk.GetName(), sb.font, 0, sb.font.Metrics().Height.Ceil()*2, color.Black)
+	text.Draw(sb.pic[butInactive], sb.sk.GetName(), sb.font, 0, sb.font.Metrics().Height.Ceil()*2, color.Black)
 	return sb
 }
 
 func (sb *SkillButton) Draw(screen *ebiten.Image) {
 	sb.DrawImg(screen)
 	//ebitenutil.DrawRect(screen, float64(sb.x), float64(sb.y), float64(sb.w), float64(sb.h), sb.GetImage())
-	text.Draw(screen, sb.sk.GetName(), sb.font, sb.x, sb.y+sb.font.Metrics().Height.Ceil()*2, color.Black)
+
 }
 
 func (sb *SkillButton) isClicked(mouseX, mouseY int) bool {
