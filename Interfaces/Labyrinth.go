@@ -29,23 +29,15 @@ type Labyrinth struct {
 	startingRoomNum   int
 	current           *Room
 	previous          int
-	fightConfirmChan  chan bool
-	fightBgToUi       chan []SkillInfo
-	fightUiToBg       chan string
-	eventsChannel     chan Event
 	length            int
 	width             int
 	bossEntryRoomNums []int
 	state             LabyrinthState
 }
 
-func (l *Labyrinth) Init(p *Player, rooms []*Room, fightConfirm chan bool, fightBgToUi chan []SkillInfo, fightUiToBg chan string, events chan Event) {
+func (l *Labyrinth) Init(p *Player, rooms []*Room) {
 	l.p = p
 	l.rooms = rooms
-	l.fightConfirmChan = fightConfirm
-	l.fightBgToUi = fightBgToUi
-	l.fightUiToBg = fightUiToBg
-	l.eventsChannel = events
 }
 
 func (l *Labyrinth) MarkInited() {
@@ -70,21 +62,7 @@ func (l *Labyrinth) switchRooms(direction Direction) bool {
 	return true
 }
 
-func (l *Labyrinth) GoToRoom(direction Direction) (int, []Stack) {
-	if !l.switchRooms(direction) {
-		return 0, nil
-	}
-	l.current.p = l.p
-	if l.current.HasEnemies() {
-		l.eventsChannel <- FightEvent
-		return l.current.StartFight()
-	} else {
-		defer func() { l.eventsChannel <- NoEvent }()
-		return 0, []Stack{}
-	}
-}
-
-func (l *Labyrinth) GoToRoomNew(direction Direction) bool {
+func (l *Labyrinth) GotoRoom(direction Direction) bool {
 	// Returning true if the fight starts in that room
 	if !l.switchRooms(direction) {
 		return false
@@ -109,13 +87,11 @@ func (l *Labyrinth) GetState() LabyrinthState {
 	return l.state
 }
 
-func (l *Labyrinth) Light() (int, []Stack) {
+func (l *Labyrinth) Light() {
 	if l.current.HasShadowEnemies() {
-		l.eventsChannel <- FightEvent
-	} else {
-		defer func() { l.eventsChannel <- NoEvent }()
+		l.state = Fight
 	}
-	return l.current.Light()
+	l.current.Light()
 }
 
 func (l *Labyrinth) UnlockChest() (int, []Stack) {
@@ -140,10 +116,6 @@ func (l *Labyrinth) GetSliceNeighbours() []bool {
 
 func (l *Labyrinth) GetCurrentRoom() *Room {
 	return l.current
-}
-
-func (l *Labyrinth) GetEventsChan() chan Event {
-	return l.eventsChannel
 }
 
 func (l *Labyrinth) GetPlayer() *Player {

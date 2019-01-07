@@ -59,7 +59,7 @@ func (p *Pet) ChooseTarget(r *Room, skillType SkillType) Unit {
 				return nil
 			default:
 				{
-					coin := rand.Intn(1)
+					coin := rand.Intn(2)
 					if r.p.pet == nil || coin == 0 {
 						return r.p
 					}

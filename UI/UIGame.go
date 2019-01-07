@@ -383,7 +383,7 @@ func (g *UIGame) Update() {
 					g.prepareForFight()
 					g.l.GetCurrentRoom().AtTurnStart()
 				}*/
-				if g.l.GoToRoomNew(Direction(nextDoor)) {
+				if g.l.GotoRoom(Direction(nextDoor)) {
 					g.prepareForFight()
 					g.l.GetCurrentRoom().AtTurnStart()
 				}
