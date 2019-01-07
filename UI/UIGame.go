@@ -62,7 +62,7 @@ func (g *UIGame) Init(l *Labyrinth, w, h int) {
 	if err != nil {
 		panic(err)
 	}
-	g.font = truetype.NewFace(fontData, &truetype.Options{})
+	g.font = truetype.NewFace(fontData, &truetype.Options{Size: 10})
 	g.selfSkButs = make([]*SkillButton, 0)
 	g.dmgSkButs = make([]*SkillButton, 0)
 	g.enemyNums = make(map[*Enemy]int)

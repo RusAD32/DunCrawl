@@ -4,7 +4,7 @@ import (
 	. "DunCrawl/Interfaces"
 	"fmt"
 	"github.com/hajimehoshi/ebiten"
-	"github.com/hajimehoshi/ebiten/ebitenutil"
+	"github.com/hajimehoshi/ebiten/text"
 	"golang.org/x/image/font"
 	"image/color"
 )
@@ -41,8 +41,10 @@ func (p *LootIcon) Init(x, y, w, h int, loot Lootable, font font.Face) *LootIcon
 	p.loot = loot
 	pic, _ := ebiten.NewImage(w, h, ebiten.FilterDefault)
 	_ = pic.Fill(Gray)
-	//text.Draw(pic, fmt.Sprintf("%s (%dg)", loot.GetName(), loot.GetValue()), font, 0, 0, color.Black)
-	ebitenutil.DebugPrint(pic, fmt.Sprintf("%s\n(%dg)", loot.GetName(), loot.GetValue()))
+	info1 := loot.GetName()
+	info2 := fmt.Sprintf("(%dg)", loot.GetValue())
+	text.Draw(pic, info1, font, 0, font.Metrics().Height.Ceil(), color.Black)
+	text.Draw(pic, info2, font, 0, 2*font.Metrics().Height.Ceil(), color.Black)
 	p.pic[0] = pic
 	return p
 }
@@ -54,8 +56,10 @@ func (p *CarriableIcon) Init(x, y, w, h int, loot Stack, font font.Face) *Carria
 	p.loot = loot
 	pic, _ := ebiten.NewImage(w, h, ebiten.FilterDefault)
 	_ = pic.Fill(Gray)
-	//text.Draw(pic, fmt.Sprintf("%s (%d)", loot.GetName(), loot.GetAmount()), font, 0, 0, color.Black)
-	_ = ebitenutil.DebugPrint(pic, fmt.Sprintf("%s\n(%d)"))
+	info1 := loot.GetName()
+	info2 := fmt.Sprintf("(%d)", loot.GetAmount())
+	text.Draw(pic, info1, font, 0, font.Metrics().Height.Ceil(), color.Black)
+	text.Draw(pic, info2, font, 0, 2*font.Metrics().Height.Ceil(), color.Black)
 	p.pic[0] = pic
 	return p
 }
@@ -70,8 +74,7 @@ func (b *ConfirmLootButton) Init(x, y, w, h int, font font.Face) *ConfirmLootBut
 	b.opts = &ebiten.DrawImageOptions{}
 	b.opts.GeoM.Translate(float64(x), float64(y))
 	_ = b.pic[0].Fill(color.RGBA{177, 177, 177, 255})
-	_ = ebitenutil.DebugPrint(b.pic[0], "Confirm") // TODO понять, wtf с text.Draw()
-	//text.Draw(b.pic[0], "Confirm", font, 0, 0, color.Black)
+	text.Draw(b.pic[0], "Confirm", font, 0, h/2, color.Black)
 	return b
 }
 
