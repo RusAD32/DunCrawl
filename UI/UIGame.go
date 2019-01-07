@@ -247,7 +247,12 @@ func (g *UIGame) submitSelfSkill() {
 		butNum := g.selfSkillButtonClicked(v[0], v[1])
 		if butNum >= 0 {
 			g.l.GetCurrentRoom().SubmitSelfSkill(g.selfSkButs[butNum].sk.(PlayerSelfSkill))
-			g.curEnemies[0].isTargeted = true
+			for _, v := range g.curEnemies {
+				if v.enemy.IsAlive() && v.skillUsed == nil {
+					v.isTargeted = true
+					break
+				}
+			}
 			for _, v := range g.selfSkButs {
 				v.state = butInactive
 			}
@@ -278,7 +283,7 @@ func (g *UIGame) submitDmgSkill() {
 			skill.SetTarget(curEn.enemy)
 			curEn.skillUsed = skill
 			for _, v := range g.curEnemies {
-				if !v.isTargeted && v.skillUsed == nil {
+				if v.enemy.IsAlive() && v.skillUsed == nil {
 					v.isTargeted = true
 					break
 				}
@@ -294,7 +299,7 @@ func (g *UIGame) submitDmgSkill() {
 			return
 		}
 		for _, v := range g.curEnemies {
-			if v.isClicked(touch[0], touch[1]) && v.skillUsed == nil {
+			if v.enemy.IsAlive() && v.skillUsed == nil && v.isClicked(touch[0], touch[1]) {
 				for _, v := range g.curEnemies {
 					v.isTargeted = false
 				}
