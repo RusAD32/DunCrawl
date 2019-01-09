@@ -17,12 +17,10 @@ type SkillButton struct {
 	font   font.Face
 	isSelf bool
 	sk     Skill
-	ClickableRect
-	DrawableImage
+	DrawableClickable
 }
 
 func (sb *SkillButton) Init(x, y, w, h int, sk Skill, activeCol, disabledCol color.Color, font font.Face) *SkillButton {
-	sb.initRect(x, y, w, h)
 	sb.sk = sk
 	sb.state = butInactive
 	sb.font = font
@@ -32,7 +30,7 @@ func (sb *SkillButton) Init(x, y, w, h int, sk Skill, activeCol, disabledCol col
 	default:
 		sb.isSelf = false
 	}
-	sb.initImg(x, y, w, h, 2, disabledCol, activeCol)
+	sb.DCInit(x, y, w, h, 2, disabledCol, activeCol)
 	text.Draw(sb.pic[butActive], sb.sk.GetName(), sb.font, 0, sb.font.Metrics().Height.Ceil()*2, color.Black)
 	text.Draw(sb.pic[butInactive], sb.sk.GetName(), sb.font, 0, sb.font.Metrics().Height.Ceil()*2, color.Black)
 	return sb

@@ -23,7 +23,7 @@ var (
 	LightGreen = color.RGBA{R: 200, G: 255, B: 200, A: 255}
 	LightBlue  = color.RGBA{R: 200, G: 200, B: 255, A: 255}
 	LightRed   = color.RGBA{R: 255, G: 200, B: 200, A: 255}
-	Brown      = color.RGBA{R: 150, G: 75}
+	Brown      = color.RGBA{R: 150, G: 75, A: 255}
 )
 
 type UIGame struct {
@@ -36,6 +36,7 @@ type UIGame struct {
 	curEnemies                          []*UIEnemy
 	selfSkButs                          []*SkillButton
 	dmgSkButs                           []*SkillButton
+	chest                               *DrawableClickable
 	enemyNums                           map[*Enemy]int
 	pl                                  *PlayerStats
 	cd                                  int
@@ -126,6 +127,9 @@ func (g *UIGame) Draw(screen *ebiten.Image) {
 			DrawLabyrinth(screen, g.l, g.consts.labXPos, g.consts.labYPos, g.consts.labW, g.consts.labH, color.Black)
 			for _, v := range g.currentDoors {
 				v.Draw(screen, color.Black)
+			}
+			if g.chest != nil {
+				g.chest.DrawImg(screen)
 			}
 			if g.loot != nil {
 				g.loot.Draw(screen)
@@ -299,7 +303,6 @@ func (g *UIGame) submitDmgSkill() {
 			curEn.isTargeted = false
 			g.l.GetCurrentRoom().SubmitDmgSkill(skill)
 			g.updateQueue()
-			fmt.Println(skill.GetUses())
 			if skill.GetUses() != 0 {
 				g.dmgSkButs[skNum].state = butActive
 			} else {
@@ -402,6 +405,16 @@ func (g *UIGame) Update() {
 					}
 					return
 				}
+				if g.chest != nil {
+					for _, click := range getNewClicks() {
+						if g.chest.isClicked(click[0], click[1]) {
+							loot, goodies := g.l.UnlockChest()
+							g.loot = new(LootPopup).Init(g.w/3, g.h/3, g.w/3, g.h/3, g.font, loot, goodies)
+							g.chest = nil
+							return
+						}
+					}
+				}
 				nextDoor := g.doorClicked(v[0], v[1])
 				if nextDoor != -1 {
 					if g.l.GotoRoom(Direction(nextDoor)) {
@@ -413,7 +426,12 @@ func (g *UIGame) Update() {
 							g.loot = new(LootPopup).Init(g.w/3, g.h/3, g.w/3, g.h/3, g.font, loot, goodies)
 						}
 					}
+					if g.l.GetCurrentRoom().HasChest() {
+						fmt.Println("Yay")
+						g.chest = new(DrawableClickable).DCInit(g.w/3, g.h/3, g.w/3, g.h/3, 1, Brown)
+					}
 					g.updateDoors()
+					return
 				}
 			}
 		}
@@ -428,7 +446,6 @@ func (g *UIGame) Update() {
 				g.resolveSkill()
 			case FightEnd:
 				loot, values := g.l.GetValues() // TODO display this on screen
-				fmt.Println(loot, values)
 				g.loot = new(LootPopup).Init(g.w/3, g.h/3, g.w/3, g.h/3, g.font, loot, values)
 				g.curEnemies = make([]*UIEnemy, 0)
 				g.selfSkButs = make([]*SkillButton, 0)

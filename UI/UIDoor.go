@@ -6,15 +6,14 @@ import (
 )
 
 type UIDoor struct {
-	ClickableRect
+	DrawableClickable
 	num int
-	DrawableImage
 }
 
 func (d *UIDoor) Init(x, y, w, h, num int) *UIDoor {
 	d.initRect(x, y, w, h)
 	d.num = num
-	d.initImg(x, y, w, h, 1, color.Black)
+	d.DCInit(x, y, w, h, 1, color.Black)
 	return d
 }
 

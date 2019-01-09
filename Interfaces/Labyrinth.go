@@ -1,12 +1,5 @@
 package Interfaces
 
-type Event int
-
-const (
-	NoEvent Event = iota
-	FightEvent
-)
-
 type LabyrinthState int
 
 const (
@@ -94,7 +87,7 @@ func (l *Labyrinth) Light() {
 	l.current.Light()
 }
 
-func (l *Labyrinth) UnlockChest() (int, []Stack) {
+func (l *Labyrinth) UnlockChest() ([]Lootable, []Stack) {
 	return l.current.UnlockChest()
 }
 

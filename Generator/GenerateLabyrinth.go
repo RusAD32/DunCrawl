@@ -21,6 +21,7 @@ func GenerateLabyrinth(length, width int) *Labyrinth {
 	for i := range getCorners(length, width) {
 		generateBossPath(lab, width, length, i)
 	}
+	lab.MarkInited()
 	p := GetDefaultPlayer()
 	h := Hatchet{}
 	h.Init()
@@ -39,7 +40,6 @@ func GenerateLabyrinth(length, width int) *Labyrinth {
 	p.AddDmgSkill(&stn)
 	p.SetPet(new(Pets.DefaultPet).Init())
 	lab.SetPlayer(p)
-	lab.MarkInited()
 	return lab
 }
 
@@ -105,6 +105,9 @@ func GenerateRoom(l *Labyrinth, num int) *Room {
 			enemies[i].AddSkill(&bite)
 			//enemies[i].skills = append(enemies[i].skills, &bite)
 		}
+	}
+	if rand.Float32() < 0.8 {
+		r.SetChest(GetDefaultChest())
 	}
 	r.DistFromCenter = -1
 	r.Init(enemies, l)

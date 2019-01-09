@@ -164,6 +164,7 @@ func (r *Room) GetValues() ([]Lootable, []Stack) {
 }
 
 func (r *Room) GetLoot() []Lootable {
+	//TODO решить, надо ли их забирать, и привести к единому стандарту
 	return r.loot
 }
 
@@ -185,11 +186,11 @@ func (r *Room) HasShadowEnemies() bool {
 	return len(r.shadowEnemies) > 0
 }
 
-func (r *Room) UnlockChest() (int, []Stack) {
+func (r *Room) UnlockChest() ([]Lootable, []Stack) {
 	if r.chest != nil {
-		return r.chest.GetMoney(), r.chest.GetValuables()
+		return r.chest.GetLoot(), r.chest.GetValuables()
 	}
-	return 0, make([]Stack, 0)
+	return make([]Lootable, 0), make([]Stack, 0)
 }
 
 func (r *Room) Light() {

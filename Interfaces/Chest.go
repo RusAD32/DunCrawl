@@ -19,13 +19,8 @@ func (c *Chest) TrapDisarm() {
 	}
 }
 
-func (c *Chest) GetMoney() int {
-	total := 0
-	for _, v := range c.loot {
-		total += v.GetValue()
-	}
-	c.loot = make([]Lootable, 0)
-	return total
+func (c *Chest) GetLoot() []Lootable {
+	return c.loot
 }
 
 func (c *Chest) GetValuables() []Stack {

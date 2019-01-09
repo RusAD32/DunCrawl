@@ -18,20 +18,17 @@ const (
 )
 
 type UIEnemy struct {
-	ClickableRect
+	DrawableClickable
 	col        color.Color
 	enemy      *Enemy
 	isTargeted bool
 	skillUsed  Skill
-	DrawableImage
 }
 
 func (e *UIEnemy) Init(x, y, w, h int, colDef, colAttacking, colAttacked, colDead color.Color, enemy *Enemy) *UIEnemy {
-	e.initRect(x, y, w, h)
-
 	e.col = colDef
 	e.enemy = enemy
-	e.initImg(x, y, w, h, 4, colDef, colAttacking, colAttacked, colDead)
+	e.DCInit(x, y, w, h, 4, colDef, colAttacking, colAttacked, colDead)
 	return e
 }
 
