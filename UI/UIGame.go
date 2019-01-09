@@ -2,7 +2,6 @@ package UI
 
 import (
 	. "DunCrawl/Interfaces"
-	"fmt"
 	"github.com/golang/freetype/truetype"
 	"github.com/hajimehoshi/ebiten"
 	"github.com/hajimehoshi/ebiten/inpututil"
@@ -150,6 +149,7 @@ func (g *UIGame) Draw(screen *ebiten.Image) {
 			}
 		}
 	}
+	//ebitenutil.DebugPrintAt(screen, PrintMemUsage(), 0, 300)
 
 }
 
@@ -427,7 +427,6 @@ func (g *UIGame) Update() {
 						}
 					}
 					if g.l.GetCurrentRoom().HasChest() {
-						fmt.Println("Yay")
 						g.chest = new(DrawableClickable).DCInit(g.w/3, g.h/3, g.w/3, g.h/3, 1, Brown)
 					}
 					g.updateDoors()

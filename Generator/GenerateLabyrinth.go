@@ -106,7 +106,7 @@ func GenerateRoom(l *Labyrinth, num int) *Room {
 			//enemies[i].skills = append(enemies[i].skills, &bite)
 		}
 	}
-	if rand.Float32() < 0.8 {
+	if rand.Float32() < 0.1 {
 		r.SetChest(GetDefaultChest())
 	}
 	r.DistFromCenter = -1
