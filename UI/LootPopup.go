@@ -16,13 +16,13 @@ type LootIcon struct {
 
 type CarriableIcon struct {
 	DrawableImage
-	x, y, w, h int // TODO вынести это в какой-нибудь rectangle
-	loot       Stack
-	leaving    bool
+	ClickableRect
+	loot    Stack
+	leaving bool
 }
 
 type ConfirmLootButton struct {
-	x, y, w, h int
+	ClickableRect
 	DrawableImage
 }
 
@@ -78,8 +78,8 @@ func (b *ConfirmLootButton) Init(x, y, w, h int, font font.Face) *ConfirmLootBut
 	return b
 }
 
-func (b *LootPopup) IsClicked(mouseX, mouseY int) bool {
-	return !(mouseX < b.x+b.button.x || mouseX > b.x+b.button.x+b.button.w || mouseY < b.y+b.button.y || mouseY > b.y+b.button.y+b.h)
+func (b *LootPopup) isClicked(mouseX, mouseY int) bool {
+	return b.button.isClicked(mouseX-b.x, mouseY-b.y)
 }
 
 func (p *LootPopup) Init(x, y, w, h int, font font.Face, loot []Lootable, goodies []Stack) *LootPopup {

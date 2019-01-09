@@ -284,6 +284,9 @@ func (g *UIGame) submitDmgSkill() {
 				}
 			}
 			skill := g.dmgSkButs[skNum].sk.(PlayerDmgSkill)
+			if skill.GetUses() == 0 {
+				return
+			}
 			skill.SetTarget(curEn.enemy)
 			curEn.skillUsed = skill
 			for _, v := range g.curEnemies {
@@ -295,6 +298,7 @@ func (g *UIGame) submitDmgSkill() {
 			curEn.isTargeted = false
 			g.l.GetCurrentRoom().SubmitDmgSkill(skill)
 			g.updateQueue()
+			fmt.Println(skill.GetUses())
 			if skill.GetUses() != 0 {
 				g.dmgSkButs[skNum].state = butActive
 			} else {
@@ -392,7 +396,7 @@ func (g *UIGame) Update() {
 		{
 			for _, v := range getNewClicks() {
 				if g.loot != nil {
-					if g.loot.IsClicked(v[0], v[1]) {
+					if g.loot.isClicked(v[0], v[1]) {
 						g.loot = nil // TODO давать игроку то, что он нашел, в конце концов
 					}
 					return

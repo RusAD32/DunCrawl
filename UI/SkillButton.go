@@ -14,11 +14,11 @@ const (
 )
 
 type SkillButton struct {
-	x, y, w, h             int
 	font                   font.Face
 	isSelf                 bool
 	activeCol, disabledCol color.Color
 	sk                     Skill
+	ClickableRect
 	DrawableImage
 }
 
@@ -54,9 +54,4 @@ func (sb *SkillButton) Draw(screen *ebiten.Image) {
 	sb.DrawImg(screen)
 	//ebitenutil.DrawRect(screen, float64(sb.x), float64(sb.y), float64(sb.w), float64(sb.h), sb.GetImage())
 
-}
-
-func (sb *SkillButton) isClicked(mouseX, mouseY int) bool {
-	return !(mouseX < sb.x || mouseX > sb.x+sb.w || mouseY < sb.y || mouseY > sb.y+sb.h ||
-		!sb.isSelf && sb.sk.(PlayerDmgSkill).GetUses() == 0 || sb.state == butInactive)
 }

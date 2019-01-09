@@ -18,7 +18,7 @@ const (
 )
 
 type UIEnemy struct {
-	x, y, w, h int
+	ClickableRect
 	col        color.Color
 	enemy      *Enemy
 	isTargeted bool
@@ -45,10 +45,6 @@ func (e *UIEnemy) Init(x, y, w, h int, colDef, colAttacking, colAttacked, colDea
 	e.opts = &ebiten.DrawImageOptions{}
 	e.opts.GeoM.Translate(float64(x), float64(y))
 	return e
-}
-
-func (e *UIEnemy) isClicked(mouseX, mouseY int) bool {
-	return !(mouseX < int(e.x) || mouseX > int(e.x+e.w) || mouseY < int(e.y) || mouseY > int(e.y+e.h))
 }
 
 func (e *UIEnemy) Draw(screen *ebiten.Image, font font.Face) {

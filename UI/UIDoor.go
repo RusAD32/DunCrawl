@@ -6,8 +6,8 @@ import (
 )
 
 type UIDoor struct {
-	x, y, w, h int
-	num        int
+	ClickableRect
+	num int
 	DrawableImage
 }
 
@@ -23,10 +23,6 @@ func (d *UIDoor) Init(x, y, w, h, num int) *UIDoor {
 	d.opts = &ebiten.DrawImageOptions{}
 	d.opts.GeoM.Translate(float64(x), float64(y))
 	return d
-}
-
-func (d *UIDoor) isClicked(mouseX, mouseY int) bool {
-	return !(mouseX < d.x || mouseX > d.x+d.w || mouseY < d.y || mouseY > d.y+d.h)
 }
 
 func (d *UIDoor) Draw(screen *ebiten.Image, col color.Color) {
