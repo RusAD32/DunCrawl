@@ -9,7 +9,7 @@ type Pet struct {
 	BasicUnit
 }
 
-func (e *Pet) Initialize(typ CreatureType, skills []NPCSkill, level AiLevel,
+func (e *Pet) Init(typ CreatureType, skills []NPCSkill, level AiLevel,
 	name string, hp int, stats map[Stat]int) *Pet {
 	e.creatureType = typ
 	e.skills = skills
@@ -19,6 +19,7 @@ func (e *Pet) Initialize(typ CreatureType, skills []NPCSkill, level AiLevel,
 	e.curHP = hp
 	e.stats = stats
 	e.dmgTakenTrigger = new(Trigger).Init()
+	e.onDeathTrigger = new(Trigger).Init()
 	e.effects = make([]Effect, 0)
 	return e
 }

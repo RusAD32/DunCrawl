@@ -11,7 +11,7 @@ func (d *DefaultPet) Init() *Pet {
 	skills := make([]NPCSkill, 0)
 	sk1 := new(DogBite).Init(d)
 	skills = append(skills, sk1)
-	e := new(Pet).Initialize(
+	e := new(Pet).Init(
 		Animal,
 		skills,
 		Usual,

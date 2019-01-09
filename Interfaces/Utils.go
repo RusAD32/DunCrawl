@@ -91,6 +91,7 @@ func GetDefaultPlayer() *Player {
 		stats:           map[Stat]int{},
 		effects:         []Effect{},
 		dmgTakenTrigger: new(Trigger).Init(),
+		onDeathTrigger:  new(Trigger).Init(),
 		curHP:           100,
 		maxHP:           100,
 	}

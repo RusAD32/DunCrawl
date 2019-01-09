@@ -4,6 +4,7 @@ import (
 	. "DunCrawl/Interfaces"
 	"github.com/golang/freetype/truetype"
 	"github.com/hajimehoshi/ebiten"
+	"github.com/hajimehoshi/ebiten/ebitenutil"
 	"github.com/hajimehoshi/ebiten/inpututil"
 	"golang.org/x/image/font"
 	"image/color"
@@ -123,6 +124,7 @@ func (g *UIGame) Draw(screen *ebiten.Image) {
 	switch g.l.GetState() {
 	case Roam:
 		{
+			//this is the most memory-greedy function
 			DrawLabyrinth(screen, g.l, g.consts.labXPos, g.consts.labYPos, g.consts.labW, g.consts.labH, color.Black)
 			for _, v := range g.currentDoors {
 				v.Draw(screen, color.Black)
@@ -149,7 +151,7 @@ func (g *UIGame) Draw(screen *ebiten.Image) {
 			}
 		}
 	}
-	//ebitenutil.DebugPrintAt(screen, PrintMemUsage(), 0, 300)
+	ebitenutil.DebugPrintAt(screen, PrintMemUsage(), 0, 300)
 
 }
 
@@ -417,6 +419,7 @@ func (g *UIGame) Update() {
 				}
 				nextDoor := g.doorClicked(v[0], v[1])
 				if nextDoor != -1 {
+					g.chest = nil
 					if g.l.GotoRoom(Direction(nextDoor)) {
 						g.prepareForFight()
 						g.l.GetCurrentRoom().AtTurnStart()
