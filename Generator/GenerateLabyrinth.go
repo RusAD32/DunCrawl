@@ -2,9 +2,9 @@ package Generator
 
 import (
 	. "DunCrawl/Enemies"
-	"DunCrawl/EnemySkills"
 	. "DunCrawl/Equipment"
 	. "DunCrawl/Interfaces"
+	"DunCrawl/NPCSkills"
 	"DunCrawl/Pets"
 	"DunCrawl/PlayerSkills"
 	"math/rand"
@@ -100,7 +100,7 @@ func GenerateRoom(l *Labyrinth, num int) *Room {
 		for i := range enemies {
 			enemies[i] = new(DefaultDog).Init(i)
 			//enemies[i].name += fmt.Sprintf(" %d", i)
-			bite := EnemySkills.DogBite{}
+			bite := NPCSkills.DogBite{}
 			bite.Init(enemies[i])
 			enemies[i].AddSkill(&bite)
 			//enemies[i].skills = append(enemies[i].skills, &bite)

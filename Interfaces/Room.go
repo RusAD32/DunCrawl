@@ -12,7 +12,6 @@ type Room struct {
 	pq               PriorityQueue
 	turnStartTrigger Trigger
 	turnEndTrigger   Trigger
-	enemyDeadTrigger Trigger
 	loot             []Lootable
 	shadowLoot       []Lootable
 	shadowEnemies    []*Enemy
@@ -41,6 +40,7 @@ const (
 
 func (r *Room) AtTurnStart() {
 	if r.FightState == TurnStart {
+		r.turnStartTrigger.Call()
 		if len(r.enemies) == 0 || !r.p.IsAlive() {
 			for _, v := range r.defeated {
 				r.loot = append(r.loot, v.loot...)
@@ -110,7 +110,9 @@ func (r *Room) GetNextSkillUsed() SkillInfo {
 			} else {
 				continue
 			}
+			RemoveDeadEnemies(r)
 			if len(r.pq) == 0 {
+				r.turnEndTrigger.Call()
 				for _, v := range r.p.dmgSkills {
 					v.Reset()
 				}
@@ -118,7 +120,6 @@ func (r *Room) GetNextSkillUsed() SkillInfo {
 				for _, en := range r.enemies {
 					RemoveExpiredEffects(en)
 				}
-				RemoveDeadEnemies(r)
 				r.FightState = TurnStart
 				defer r.AtTurnStart()
 			}

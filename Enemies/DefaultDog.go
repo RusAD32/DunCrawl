@@ -1,8 +1,8 @@
 package Enemies
 
 import (
-	"DunCrawl/EnemySkills"
 	. "DunCrawl/Interfaces"
+	"DunCrawl/NPCSkills"
 	"fmt"
 )
 
@@ -10,7 +10,7 @@ type DefaultDog Enemy
 
 func (d *DefaultDog) Init(index int) *Enemy {
 	skills := make([]NPCSkill, 0)
-	sk1 := new(EnemySkills.DogBite).Init(d)
+	sk1 := new(NPCSkills.DogBite).Init(d)
 	skills = append(skills, sk1)
 	loot := []Lootable{GenerateLootable("Stuff", 15)}
 	e := new(Enemy).Initialize(

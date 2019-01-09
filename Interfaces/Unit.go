@@ -9,6 +9,7 @@ type Unit interface {
 	GetMaxHP() int
 	IsAlive() bool
 	GetDamageTrigger() *Trigger
+	GetDeathTrigger() *Trigger
 	AddDamageTriggerable(t Triggerable)
 }
 
@@ -19,6 +20,7 @@ type BasicUnit struct {
 	curHP           int
 	maxHP           int
 	dmgTakenTrigger *Trigger
+	onDeathTrigger  *Trigger
 }
 
 func (bu *BasicUnit) IsAlive() bool {
@@ -27,6 +29,10 @@ func (bu *BasicUnit) IsAlive() bool {
 
 func (bu *BasicUnit) GetDamageTrigger() *Trigger {
 	return bu.dmgTakenTrigger
+}
+
+func (bu *BasicUnit) GetDeathTrigger() *Trigger {
+	return bu.onDeathTrigger
 }
 
 func (bu *BasicUnit) AddDamageTriggerable(t Triggerable) {

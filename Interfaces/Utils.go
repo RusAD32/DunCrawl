@@ -73,16 +73,13 @@ func FindEffect(unit Unit, id EffectID) bool {
 }
 
 func RemoveDeadEnemies(r *Room) {
-	numToRemove := make([]int, 0)
-	for i, x := range r.enemies {
-		if x.GetHP() == 0 {
-			numToRemove = append(numToRemove, i-len(numToRemove))
+	for i := len(r.enemies) - 1; i >= 0; i-- {
+		if r.enemies[i].GetHP() == 0 {
+			r.enemies[i].GetDeathTrigger().Call()
+			r.defeated = append(r.defeated, r.enemies[i])
+			r.enemies[i] = nil
+			r.enemies = append(r.enemies[:i], r.enemies[i+1:]...)
 		}
-	}
-	for _, i := range numToRemove {
-		r.defeated = append(r.defeated, r.enemies[i])
-		r.enemies[i] = nil
-		r.enemies = append(r.enemies[:i], r.enemies[i+1:]...)
 	}
 }
 

@@ -1,8 +1,8 @@
 package Pets
 
 import (
-	. "DunCrawl/EnemySkills"
 	. "DunCrawl/Interfaces"
+	. "DunCrawl/NPCSkills"
 )
 
 type DefaultPet Pet

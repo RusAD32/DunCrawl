@@ -1,4 +1,4 @@
-package EnemySkills
+package NPCSkills
 
 import (
 	. "DunCrawl/Interfaces"
