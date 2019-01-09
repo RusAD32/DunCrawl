@@ -50,7 +50,7 @@ func (s *StunningBlow) LvlUp() {
 		s.lvl++
 		s.baseDMG = int(math.Pow(3.0, math.Sqrt(float64(s.lvl))))
 	} else {
-		fmt.Sprintln("Error: Requirements for levelling up skill %s not met", s.name)
+		fmt.Printf("Error: Requirements for levelling up skill %s not met", s.name)
 	}
 }
 
