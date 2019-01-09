@@ -27,23 +27,11 @@ type UIEnemy struct {
 }
 
 func (e *UIEnemy) Init(x, y, w, h int, colDef, colAttacking, colAttacked, colDead color.Color, enemy *Enemy) *UIEnemy {
-	e.x = x
-	e.y = y
-	e.w = w
-	e.h = h
+	e.initRect(x, y, w, h)
+
 	e.col = colDef
 	e.enemy = enemy
-	e.pic = make([]*ebiten.Image, 4)
-	e.pic[int(enemyDefault)], _ = ebiten.NewImage(w, h, ebiten.FilterDefault)
-	_ = e.pic[int(enemyDefault)].Fill(colDef)
-	e.pic[int(enemyAttacking)], _ = ebiten.NewImage(w, h, ebiten.FilterDefault)
-	_ = e.pic[int(enemyAttacking)].Fill(colAttacking)
-	e.pic[int(enemyAttacked)], _ = ebiten.NewImage(w, h, ebiten.FilterDefault)
-	_ = e.pic[int(enemyAttacked)].Fill(colAttacked)
-	e.pic[int(enemyDead)], _ = ebiten.NewImage(w, h, ebiten.FilterDefault)
-	_ = e.pic[int(enemyDead)].Fill(colDead)
-	e.opts = &ebiten.DrawImageOptions{}
-	e.opts.GeoM.Translate(float64(x), float64(y))
+	e.initImg(x, y, w, h, 4, colDef, colAttacking, colAttacked, colDead)
 	return e
 }
 

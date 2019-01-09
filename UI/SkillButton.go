@@ -14,21 +14,15 @@ const (
 )
 
 type SkillButton struct {
-	font                   font.Face
-	isSelf                 bool
-	activeCol, disabledCol color.Color
-	sk                     Skill
+	font   font.Face
+	isSelf bool
+	sk     Skill
 	ClickableRect
 	DrawableImage
 }
 
 func (sb *SkillButton) Init(x, y, w, h int, sk Skill, activeCol, disabledCol color.Color, font font.Face) *SkillButton {
-	sb.x = x
-	sb.y = y
-	sb.w = w
-	sb.h = h
-	sb.activeCol = activeCol
-	sb.disabledCol = disabledCol
+	sb.initRect(x, y, w, h)
 	sb.sk = sk
 	sb.state = butInactive
 	sb.font = font
@@ -38,13 +32,7 @@ func (sb *SkillButton) Init(x, y, w, h int, sk Skill, activeCol, disabledCol col
 	default:
 		sb.isSelf = false
 	}
-	sb.pic = make([]*ebiten.Image, 2)
-	sb.pic[butInactive], _ = ebiten.NewImage(w, h, ebiten.FilterDefault)
-	_ = sb.pic[butInactive].Fill(disabledCol)
-	sb.pic[butActive], _ = ebiten.NewImage(w, h, ebiten.FilterDefault)
-	_ = sb.pic[butActive].Fill(activeCol)
-	sb.opts = &ebiten.DrawImageOptions{}
-	sb.opts.GeoM.Translate(float64(x), float64(y))
+	sb.initImg(x, y, w, h, 2, disabledCol, activeCol)
 	text.Draw(sb.pic[butActive], sb.sk.GetName(), sb.font, 0, sb.font.Metrics().Height.Ceil()*2, color.Black)
 	text.Draw(sb.pic[butInactive], sb.sk.GetName(), sb.font, 0, sb.font.Metrics().Height.Ceil()*2, color.Black)
 	return sb
@@ -53,5 +41,4 @@ func (sb *SkillButton) Init(x, y, w, h int, sk Skill, activeCol, disabledCol col
 func (sb *SkillButton) Draw(screen *ebiten.Image) {
 	sb.DrawImg(screen)
 	//ebitenutil.DrawRect(screen, float64(sb.x), float64(sb.y), float64(sb.w), float64(sb.h), sb.GetImage())
-
 }

@@ -23,6 +23,7 @@ var (
 	LightGreen = color.RGBA{R: 200, G: 255, B: 200, A: 255}
 	LightBlue  = color.RGBA{R: 200, G: 200, B: 255, A: 255}
 	LightRed   = color.RGBA{R: 255, G: 200, B: 200, A: 255}
+	Brown      = color.RGBA{R: 150, G: 75}
 )
 
 type UIGame struct {

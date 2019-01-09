@@ -18,10 +18,7 @@ type SkillIcon struct {
 func (sb *SkillIcon) Init(w, h int, sk SkillInfo, col color.Color, font font.Face) *SkillIcon {
 	sb.sk = sk
 	sb.font = font
-	sb.pic = make([]*ebiten.Image, 1)
-	sb.pic[0], _ = ebiten.NewImage(w, h, ebiten.FilterDefault)
-	_ = sb.pic[0].Fill(col)
-	sb.opts = &ebiten.DrawImageOptions{}
+	sb.initImg(0, 0, w, h, 1, col)
 	return sb
 }
 

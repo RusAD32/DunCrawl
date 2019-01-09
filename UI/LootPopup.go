@@ -27,53 +27,33 @@ type ConfirmLootButton struct {
 }
 
 type LootPopup struct {
-	loot       []*LootIcon
-	goodies    []*CarriableIcon
-	button     *ConfirmLootButton
-	x, y, w, h int
+	loot    []*LootIcon
+	goodies []*CarriableIcon
+	button  *ConfirmLootButton
+	ClickableRect
 	DrawableImage
 }
 
 func (p *LootIcon) Init(x, y, w, h int, loot Lootable, font font.Face) *LootIcon {
-	p.opts = &ebiten.DrawImageOptions{}
-	p.pic = make([]*ebiten.Image, 1)
-	p.opts.GeoM.Translate(float64(x), float64(y))
-	p.loot = loot
-	pic, _ := ebiten.NewImage(w, h, ebiten.FilterDefault)
-	_ = pic.Fill(Gray)
+	p.initImg(x, y, w, h, 1, Gray)
 	info1 := loot.GetName()
 	info2 := fmt.Sprintf("(%dg)", loot.GetValue())
-	text.Draw(pic, info1, font, 0, font.Metrics().Height.Ceil(), color.Black)
-	text.Draw(pic, info2, font, 0, 2*font.Metrics().Height.Ceil(), color.Black)
-	p.pic[0] = pic
+	text.Draw(p.pic[0], info1, font, 0, font.Metrics().Height.Ceil(), color.Black)
+	text.Draw(p.pic[0], info2, font, 0, 2*font.Metrics().Height.Ceil(), color.Black)
 	return p
 }
 
 func (p *CarriableIcon) Init(x, y, w, h int, loot Stack, font font.Face) *CarriableIcon {
-	p.opts = &ebiten.DrawImageOptions{}
-	p.pic = make([]*ebiten.Image, 1)
-	p.opts.GeoM.Translate(float64(x), float64(y))
-	p.loot = loot
-	pic, _ := ebiten.NewImage(w, h, ebiten.FilterDefault)
-	_ = pic.Fill(Gray)
+	p.initImg(x, y, w, h, 1, Gray)
 	info1 := loot.GetName()
 	info2 := fmt.Sprintf("(%d)", loot.GetAmount())
-	text.Draw(pic, info1, font, 0, font.Metrics().Height.Ceil(), color.Black)
-	text.Draw(pic, info2, font, 0, 2*font.Metrics().Height.Ceil(), color.Black)
-	p.pic[0] = pic
+	text.Draw(p.pic[0], info1, font, 0, font.Metrics().Height.Ceil(), color.Black)
+	text.Draw(p.pic[0], info2, font, 0, 2*font.Metrics().Height.Ceil(), color.Black)
 	return p
 }
 
 func (b *ConfirmLootButton) Init(x, y, w, h int, font font.Face) *ConfirmLootButton {
-	b.x = x
-	b.y = y
-	b.w = w
-	b.h = h
-	b.pic = make([]*ebiten.Image, 1)
-	b.pic[0], _ = ebiten.NewImage(w, h, ebiten.FilterDefault)
-	b.opts = &ebiten.DrawImageOptions{}
-	b.opts.GeoM.Translate(float64(x), float64(y))
-	_ = b.pic[0].Fill(color.RGBA{177, 177, 177, 255})
+	b.initImg(x, y, w, h, 1, color.RGBA{177, 177, 177, 255})
 	text.Draw(b.pic[0], "Confirm", font, 0, h/2, color.Black)
 	return b
 }
@@ -83,20 +63,13 @@ func (b *LootPopup) isClicked(mouseX, mouseY int) bool {
 }
 
 func (p *LootPopup) Init(x, y, w, h int, font font.Face, loot []Lootable, goodies []Stack) *LootPopup {
-	p.x = x
-	p.y = y
-	p.w = w
-	p.h = h
+	p.initRect(x, y, w, h)
 	iconW := h / 5
 	iconH := h / 5
 	lootIconX := h / 10
 	lootIconY := h / 10
 	lootIconOffs := iconW + h/10
-	p.opts = &ebiten.DrawImageOptions{}
-	p.opts.GeoM.Translate(float64(x), float64(y))
-	p.pic = make([]*ebiten.Image, 1)
-	p.pic[0], _ = ebiten.NewImage(w, h, ebiten.FilterDefault)
-	_ = p.pic[0].Fill(color.RGBA{50, 50, 50, 255})
+	p.initImg(x, y, w, h, 1, color.RGBA{50, 50, 50, 255})
 	p.loot = make([]*LootIcon, 0)
 	for i, v := range loot {
 		p.loot = append(p.loot, new(LootIcon).Init(lootIconX+i*lootIconOffs, lootIconY, iconW, iconH, v, font))
