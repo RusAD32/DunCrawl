@@ -2,10 +2,8 @@ package Equipment
 
 import . "DunCrawl/Interfaces"
 
-type Hatchet Equippable
-
-func (h *Hatchet) Init() {
-	e := new(Equippable).Init(
+func NewHatchet() *Equippable {
+	return NewEquippable(
 		[]Slot{MainHand, OffHand},
 		"Hatchet",
 		0,
@@ -13,5 +11,4 @@ func (h *Hatchet) Init() {
 		map[Stat]int{},
 		[]Effect{},
 		[]Triggerable{})
-	*h = Hatchet(*e)
 }

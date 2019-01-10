@@ -13,7 +13,7 @@ const DOORS_PER_ROOM = 4
 const NEW_NEIGHBOUR_OFFSET = -1
 
 //TODO давать плееру то, что он в комнатах нашел
-//TODO написать Init для лабиринта
+//TODO написать NewTrigger для лабиринта
 
 type Labyrinth struct {
 	p                 *Player
@@ -28,9 +28,17 @@ type Labyrinth struct {
 	state             LabyrinthState
 }
 
-func (l *Labyrinth) Init(p *Player, rooms []*Room) {
-	l.p = p
-	l.rooms = rooms
+func NewLabyrinth(width, length, FirstDirection int, corners []int) *Labyrinth {
+	return &Labyrinth{
+		rooms:             make([]*Room, 0),
+		sections:          make([]*[]*Room, 0),
+		startingRoomNum:   width/2*length + length/2, // center
+		previous:          FirstDirection,
+		length:            length,
+		width:             width,
+		bossEntryRoomNums: corners,
+		state:             Initializing,
+	}
 }
 
 func (l *Labyrinth) MarkInited() {

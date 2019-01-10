@@ -7,9 +7,11 @@ type Inventory struct {
 	maxSlots int
 }
 
-func (i *Inventory) Init(size int) {
-	i.maxSlots = size
-	i.slots = make([]Stack, size)
+func NewInventory(size int) *Inventory {
+	return &Inventory{
+		maxSlots: size,
+		slots:    make([]Stack, size),
+	}
 }
 
 func (i *Inventory) Add(item Carriable, amount int) error {
@@ -30,11 +32,9 @@ func (i *Inventory) Add(item Carriable, amount int) error {
 		}
 	}
 	if hasFreeSlots {
-		stack := new(CarriableStack)
-		stack.Init(item, amount)
 		for ind := range i.slots {
 			if i.slots[ind] == nil {
-				i.slots[ind] = stack
+				i.slots[ind] = NewStack(item, amount)
 				return nil
 			}
 		}

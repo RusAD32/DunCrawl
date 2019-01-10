@@ -20,10 +20,11 @@ type SkillButton struct {
 	DrawableClickable
 }
 
-func (sb *SkillButton) Init(x, y, w, h int, sk Skill, activeCol, disabledCol color.Color, font font.Face) *SkillButton {
-	sb.sk = sk
-	sb.state = butInactive
-	sb.font = font
+func NewSkillButton(x, y, w, h int, sk Skill, activeCol, disabledCol color.Color, font font.Face) *SkillButton {
+	sb := &SkillButton{
+		sk:   sk,
+		font: font,
+	}
 	switch sk.(type) {
 	case PlayerSelfSkill:
 		sb.isSelf = true

@@ -4,7 +4,6 @@ import (
 	. "DunCrawl/Interfaces"
 	"github.com/golang/freetype/truetype"
 	"github.com/hajimehoshi/ebiten"
-	"github.com/hajimehoshi/ebiten/ebitenutil"
 	"github.com/hajimehoshi/ebiten/inpututil"
 	"golang.org/x/image/font"
 	"image/color"
@@ -120,45 +119,10 @@ func (g *UIGame) dmgSkillButtonClicked(mouseX, mouseY int) int {
 	return -1
 }
 
-func (g *UIGame) Draw(screen *ebiten.Image) {
-	switch g.l.GetState() {
-	case Roam:
-		{
-			//this is the most memory-greedy function
-			DrawLabyrinth(screen, g.l, g.consts.labXPos, g.consts.labYPos, g.consts.labW, g.consts.labH, color.Black)
-			for _, v := range g.currentDoors {
-				v.Draw(screen, color.Black)
-			}
-			if g.chest != nil {
-				g.chest.DrawImg(screen)
-			}
-			if g.loot != nil {
-				g.loot.Draw(screen)
-			}
-		}
-	case Fight:
-		{
-			for _, v := range g.curEnemies {
-				v.Draw(screen, g.font)
-			}
-			for _, v := range append(g.selfSkButs, g.dmgSkButs...) {
-				v.Draw(screen)
-			}
-			g.pl.Draw(screen, g.font)
-			g.queue.Draw(screen)
-			if g.resolvingSk != nil {
-				g.resolvingSk.Draw(screen)
-			}
-		}
-	}
-	ebitenutil.DebugPrintAt(screen, PrintMemUsage(), 0, 300)
-
-}
-
 func (g *UIGame) prepareForFight() {
 	ens := g.l.GetCurrentRoom().GetEnemies()
 	for i, v := range ens {
-		enemy := new(UIEnemy).Init(g.consts.enemyXOff*i+g.consts.enemyX,
+		enemy := NewUIEnemy(g.consts.enemyXOff*i+g.consts.enemyX,
 			g.consts.enemyY,
 			g.consts.enemyW,
 			g.consts.enemyH,
@@ -171,7 +135,7 @@ func (g *UIGame) prepareForFight() {
 		g.curEnemies = append(g.curEnemies, enemy)
 	}
 	for i, v := range g.l.GetPlayer().GetSelfSkillList() {
-		button := new(SkillButton).Init(
+		button := NewSkillButton(
 			g.consts.selfSkButX+i*g.consts.skButXOff,
 			g.consts.skButY,
 			g.consts.skButW,
@@ -183,7 +147,7 @@ func (g *UIGame) prepareForFight() {
 		g.selfSkButs = append(g.selfSkButs, button)
 	}
 	for i, v := range g.l.GetPlayer().GetDmgSkillList() {
-		button := new(SkillButton).Init(
+		button := NewSkillButton(
 			g.consts.dmgSkButX+i*g.consts.skButXOff,
 			g.consts.skButY,
 			g.consts.skButW,
@@ -207,7 +171,7 @@ func (g *UIGame) ConstructSkillIcon(skill SkillInfo, w, h int) *SkillIcon {
 	default:
 		col = LightRed
 	}
-	return new(SkillIcon).Init(w, h, skill, col, g.font)
+	return NewSkillIcon(w, h, skill, col, g.font)
 }
 
 func (g *UIGame) updateQueue() {
@@ -392,77 +356,12 @@ func (g *UIGame) resolveSkill() {
 	}
 }
 
-func (g *UIGame) Update() {
-	if g.cd > 0 {
-		g.cd--
-		return
-	}
-	switch g.l.GetState() {
-	case Roam:
-		{
-			for _, v := range getNewClicks() {
-				if g.loot != nil {
-					if g.loot.isClicked(v[0], v[1]) {
-						g.loot = nil // TODO давать игроку то, что он нашел, в конце концов
-					}
-					return
-				}
-				if g.chest != nil {
-					for _, click := range getNewClicks() {
-						if g.chest.isClicked(click[0], click[1]) {
-							loot, goodies := g.l.UnlockChest()
-							g.loot = new(LootPopup).Init(g.w/3, g.h/3, g.w/3, g.h/3, g.font, loot, goodies)
-							g.chest = nil
-							return
-						}
-					}
-				}
-				nextDoor := g.doorClicked(v[0], v[1])
-				if nextDoor != -1 {
-					g.chest = nil
-					if g.l.GotoRoom(Direction(nextDoor)) {
-						g.prepareForFight()
-						g.l.GetCurrentRoom().AtTurnStart()
-					} else {
-						loot, goodies := g.l.GetCurrentRoom().GetValues()
-						if len(loot) != 0 || len(goodies) != 0 {
-							g.loot = new(LootPopup).Init(g.w/3, g.h/3, g.w/3, g.h/3, g.font, loot, goodies)
-						}
-					}
-					if g.l.GetCurrentRoom().HasChest() {
-						g.chest = new(DrawableClickable).DCInit(g.w/3, g.h/3, g.w/3, g.h/3, 1, Brown)
-					}
-					g.updateDoors()
-					return
-				}
-			}
-		}
-	case Fight:
-		{
-			switch g.l.GetCurrentRoom().FightState {
-			case AwaitingSelfSkill:
-				g.submitSelfSkill()
-			case AwaitingDmgSkill:
-				g.submitDmgSkill()
-			case ResolvingSkills:
-				g.resolveSkill()
-			case FightEnd:
-				loot, values := g.l.GetValues() // TODO display this on screen
-				g.loot = new(LootPopup).Init(g.w/3, g.h/3, g.w/3, g.h/3, g.font, loot, values)
-				g.curEnemies = make([]*UIEnemy, 0)
-				g.selfSkButs = make([]*SkillButton, 0)
-				g.dmgSkButs = make([]*SkillButton, 0)
-			}
-		}
-	}
-}
-
 func (g *UIGame) updateDoors() {
 	neighbours := g.l.GetSliceNeighbours()
 	g.currentDoors = make([]*UIDoor, 0)
 	for i := 0; i < 3; i++ {
 		if neighbours[i] {
-			door := new(UIDoor).Init(
+			door := NewUIDoor(
 				g.consts.doorX+i*g.consts.doorXOff,
 				g.consts.doorY,
 				g.consts.doorW,
@@ -472,7 +371,7 @@ func (g *UIGame) updateDoors() {
 		}
 	}
 	if neighbours[3] { // should always be true
-		door := new(UIDoor).Init(
+		door := NewUIDoor(
 			g.consts.backdoorX,
 			g.consts.backdoorY,
 			g.consts.backdoorW,

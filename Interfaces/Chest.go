@@ -29,10 +29,10 @@ func (c *Chest) GetValuables() []Stack {
 	return res
 }
 
-func GetDefaultChest() *Chest {
+func NewChest() *Chest {
 	return &Chest{
 		nil,
-		[]Lootable{GenerateLootable("Different stuff", 40)},
+		[]Lootable{NewLootable("Different stuff", 40)},
 		make([]Stack, 0),
 	}
 }

@@ -9,7 +9,8 @@ type DogBite struct {
 	CommonEnSkill
 }
 
-func (b *DogBite) Init(enemy Unit) *DogBite {
+func NewDogBite(enemy Unit) *DogBite {
+	b := &DogBite{}
 	b.baseDmg = 5
 	b.speed = 6
 	b.name = "Bite"

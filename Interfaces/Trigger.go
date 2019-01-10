@@ -1,7 +1,6 @@
 package Interfaces
 
 type Triggerable interface {
-	Init(values ...interface{}) Triggerable
 	Apply(values ...interface{}) string
 	Finished() bool
 	Dispose()
@@ -11,9 +10,10 @@ type Trigger struct {
 	events []Triggerable
 }
 
-func (t *Trigger) Init() *Trigger {
-	t.events = make([]Triggerable, 0)
-	return t
+func NewTrigger() *Trigger {
+	return &Trigger{
+		events: make([]Triggerable, 0),
+	}
 }
 
 func (t *Trigger) AddEvent(event Triggerable) {

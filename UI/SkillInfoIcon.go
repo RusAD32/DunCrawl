@@ -15,9 +15,11 @@ type SkillIcon struct {
 	DrawableImage
 }
 
-func (sb *SkillIcon) Init(w, h int, sk SkillInfo, col color.Color, font font.Face) *SkillIcon {
-	sb.sk = sk
-	sb.font = font
+func NewSkillIcon(w, h int, sk SkillInfo, col color.Color, font font.Face) *SkillIcon {
+	sb := &SkillIcon{
+		sk:   sk,
+		font: font,
+	}
 	sb.initImg(0, 0, w, h, 1, col)
 	return sb
 }

@@ -5,19 +5,17 @@ import (
 	. "DunCrawl/NPCSkills"
 )
 
-type DefaultPet Pet
-
-func (d *DefaultPet) Init() *Pet {
+func NewDefaultPet() *Pet {
+	d := &Pet{}
 	skills := make([]NPCSkill, 0)
-	sk1 := new(DogBite).Init(d)
+	sk1 := NewDogBite(d)
 	skills = append(skills, sk1)
-	e := new(Pet).Init(
+	*d = *NewPet(
 		Animal,
 		skills,
 		Usual,
 		"Doggy",
 		25,
 		make(map[Stat]int))
-	*d = *(*DefaultPet)(e)
-	return (*Pet)(d)
+	return d
 }

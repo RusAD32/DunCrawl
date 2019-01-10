@@ -15,7 +15,7 @@ const (
 )
 
 type Player struct {
-	equipment  map[Slot]Equippable
+	equipment  map[Slot]*Equippable
 	inventory  []Carriable
 	dmgSkills  []PlayerDmgSkill
 	selfSkills []PlayerSelfSkill
@@ -27,6 +27,32 @@ type Player struct {
 	money      int
 	pet        *Pet
 	BasicUnit
+}
+
+func NewPlayer() *Player {
+	inv := NewInventory(8)
+	du := BasicUnit{
+		name:            "you",
+		stats:           map[Stat]int{},
+		effects:         []Effect{},
+		dmgTakenTrigger: NewTrigger(),
+		onDeathTrigger:  NewTrigger(),
+		curHP:           100,
+		maxHP:           100,
+	}
+	return &Player{
+		equipment:  map[Slot]*Equippable{},
+		inventory:  []Carriable{},
+		dmgSkills:  []PlayerDmgSkill{},
+		selfSkills: []PlayerSelfSkill{},
+		lvl:        1,
+		exp:        0,
+		curMentHP:  100,
+		maxMentHP:  100,
+		money:      0,
+		inv:        inv,
+		BasicUnit:  du,
+	}
 }
 
 func (p *Player) GetPet() *Pet {
@@ -69,11 +95,11 @@ func (p *Player) ChangeHealth(damage int) int {
 	return damage
 }
 
-func (p *Player) GetEquipment() map[Slot]Equippable {
+func (p *Player) GetEquipment() map[Slot]*Equippable {
 	return p.equipment
 }
 
-func (p *Player) Equip(e Equippable, slot Slot) {
+func (p *Player) Equip(e *Equippable, slot Slot) {
 	p.equipment[slot] = e
 }
 

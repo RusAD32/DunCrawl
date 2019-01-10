@@ -17,17 +17,14 @@ func (c *Counterattack) Dispose() {
 	Interfaces.RemoveEffect(c.user, Interfaces.CounterAtk)
 }
 
-func (c *Counterattack) Init(values ...interface{}) Interfaces.Triggerable {
-	if len(values) < 3 {
-		panic("Counterattack should get its attack, number of triggers and user as Init argument")
-	}
-	c.baseAtk = values[0].(int)
-	c.triggerNum = values[1].(int)
-	c.user = values[2].(Interfaces.Unit)
-	cntr := Effects.CounterEff{}
-	cntr.Init(4)
-	Interfaces.AddEffect(c.user, &cntr)
-	c.eff = &cntr
+func NewCounterTriggerable(atk, amnt int, user Interfaces.Unit) Interfaces.Triggerable {
+	c := &Counterattack{}
+	c.baseAtk = atk
+	c.triggerNum = amnt
+	c.user = user
+	cntr := Effects.NewCounterEff(amnt) //TODO этот эффект будет уменьшаться в начале хода. Переделать на отображение самого триггера в ui?
+	Interfaces.AddEffect(c.user, cntr)
+	c.eff = cntr
 	return c
 }
 

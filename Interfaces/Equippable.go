@@ -36,27 +36,28 @@ type Equippable struct {
 	triggerables   []Triggerable
 }
 
-func (e *Equippable) Init(availableSlots []Slot, name string, defence, attack int, statsBoosts map[Stat]int, effects []Effect, triggerables []Triggerable) *Equippable {
-	//e := new(Equippable)
-	e.availableSlots = availableSlots
-	e.name = name
-	e.defence = defence
-	e.attack = attack
-	e.statsBoosts = statsBoosts
-	e.effects = effects
-	e.triggerables = triggerables
-	return e
+func NewEquippable(availableSlots []Slot, name string, defence int, attack int,
+	statsBoosts map[Stat]int, effects []Effect, triggerables []Triggerable) *Equippable {
+	return &Equippable{
+		availableSlots: availableSlots,
+		name:           name,
+		defence:        defence,
+		attack:         attack,
+		statsBoosts:    statsBoosts,
+		effects:        effects,
+		triggerables:   triggerables,
+	}
 }
 
 func (e *Equippable) GetAttack() int {
 	return e.attack
 }
 
-func (e Equippable) GetName() string {
+func (e *Equippable) GetName() string {
 	return e.name
 }
 
-func (e Equippable) Use(p *Player, values ...interface{}) {
+func (e *Equippable) Use(p *Player, values ...interface{}) {
 	length := len(e.availableSlots)
 	if len(values) > 0 {
 		slotNum := values[0].(int)
@@ -73,6 +74,6 @@ func (e Equippable) Use(p *Player, values ...interface{}) {
 	}
 }
 
-func (e Equippable) StacksBy() int {
+func (e *Equippable) StacksBy() int {
 	return 1
 }

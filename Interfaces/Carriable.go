@@ -8,7 +8,6 @@ type Carriable interface {
 
 type Stack interface {
 	Use(player *Player, values ...interface{})
-	Init(item Carriable, amount int)
 	Add(amount int) int
 	Remove(amount int) int
 	GetName() string
@@ -31,13 +30,15 @@ func (c *CarriableStack) MaxAmount() int {
 	return c.stacksBy
 }
 
-func (c *CarriableStack) Init(item Carriable, amount int) {
+func NewStack(item Carriable, amount int) Stack {
 	if amount > item.StacksBy() {
 		panic("Stack overflow! (in inventory)")
 	}
-	c.item = item
-	c.stacksBy = item.StacksBy()
-	c.amount = amount
+	return &CarriableStack{
+		item:     item,
+		stacksBy: item.StacksBy(),
+		amount:   amount,
+	}
 }
 
 func (c *CarriableStack) Add(amount int) int {

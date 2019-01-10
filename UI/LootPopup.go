@@ -27,7 +27,8 @@ type LootPopup struct {
 	DrawableClickable
 }
 
-func (p *LootIcon) Init(x, y, w, h int, loot Lootable, font font.Face) *LootIcon {
+func NewLootIcon(x, y, w, h int, loot Lootable, font font.Face) *LootIcon {
+	p := &LootIcon{}
 	p.initImg(x, y, w, h, 1, Gray)
 	info1 := loot.GetName()
 	info2 := fmt.Sprintf("(%dg)", loot.GetValue())
@@ -36,7 +37,8 @@ func (p *LootIcon) Init(x, y, w, h int, loot Lootable, font font.Face) *LootIcon
 	return p
 }
 
-func (p *CarriableIcon) Init(x, y, w, h int, loot Stack, font font.Face) *CarriableIcon {
+func NewCarriableIcon(x, y, w, h int, loot Stack, font font.Face) *CarriableIcon {
+	p := &CarriableIcon{}
 	p.DCInit(x, y, w, h, 1, Gray)
 	info1 := loot.GetName()
 	info2 := fmt.Sprintf("(%d)", loot.GetAmount())
@@ -49,7 +51,8 @@ func (b *LootPopup) isClicked(mouseX, mouseY int) bool {
 	return b.button.isClicked(mouseX-b.x, mouseY-b.y)
 }
 
-func (p *LootPopup) Init(x, y, w, h int, font font.Face, loot []Lootable, goodies []Stack) *LootPopup {
+func NewLootPopup(x, y, w, h int, font font.Face, loot []Lootable, goodies []Stack) *LootPopup {
+	p := &LootPopup{}
 	iconW := h / 5
 	iconH := h / 5
 	lootIconX := h / 10
@@ -58,15 +61,15 @@ func (p *LootPopup) Init(x, y, w, h int, font font.Face, loot []Lootable, goodie
 	p.DCInit(x, y, w, h, 1, color.RGBA{R: 50, G: 50, B: 50, A: 255})
 	p.loot = make([]*LootIcon, 0)
 	for i, v := range loot {
-		p.loot = append(p.loot, new(LootIcon).Init(lootIconX+i*lootIconOffs, lootIconY, iconW, iconH, v, font))
+		p.loot = append(p.loot, NewLootIcon(lootIconX+i*lootIconOffs, lootIconY, iconW, iconH, v, font))
 	}
 	carIconX := h / 10
 	carIconY := h * 2 / 5
 	p.goodies = make([]*CarriableIcon, 0)
 	for i, v := range goodies {
-		p.goodies = append(p.goodies, new(CarriableIcon).Init(carIconX+i*lootIconOffs, carIconY, iconW, iconH, v, font))
+		p.goodies = append(p.goodies, NewCarriableIcon(carIconX+i*lootIconOffs, carIconY, iconW, iconH, v, font))
 	}
-	p.button = new(DrawableClickable).DCInit(w*2/5, h*3/4, w/4, h/5, 1, color.RGBA{R: 177, G: 177, B: 177, A: 255})
+	p.button = NewDrawableClickable(w*2/5, h*3/4, w/4, h/5, 1, color.RGBA{R: 177, G: 177, B: 177, A: 255})
 	text.Draw(p.button.pic[0], "Confirm", font, 0, w/8-font.Metrics().Height.Ceil(), color.Black)
 	return p
 }

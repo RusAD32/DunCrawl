@@ -21,7 +21,7 @@ func (s *StunningBlow) Apply(r *Room) string {
 	s.targets = s.targets[1:]*/
 	res := DealDamage(s.wielder, s.targets, s.baseDMG+equipDmg)
 	s.res = res //append(s.res, res)
-	effect := (&Effects.StunEffect{}).Init()
+	effect := Effects.NewStun(1)
 	AddEffect(s.targets, effect)
 	return res
 }

@@ -24,16 +24,17 @@ const (
 type Enemy struct {
 	enemyType CreatureType
 	skills    []NPCSkill
-	equipment []Equippable
+	equipment []*Equippable
 	loot      []Lootable
 	provision []Stack
 	aiLevel   AiLevel
 	BasicUnit
 }
 
-func (e *Enemy) Initialize(typ CreatureType, skills []NPCSkill, eqiup []Equippable,
+func NewEnemy(typ CreatureType, skills []NPCSkill, eqiup []*Equippable,
 	loot []Lootable, provision []Stack, level AiLevel,
 	name string, hp int, stats map[Stat]int) *Enemy {
+	e := &Enemy{}
 	e.enemyType = typ
 	e.skills = skills
 	e.equipment = eqiup
@@ -44,8 +45,8 @@ func (e *Enemy) Initialize(typ CreatureType, skills []NPCSkill, eqiup []Equippab
 	e.maxHP = hp
 	e.curHP = hp
 	e.stats = stats
-	e.dmgTakenTrigger = new(Trigger).Init()
-	e.onDeathTrigger = new(Trigger).Init()
+	e.dmgTakenTrigger = NewTrigger()
+	e.onDeathTrigger = NewTrigger()
 	e.effects = make([]Effect, 0)
 	return e
 
@@ -98,9 +99,7 @@ func (e *Enemy) GetMoney() int {
 func (e *Enemy) GetProvision() []Stack {
 	res := make([]Stack, 0)
 	for _, v := range e.equipment {
-		st := CarriableStack{}
-		st.Init(v, 1)
-		res = append(res, &st)
+		res = append(res, NewStack(v, 1))
 	}
 	return append(e.provision, res...)
 }

@@ -10,9 +10,10 @@ type UIDoor struct {
 	num int
 }
 
-func (d *UIDoor) Init(x, y, w, h, num int) *UIDoor {
-	d.initRect(x, y, w, h)
-	d.num = num
+func NewUIDoor(x, y, w, h, num int) *UIDoor {
+	d := &UIDoor{
+		num: num,
+	}
 	d.DCInit(x, y, w, h, 1, color.Black)
 	return d
 }

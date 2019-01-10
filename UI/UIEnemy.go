@@ -25,9 +25,11 @@ type UIEnemy struct {
 	skillUsed  Skill
 }
 
-func (e *UIEnemy) Init(x, y, w, h int, colDef, colAttacking, colAttacked, colDead color.Color, enemy *Enemy) *UIEnemy {
-	e.col = colDef
-	e.enemy = enemy
+func NewUIEnemy(x, y, w, h int, colDef, colAttacking, colAttacked, colDead color.Color, enemy *Enemy) *UIEnemy {
+	e := &UIEnemy{
+		col:   colDef,
+		enemy: enemy,
+	}
 	e.DCInit(x, y, w, h, 4, colDef, colAttacking, colAttacked, colDead)
 	return e
 }

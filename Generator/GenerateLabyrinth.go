@@ -4,7 +4,6 @@ import (
 	. "DunCrawl/Enemies"
 	. "DunCrawl/Equipment"
 	. "DunCrawl/Interfaces"
-	"DunCrawl/NPCSkills"
 	"DunCrawl/Pets"
 	"DunCrawl/PlayerSkills"
 	"math/rand"
@@ -15,17 +14,16 @@ const FirstDirection = int(Back)
 const LockProbability = 0.2
 
 func GenerateLabyrinth(length, width int) *Labyrinth {
-	lab := GetDefaultLabyrinth(length, width, FirstDirection, getCorners(length, width))
+	lab := NewLabyrinth(length, width, FirstDirection, getCorners(length, width))
 	rand.Seed(time.Now().UnixNano())
 	generateCenter(lab, length, width, width/2*length+length/2)
 	for i := range getCorners(length, width) {
 		generateBossPath(lab, width, length, i)
 	}
 	lab.MarkInited()
-	p := GetDefaultPlayer()
-	h := Hatchet{}
-	h.Init()
-	p.Equip(Equippable(h), MainHand)
+	p := NewPlayer()
+	h := NewHatchet()
+	p.Equip(h, MainHand)
 	heal := PlayerSkills.Heal{}
 	heal.Init(p)
 	p.AddSelfSkill(&heal)
@@ -38,7 +36,7 @@ func GenerateLabyrinth(length, width int) *Labyrinth {
 	stn := PlayerSkills.StunningBlow{}
 	stn.Init(p)
 	p.AddDmgSkill(&stn)
-	p.SetPet(new(Pets.DefaultPet).Init())
+	p.SetPet(Pets.NewDefaultPet())
 	lab.SetPlayer(p)
 	return lab
 }
@@ -48,7 +46,7 @@ func getCorners(length, width int) []int {
 }
 
 func generateCenter(lab *Labyrinth, length, width, startingRoomNum int) {
-	rooms := fillWithRooms(lab, length, width, Solid)
+	rooms := fillWithRooms(length, width, Solid)
 	lab.AddRooms(rooms)
 	lab.SetCurrentRoom(startingRoomNum)
 	lab.AddSection(&rooms)
@@ -59,7 +57,7 @@ func generateCenter(lab *Labyrinth, length, width, startingRoomNum int) {
 	}
 	enemies := make([]*Enemy, 4)
 	for i := range enemies {
-		enemies[i] = new(DefaultDog).Init(i)
+		enemies[i] = NewDefaultDog(i)
 		//enemies[i].name += fmt.Sprintf(" %d", i)
 		//enemies[i].skills = append(enemies[i].skills, &bite)
 	}
@@ -67,7 +65,7 @@ func generateCenter(lab *Labyrinth, length, width, startingRoomNum int) {
 }
 
 func generateBossPath(lab *Labyrinth, width, length, dir int) {
-	newRooms := fillWithRooms(lab, length, width, Solid)
+	newRooms := fillWithRooms(length, width, Solid)
 	firstRoom := newRooms[getCorners(length, width)[rotateRoomNum(dir, 2)]]
 	lab.AddSection(&newRooms)
 	connectTo := lab.GetRooms()[getCorners(length, width)[dir]]
@@ -76,11 +74,11 @@ func generateBossPath(lab *Labyrinth, width, length, dir int) {
 	//TODO mark as inner or outer based on distance
 }
 
-func fillWithRooms(lab *Labyrinth, length, width int, kind WallType) []*Room {
+func fillWithRooms(length, width int, kind WallType) []*Room {
 	rooms := make([]*Room, 0)
 	for i := 0; i < width; i++ {
 		for j := 0; j < length; j++ {
-			rooms = append(rooms, GenerateRoom(lab, i*length+j))
+			rooms = append(rooms, GenerateRoom(i*length+j))
 			if i > 0 {
 				ConnectRooms(rooms[i*length+j], rooms[(i-1)*length+j], Forward, kind)
 			}
@@ -92,25 +90,20 @@ func fillWithRooms(lab *Labyrinth, length, width int, kind WallType) []*Room {
 	return rooms
 }
 
-func GenerateRoom(l *Labyrinth, num int) *Room {
-	r := new(Room)
+func GenerateRoom(num int) *Room {
 	enemies := make([]*Enemy, 0)
 	if rand.Float32() < 0.3 {
 		enemies = make([]*Enemy, 4)
 		for i := range enemies {
-			enemies[i] = new(DefaultDog).Init(i)
-			//enemies[i].name += fmt.Sprintf(" %d", i)
-			bite := NPCSkills.DogBite{}
-			bite.Init(enemies[i])
-			enemies[i].AddSkill(&bite)
-			//enemies[i].skills = append(enemies[i].skills, &bite)
+			enemies[i] = NewDefaultDog(i)
 		}
 	}
+	var chest *Chest
 	if rand.Float32() < 0.1 {
-		r.SetChest(GetDefaultChest())
+		chest = NewChest()
 	}
+	r := NewRoom(enemies, []*Enemy{}, []Lootable{}, []Lootable{}, []Stack{}, []Stack{}, chest)
 	r.DistFromCenter = -1
-	r.Init(enemies, l)
 	r.Num = num
 	return r
 }

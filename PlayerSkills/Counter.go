@@ -12,8 +12,7 @@ type Counter struct {
 }
 
 func (c *Counter) Apply(r *Room) string {
-	cntr := Counterattack{}
-	c.wielder.AddDamageTriggerable(cntr.Init(3, 4, c.wielder))
+	c.wielder.AddDamageTriggerable(NewCounterTriggerable(3, 4, c.wielder))
 	c.res = "Counter"
 	return c.res
 }

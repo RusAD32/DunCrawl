@@ -83,50 +83,6 @@ func RemoveDeadEnemies(r *Room) {
 	}
 }
 
-func GetDefaultPlayer() *Player {
-	inv := Inventory{}
-	inv.Init(8)
-	du := BasicUnit{
-		name:            "you",
-		stats:           map[Stat]int{},
-		effects:         []Effect{},
-		dmgTakenTrigger: new(Trigger).Init(),
-		onDeathTrigger:  new(Trigger).Init(),
-		curHP:           100,
-		maxHP:           100,
-	}
-	return &Player{
-		equipment:  map[Slot]Equippable{},
-		inventory:  []Carriable{},
-		dmgSkills:  []PlayerDmgSkill{},
-		selfSkills: []PlayerSelfSkill{},
-		lvl:        1,
-		exp:        0,
-		curMentHP:  100,
-		maxMentHP:  100,
-		money:      0,
-		inv:        &inv,
-		BasicUnit:  du,
-	}
-}
-
-func GetDefaultLabyrinth(width, length, FirstDirection int, corners []int) *Labyrinth {
-	// Move this to Init?
-	l := Labyrinth{
-		nil,
-		make([]*Room, 0),
-		make([]*[]*Room, 0),
-		width/2*length + length/2, // center
-		nil,
-		FirstDirection,
-		length,
-		width,
-		corners,
-		Initializing,
-	}
-	return &l
-}
-
 var PlayerDir = []string{">", "v", "<", "^"}
 
 func PrintLabyrinth(l *Labyrinth) {

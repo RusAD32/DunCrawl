@@ -28,6 +28,32 @@ type Room struct {
 	seenInDfs      bool
 }
 
+func NewRoom(enemies, shEnemies []*Enemy, loot, shLoot []Lootable, provision, shProvision []Stack, chest *Chest) *Room {
+	r := &Room{
+		enemies:         enemies,
+		defeated:        make([]*Enemy, 0),
+		shadowEnemies:   shEnemies,
+		neighbours:      make([]*Wall, 0),
+		chest:           chest,
+		loot:            loot,
+		shadowLoot:      shLoot,
+		provision:       provision,
+		shadowProvision: shProvision,
+	}
+	if enemies != nil && len(enemies) > 0 {
+		r.FightState = TurnStart
+	} else {
+		r.FightState = FightEnd
+	}
+	for i := 0; i < 4; i++ {
+		newWall := Wall{
+			kind: Solid,
+		}
+		r.neighbours = append(r.neighbours, &newWall)
+	}
+	return r
+}
+
 type FightState int
 
 const (
@@ -139,27 +165,6 @@ func (r *Room) GetEnemies() []*Enemy {
 	return r.enemies
 }
 
-func (r *Room) Init(enemies []*Enemy, l *Labyrinth) {
-	r.enemies = enemies
-	r.defeated = make([]*Enemy, 0)
-	r.shadowEnemies = make([]*Enemy, 0)
-	r.neighbours = make([]*Wall, 0)
-	r.neighbours = make([]*Wall, 0)
-	if enemies != nil && len(enemies) > 0 {
-		r.FightState = TurnStart
-	} else {
-		r.FightState = FightEnd
-	}
-	for i := 0; i < 4; i++ {
-		newWall := Wall{
-			Solid,
-			nil,
-			nil,
-		}
-		r.neighbours = append(r.neighbours, &newWall)
-	}
-}
-
 func (r *Room) GetValues() ([]Lootable, []Stack) {
 	return r.GetLoot(), r.GetGoodies()
 }
@@ -210,10 +215,6 @@ func (r *Room) GetNeighbours() []*Wall {
 
 func (r *Room) AddLoot(lootable Lootable) {
 	r.loot = append(r.loot, lootable)
-}
-
-func (r *Room) SetChest(chest *Chest) {
-	r.chest = chest
 }
 
 func (r *Room) AddShadowLoot(lootable Lootable) {
