@@ -26,8 +26,10 @@ func (s *StunningBlow) Apply(r *Room) string {
 	return res
 }
 
-func (s *StunningBlow) Init(player Unit) Skill {
+func NewStunningBlow(player Unit) *StunningBlow {
+	s := &StunningBlow{}
 	s.name = "Stunning Blow"
+	s.iconPath = "resources/PlayerSkillsIcons/Stun.png"
 	s.baseDMG = 3
 	s.lvl = 1
 	s.maxLvl = 3

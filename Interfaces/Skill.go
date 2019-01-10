@@ -15,6 +15,7 @@ type SkillInfo interface {
 	GetTarget() Unit
 	GetWielder() Unit
 	GetRes() string
+	GetIconPath() string
 }
 
 type Skill interface {

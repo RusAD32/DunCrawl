@@ -5,7 +5,7 @@ import (
 	. "DunCrawl/Equipment"
 	. "DunCrawl/Interfaces"
 	"DunCrawl/Pets"
-	"DunCrawl/PlayerSkills"
+	. "DunCrawl/PlayerSkills"
 	"math/rand"
 	"time"
 )
@@ -24,18 +24,14 @@ func GenerateLabyrinth(length, width int) *Labyrinth {
 	p := NewPlayer()
 	h := NewHatchet()
 	p.Equip(h, MainHand)
-	heal := PlayerSkills.Heal{}
-	heal.Init(p)
-	p.AddSelfSkill(&heal)
-	cntr := PlayerSkills.Counter{}
-	cntr.Init(p)
-	p.AddSelfSkill(&cntr)
-	atk := PlayerSkills.SimpleAttack{}
-	atk.Init(p)
-	p.AddDmgSkill(&atk)
-	stn := PlayerSkills.StunningBlow{}
-	stn.Init(p)
-	p.AddDmgSkill(&stn)
+	heal := NewHeal(p)
+	p.AddSelfSkill(heal)
+	cntr := NewCounterSk(p)
+	p.AddSelfSkill(cntr)
+	atk := NewSimpleAttack(p)
+	p.AddDmgSkill(atk)
+	stn := NewStunningBlow(p)
+	p.AddDmgSkill(stn)
 	p.SetPet(Pets.NewDefaultPet())
 	lab.SetPlayer(p)
 	return lab
@@ -106,7 +102,7 @@ func GenerateRoom(num int) *Room {
 	enemies := make([]*Enemy, 0)
 	shEnemies := make([]*Enemy, 0)
 	shLoot := make([]*Lootable, 0)
-	if rand.Float32() < 0.1 {
+	if rand.Float32() < 0.3 {
 		enemies = make([]*Enemy, 4)
 		for i := range enemies {
 			enemies[i] = NewDefaultDog(i)
@@ -125,7 +121,7 @@ func GenerateRoom(num int) *Room {
 		}
 	}
 	var chest *Chest
-	if rand.Float32() < 0.9 {
+	if rand.Float32() < 0.1 {
 		chest = NewChest()
 	}
 	r := NewRoom(enemies, shEnemies, []*Lootable{}, shLoot, []Stack{}, []Stack{}, chest)

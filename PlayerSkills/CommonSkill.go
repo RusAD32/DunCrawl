@@ -9,6 +9,7 @@ type CommonPlSkill struct {
 	lvlupExp []int
 	speed    int
 	name     string
+	iconPath string
 	wielder  Unit
 }
 
@@ -45,10 +46,6 @@ func (psk *CommonPlSkill) GetRes() string {
 	panic("implement me")
 }
 
-func (psk *CommonPlSkill) Init(wielder Unit) Skill {
-	panic("implement me")
-}
-
 func (psk *CommonPlSkill) Apply(r *Room) string {
 	panic("implement me")
 }
@@ -59,4 +56,8 @@ func (psk *CommonPlSkill) ApplyVoid(res string) {
 
 func (psk *CommonPlSkill) GetSkillType() SkillType {
 	panic("implement me")
+}
+
+func (psk *CommonPlSkill) GetIconPath() string {
+	return psk.iconPath
 }

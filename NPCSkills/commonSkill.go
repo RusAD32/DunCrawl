@@ -3,11 +3,12 @@ package NPCSkills
 import . "DunCrawl/Interfaces"
 
 type CommonEnSkill struct {
-	speed   int
-	name    string
-	wielder Unit
-	target  Unit
-	res     string
+	speed    int
+	name     string
+	wielder  Unit
+	target   Unit
+	res      string
+	iconPath string
 }
 
 func (esk *CommonEnSkill) GetRes() string {
@@ -38,14 +39,14 @@ func (esk *CommonEnSkill) GetName() string {
 	return esk.name
 }
 
-func (esk *CommonEnSkill) Init(wielder Unit) Skill {
-	panic("implement me")
-}
-
 func (esk *CommonEnSkill) Apply(r *Room) string {
 	panic("implement me")
 }
 
 func (esk *CommonEnSkill) GetSkillType() SkillType {
 	return OppositeSide
+}
+
+func (esk *CommonEnSkill) GetIconPath() string {
+	return esk.iconPath
 }

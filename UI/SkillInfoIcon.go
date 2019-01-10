@@ -3,6 +3,7 @@ package UI
 import (
 	. "DunCrawl/Interfaces"
 	"github.com/hajimehoshi/ebiten"
+	"github.com/hajimehoshi/ebiten/ebitenutil"
 	"github.com/hajimehoshi/ebiten/text"
 	"golang.org/x/image/font"
 	"image/color"
@@ -20,8 +21,10 @@ func NewSkillIcon(w, h int, sk SkillInfo, col color.Color, font font.Face) *Skil
 		sk:   sk,
 		font: font,
 	}
-	pic, _ := ebiten.NewImage(w, h, ebiten.FilterDefault)
-	_ = pic.Fill(col)
+	pic, _, err := ebitenutil.NewImageFromFile(sk.GetIconPath(), ebiten.FilterDefault)
+	if err != nil {
+		panic(err)
+	}
 	sb.initImg(0, 0, w, h, 1, NewSprite(pic))
 	return sb
 }
@@ -29,6 +32,6 @@ func NewSkillIcon(w, h int, sk SkillInfo, col color.Color, font font.Face) *Skil
 func (sb *SkillIcon) Draw(screen *ebiten.Image) {
 	sb.DrawImg(screen)
 	//ebitenutil.DrawRect(screen, float64(sb.x), float64(sb.y), float64(sb.w), float64(sb.h), sb.GetImage())
-	text.Draw(screen, sb.sk.GetName(), sb.font, sb.x, sb.y+sb.font.Metrics().Height.Ceil()*3/2, color.Black)
-	text.Draw(screen, sb.sk.GetTarget().GetName(), sb.font, sb.x, sb.y+sb.font.Metrics().Height.Ceil()*3, color.Black)
+	text.Draw(screen, sb.sk.GetName(), sb.font, sb.x, sb.y-sb.font.Metrics().Height.Ceil()*2, color.Black)
+	text.Draw(screen, sb.sk.GetTarget().GetName(), sb.font, sb.x, sb.y-sb.font.Metrics().Height.Ceil(), color.Black)
 }

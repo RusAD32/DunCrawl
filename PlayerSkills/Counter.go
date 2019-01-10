@@ -17,7 +17,8 @@ func (c *Counter) Apply(r *Room) string {
 	return c.res
 }
 
-func (c *Counter) Init(player Unit) Skill {
+func NewCounterSk(player Unit) *Counter {
+	c := &Counter{}
 	c.lvl = 1
 	c.curExp = 0
 	c.maxLvl = 3
@@ -25,6 +26,7 @@ func (c *Counter) Init(player Unit) Skill {
 	c.speed = 9
 	c.name = "Counter"
 	c.wielder = player
+	c.iconPath = "resources/PlayerSkillsIcons/CounterAttack.png"
 	return c
 }
 

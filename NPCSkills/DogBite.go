@@ -15,6 +15,7 @@ func NewDogBite(enemy Unit) *DogBite {
 	b.speed = 6
 	b.name = "Bite"
 	b.wielder = enemy
+	b.iconPath = "resources/NPCSkillsIcons/DogBite.PNG"
 	b.res = ""
 	return b
 }

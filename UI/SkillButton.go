@@ -3,7 +3,7 @@ package UI
 import (
 	. "DunCrawl/Interfaces"
 	"github.com/hajimehoshi/ebiten"
-	"github.com/hajimehoshi/ebiten/text"
+	"github.com/hajimehoshi/ebiten/ebitenutil"
 	"golang.org/x/image/font"
 	"image/color"
 )
@@ -31,12 +31,20 @@ func NewSkillButton(x, y, w, h int, sk Skill, activeCol, disabledCol color.Color
 	default:
 		sb.isSelf = false
 	}
-	disabledPic, _ := ebiten.NewImage(w, h, ebiten.FilterDefault)
-	_ = disabledPic.Fill(disabledCol)
-	text.Draw(disabledPic, sb.sk.GetName(), sb.font, 0, sb.font.Metrics().Height.Ceil()*2, color.Black)
-	activePic, _ := ebiten.NewImage(w, h, ebiten.FilterDefault)
-	_ = activePic.Fill(activeCol)
-	text.Draw(activePic, sb.sk.GetName(), sb.font, 0, sb.font.Metrics().Height.Ceil()*2, color.Black)
+	activePic, _, err := ebitenutil.NewImageFromFile(sk.GetIconPath(), ebiten.FilterDefault)
+	if err != nil {
+		panic(err)
+	}
+	disabledPic, _, err := ebitenutil.NewImageFromFile(sk.GetIconPath(), ebiten.FilterDefault)
+	if err != nil {
+		panic(err)
+	}
+	w2, h2 := disabledPic.Size()
+	blur, _ := ebiten.NewImage(w2, h2, ebiten.FilterDefault)
+	_ = blur.Fill(color.RGBA{A: 150})
+	_ = disabledPic.DrawImage(blur, &ebiten.DrawImageOptions{})
+	//text.Draw(disabledPic, sb.sk.GetName(), sb.font, 0, sb.font.Metrics().Height.Ceil(), color.Black)
+	//text.Draw(activePic, sb.sk.GetName(), sb.font, 0, sb.font.Metrics().Height.Ceil(), color.Black)
 	sb.DCInit(x, y, w, h, 2, NewSprite(disabledPic), NewSprite(activePic))
 	return sb
 }

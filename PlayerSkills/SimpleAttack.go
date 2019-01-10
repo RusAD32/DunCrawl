@@ -27,8 +27,10 @@ func (s *SimpleAttack) Apply(r *Room) string {
 	return res
 }
 
-func (s *SimpleAttack) Init(player Unit) Skill {
+func NewSimpleAttack(player Unit) *SimpleAttack {
+	s := &SimpleAttack{}
 	s.name = "Simple attack"
+	s.iconPath = "resources/PlayerSkillsIcons/SimpleAttack.PNG"
 	s.baseDMG = 5
 	s.lvl = 1
 	s.maxLvl = 5

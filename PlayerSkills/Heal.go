@@ -15,7 +15,8 @@ func (h *Heal) Apply(r *Room) string {
 	return h.res
 }
 
-func (h *Heal) Init(player Unit) Skill {
+func NewHeal(player Unit) *Heal {
+	h := &Heal{}
 	h.hp = 8
 	h.lvl = 1
 	h.curExp = 0
@@ -23,6 +24,7 @@ func (h *Heal) Init(player Unit) Skill {
 	h.lvlupExp = []int{1, 4}
 	h.speed = 3
 	h.name = "Heal"
+	h.iconPath = "resources/PlayerSkillsIcons/Heal.PNG"
 	h.wielder = player
 	return h
 }
