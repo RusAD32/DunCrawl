@@ -92,13 +92,13 @@ func (g *UIGame) Init(l *Labyrinth, w, h int) {
 	}
 	g.pl = &plst
 	g.State = 1
-	pic, _, err := ebitenutil.NewImageFromFile("./resources/UIElements/lamp_t.png", ebiten.FilterDefault)
+	pic, _, err := ebitenutil.NewImageFromFile("./resources/UIElements/lamp_t.png", ebiten.FilterLinear)
 	if err != nil {
 		panic(err)
 	}
 	g.light = NewDrawableClickable(0, g.h*4/5, g.h/5, g.h/5, 1, NewSprite(pic))
 
-	//pic, _ := ebiten.NewImage(w/10, h/10, ebiten.FilterDefault)
+	//pic, _ := ebiten.NewImage(w/10, h/10, ebiten.FilterLinear)
 	//_ = pic.Fill(color.RGBA{R: 255, G: 255, A: 255})
 
 }

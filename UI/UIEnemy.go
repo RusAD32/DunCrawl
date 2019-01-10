@@ -28,7 +28,7 @@ type UIEnemy struct {
 func loadSpriteFromPics(paths []string) *Sprite {
 	pics := make([]*ebiten.Image, 0)
 	for _, v := range paths {
-		pic, _, err := ebitenutil.NewImageFromFile(v, ebiten.FilterDefault)
+		pic, _, err := ebitenutil.NewImageFromFile(v, ebiten.FilterLinear)
 		if err != nil {
 			panic(err)
 		}
@@ -47,13 +47,13 @@ func NewUIEnemy(x, y, w, h int, colDef, colAttacking, colAttacked, colDead color
 	spriteAttacked := loadSpriteFromPics(enemy.AttackedImgsPath())
 	spriteDead := loadSpriteFromPics(enemy.DeadImgsPath())
 	spriteDead.noLoop = true
-	picDef, _ := ebiten.NewImage(w, h, ebiten.FilterDefault)
+	picDef, _ := ebiten.NewImage(w, h, ebiten.FilterLinear)
 	_ = picDef.Fill(colDef)
-	picAttacking, _ := ebiten.NewImage(w, h, ebiten.FilterDefault)
+	picAttacking, _ := ebiten.NewImage(w, h, ebiten.FilterLinear)
 	_ = picAttacking.Fill(colAttacking)
-	picAttacked, _ := ebiten.NewImage(w, h, ebiten.FilterDefault)
+	picAttacked, _ := ebiten.NewImage(w, h, ebiten.FilterLinear)
 	_ = picAttacked.Fill(colAttacked)
-	picDead, _ := ebiten.NewImage(w, h, ebiten.FilterDefault)
+	picDead, _ := ebiten.NewImage(w, h, ebiten.FilterLinear)
 	_ = picDead.Fill(colDead)
 	e.DCInit(x, y, w, h, 4, spriteIdle, spriteSkill, spriteAttacked, spriteDead)
 	return e

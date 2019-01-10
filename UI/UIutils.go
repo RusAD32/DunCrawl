@@ -50,7 +50,7 @@ func (g *UIGame) Update() {
 						}
 					}
 					if g.l.GetCurrentRoom().HasChest() {
-						pic, _, err := ebitenutil.NewImageFromFile("./resources/UIElements/chest_t.png", ebiten.FilterDefault)
+						pic, _, err := ebitenutil.NewImageFromFile("./resources/UIElements/chest_t.png", ebiten.FilterLinear)
 						if err != nil {
 							panic(err)
 						}

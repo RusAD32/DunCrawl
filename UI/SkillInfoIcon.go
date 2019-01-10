@@ -21,7 +21,7 @@ func NewSkillIcon(w, h int, sk SkillInfo, col color.Color, font font.Face) *Skil
 		sk:   sk,
 		font: font,
 	}
-	pic, _, err := ebitenutil.NewImageFromFile(sk.GetIconPath(), ebiten.FilterDefault)
+	pic, _, err := ebitenutil.NewImageFromFile(sk.GetIconPath(), ebiten.FilterLinear)
 	if err != nil {
 		panic(err)
 	}
