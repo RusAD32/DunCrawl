@@ -106,7 +106,7 @@ func GenerateRoom(num int) *Room {
 	enemies := make([]*Enemy, 0)
 	shEnemies := make([]*Enemy, 0)
 	shLoot := make([]*Lootable, 0)
-	if rand.Float32() < 0.3 {
+	if rand.Float32() < 0.1 {
 		enemies = make([]*Enemy, 4)
 		for i := range enemies {
 			enemies[i] = NewDefaultDog(i)
@@ -125,7 +125,7 @@ func GenerateRoom(num int) *Room {
 		}
 	}
 	var chest *Chest
-	if rand.Float32() < 0.1 {
+	if rand.Float32() < 0.9 {
 		chest = NewChest()
 	}
 	r := NewRoom(enemies, shEnemies, []*Lootable{}, shLoot, []Stack{}, []Stack{}, chest)

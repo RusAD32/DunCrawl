@@ -25,12 +25,37 @@ type UIEnemy struct {
 	skillUsed  Skill
 }
 
+func loadSpriteFromPics(paths []string) *Sprite {
+	pics := make([]*ebiten.Image, 0)
+	for _, v := range paths {
+		pic, _, err := ebitenutil.NewImageFromFile(v, ebiten.FilterDefault)
+		if err != nil {
+			panic(err)
+		}
+		pics = append(pics, pic)
+	}
+	return NewSprite(pics...)
+}
+
 func NewUIEnemy(x, y, w, h int, colDef, colAttacking, colAttacked, colDead color.Color, enemy *Enemy) *UIEnemy {
 	e := &UIEnemy{
 		col:   colDef,
 		enemy: enemy,
 	}
-	e.DCInit(x, y, w, h, 4, colDef, colAttacking, colAttacked, colDead)
+	spriteIdle := loadSpriteFromPics(enemy.IdleImgsPath())
+	spriteSkill := loadSpriteFromPics(enemy.SkillImgsPath())
+	spriteAttacked := loadSpriteFromPics(enemy.AttackedImgsPath())
+	spriteDead := loadSpriteFromPics(enemy.DeadImgsPath())
+	spriteDead.noLoop = true
+	picDef, _ := ebiten.NewImage(w, h, ebiten.FilterDefault)
+	_ = picDef.Fill(colDef)
+	picAttacking, _ := ebiten.NewImage(w, h, ebiten.FilterDefault)
+	_ = picAttacking.Fill(colAttacking)
+	picAttacked, _ := ebiten.NewImage(w, h, ebiten.FilterDefault)
+	_ = picAttacked.Fill(colAttacked)
+	picDead, _ := ebiten.NewImage(w, h, ebiten.FilterDefault)
+	_ = picDead.Fill(colDead)
+	e.DCInit(x, y, w, h, 4, spriteIdle, spriteSkill, spriteAttacked, spriteDead)
 	return e
 }
 
@@ -62,4 +87,8 @@ func (e *UIEnemy) Draw(screen *ebiten.Image, font font.Face) {
 	for _, v := range *e.enemy.GetEffects() {
 		text.Draw(screen, v.GetInfo(), font, e.x, e.y+e.h*11/10, e.col)
 	}
+}
+
+func (e *UIEnemy) GetCurAnimLen() int {
+	return e.pic[enemyAttacked].GetAnimationLength()
 }

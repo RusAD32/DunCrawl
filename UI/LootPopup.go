@@ -29,21 +29,25 @@ type LootPopup struct {
 
 func NewLootIcon(x, y, w, h int, loot *Lootable, font font.Face) *LootIcon {
 	p := &LootIcon{}
-	p.initImg(x, y, w, h, 1, Gray)
+	pic, _ := ebiten.NewImage(w, h, ebiten.FilterDefault)
+	_ = pic.Fill(Gray)
 	info1 := loot.GetName()
 	info2 := fmt.Sprintf("(%dg)", loot.GetValue())
-	text.Draw(p.pic[0], info1, font, 0, font.Metrics().Height.Ceil(), color.Black)
-	text.Draw(p.pic[0], info2, font, 0, 2*font.Metrics().Height.Ceil(), color.Black)
+	text.Draw(pic, info1, font, 0, font.Metrics().Height.Ceil(), color.Black)
+	text.Draw(pic, info2, font, 0, 2*font.Metrics().Height.Ceil(), color.Black)
+	p.initImg(x, y, w, h, 1, NewSprite(pic))
 	return p
 }
 
 func NewCarriableIcon(x, y, w, h int, loot Stack, font font.Face) *CarriableIcon {
 	p := &CarriableIcon{}
-	p.DCInit(x, y, w, h, 1, Gray)
+	pic, _ := ebiten.NewImage(w, h, ebiten.FilterDefault)
+	_ = pic.Fill(Gray)
 	info1 := loot.GetName()
 	info2 := fmt.Sprintf("(%d)", loot.GetAmount())
-	text.Draw(p.pic[0], info1, font, 0, font.Metrics().Height.Ceil(), color.Black)
-	text.Draw(p.pic[0], info2, font, 0, 2*font.Metrics().Height.Ceil(), color.Black)
+	text.Draw(pic, info1, font, 0, font.Metrics().Height.Ceil(), color.Black)
+	text.Draw(pic, info2, font, 0, 2*font.Metrics().Height.Ceil(), color.Black)
+	p.DCInit(x, y, w, h, 1, NewSprite(pic))
 	return p
 }
 
@@ -58,7 +62,8 @@ func NewLootPopup(x, y, w, h int, font font.Face, loot []*Lootable, goodies []St
 	lootIconX := h / 10
 	lootIconY := h / 10
 	lootIconOffs := iconW + h/10
-	p.DCInit(x, y, w, h, 1, color.RGBA{R: 50, G: 50, B: 50, A: 255})
+	pic, _ := ebiten.NewImage(w, h, ebiten.FilterDefault)
+	_ = pic.Fill(color.RGBA{R: 50, G: 50, B: 50, A: 255})
 	p.loot = make([]*LootIcon, 0)
 	for i, v := range loot {
 		p.loot = append(p.loot, NewLootIcon(lootIconX+i*lootIconOffs, lootIconY, iconW, iconH, v, font))
@@ -69,18 +74,21 @@ func NewLootPopup(x, y, w, h int, font font.Face, loot []*Lootable, goodies []St
 	for i, v := range goodies {
 		p.goodies = append(p.goodies, NewCarriableIcon(carIconX+i*lootIconOffs, carIconY, iconW, iconH, v, font))
 	}
-	p.button = NewDrawableClickable(w*2/5, h*3/4, w/4, h/5, 1, color.RGBA{R: 177, G: 177, B: 177, A: 255})
-	text.Draw(p.button.pic[0], "Confirm", font, 0, w/8-font.Metrics().Height.Ceil(), color.Black)
+	butPic, _ := ebiten.NewImage(w/4, h/5, ebiten.FilterDefault)
+	_ = butPic.Fill(color.RGBA{R: 177, G: 177, B: 177, A: 255})
+	text.Draw(butPic, "Confirm", font, 0, font.Metrics().Height.Ceil(), color.Black)
+	p.button = NewDrawableClickable(w*2/5, h*3/4, w/4, h/5, 1, NewSprite(butPic))
+	p.DCInit(x, y, w, h, 1, NewSprite(pic))
 	return p
 }
 
 func (p *LootPopup) Draw(screen *ebiten.Image) {
 	for _, v := range p.loot {
-		v.DrawImg(p.pic[0])
+		v.DrawImg(p.pic[0].GetCurrentFrame())
 	}
 	for _, v := range p.goodies {
-		v.DrawImg(p.pic[0])
+		v.DrawImg(p.pic[0].GetCurrentFrame())
 	}
-	p.button.DrawImg(p.pic[0])
+	p.button.DrawImg(p.pic[0].GetCurrentFrame())
 	p.DrawImg(screen)
 }

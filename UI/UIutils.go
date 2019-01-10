@@ -4,7 +4,9 @@ import (
 	. "DunCrawl/Interfaces"
 	"fmt"
 	"github.com/hajimehoshi/ebiten"
+	"github.com/hajimehoshi/ebiten/ebitenutil"
 	"image/color"
+	_ "image/png"
 	"runtime"
 )
 
@@ -48,7 +50,11 @@ func (g *UIGame) Update() {
 						}
 					}
 					if g.l.GetCurrentRoom().HasChest() {
-						g.chest = NewDrawableClickable(g.w/3, g.h/3, g.w/3, g.h/3, 1, Brown)
+						pic, _, err := ebitenutil.NewImageFromFile("./resources/UIElements/chest_t.png", ebiten.FilterDefault)
+						if err != nil {
+							panic(err)
+						}
+						g.chest = NewDrawableClickable(g.w/3, g.h/3, g.w/3, g.w/3, 1, NewSprite(pic))
 					}
 					g.updateDoors()
 					return

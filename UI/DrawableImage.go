@@ -2,7 +2,6 @@ package UI
 
 import (
 	"github.com/hajimehoshi/ebiten"
-	"image/color"
 )
 
 type Drawable interface {
@@ -10,24 +9,21 @@ type Drawable interface {
 }
 
 type DrawableImage struct {
-	pic   []*ebiten.Image
+	pic   []*Sprite
 	opts  *ebiten.DrawImageOptions
 	state int
 }
 
-func (d *DrawableImage) initImg(x, y, w, h, length int, cols ...color.Color) {
+func (d *DrawableImage) initImg(x, y, w, h, length int, imgs ...*Sprite) {
 	d.opts = &ebiten.DrawImageOptions{}
+	imgW, imgH := imgs[0].frames[0].Size()
+	d.opts.GeoM.Scale(float64(w)/float64(imgW), float64(h)/float64(imgH))
 	d.opts.GeoM.Translate(float64(x), float64(y))
-	d.pic = make([]*ebiten.Image, length)
-	for i := range d.pic {
-		d.pic[i], _ = ebiten.NewImage(w, h, ebiten.FilterDefault)
-		_ = d.pic[i].Fill(cols[i])
-	}
-
+	d.pic = imgs
 }
 
 func (d *DrawableImage) ChoosePic() *ebiten.Image {
-	return d.pic[d.state]
+	return d.pic[d.state].GetCurrentFrame()
 }
 
 func (d *DrawableImage) DrawImg(screen *ebiten.Image) {

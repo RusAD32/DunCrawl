@@ -22,18 +22,39 @@ const (
 )
 
 type Enemy struct {
-	enemyType CreatureType
-	skills    []NPCSkill
-	equipment []*Equippable
-	loot      []*Lootable
-	provision []Stack
-	aiLevel   AiLevel
+	enemyType        CreatureType
+	skills           []NPCSkill
+	equipment        []*Equippable
+	loot             []*Lootable
+	provision        []Stack
+	aiLevel          AiLevel
+	idleImgsPath     []string
+	skillImgsPath    []string
+	attackedImgsPath []string
+	deadImgsPath     []string
 	BasicUnit
+}
+
+func (e *Enemy) IdleImgsPath() []string {
+	return e.idleImgsPath
+}
+
+func (e *Enemy) SkillImgsPath() []string {
+	return e.skillImgsPath
+}
+
+func (e *Enemy) AttackedImgsPath() []string {
+	return e.attackedImgsPath
+}
+
+func (e *Enemy) DeadImgsPath() []string {
+	return e.deadImgsPath
 }
 
 func NewEnemy(typ CreatureType, skills []NPCSkill, eqiup []*Equippable,
 	loot []*Lootable, provision []Stack, level AiLevel,
-	name string, hp int, stats map[Stat]int) *Enemy {
+	name string, hp int, stats map[Stat]int,
+	idleImgs, skillImgs, attackedImgs, deadImgs []string) *Enemy {
 	e := &Enemy{}
 	e.enemyType = typ
 	e.skills = skills
@@ -48,6 +69,10 @@ func NewEnemy(typ CreatureType, skills []NPCSkill, eqiup []*Equippable,
 	e.dmgTakenTrigger = NewTrigger()
 	e.onDeathTrigger = NewTrigger()
 	e.effects = make([]Effect, 0)
+	e.idleImgsPath = idleImgs
+	e.skillImgsPath = skillImgs
+	e.attackedImgsPath = attackedImgs
+	e.deadImgsPath = deadImgs
 	return e
 
 }

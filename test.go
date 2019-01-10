@@ -20,6 +20,9 @@ var g UI.UIGame
 func update(screen *ebiten.Image) error {
 	//UI.MoveThroughLabyrinth(l)
 	_ = screen.Fill(color.White)
+	if g.State == 0 {
+		g.Init(l, 600, 480)
+	}
 	g.Update()
 	if ebiten.IsDrawingSkipped() {
 		return nil
@@ -34,7 +37,7 @@ func update(screen *ebiten.Image) error {
 
 func ebitenTest() {
 	l = GenerateLabyrinth(10, 10)
-	g.Init(l, 600, 480)
+	//g.Init(l, 600, 480)
 	PrintLabyrinth(l)
 	//go UI.EnterLabyrinth(&l)
 	x, y := ebiten.ScreenSizeInFullscreen()

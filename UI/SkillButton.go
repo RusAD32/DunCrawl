@@ -31,9 +31,13 @@ func NewSkillButton(x, y, w, h int, sk Skill, activeCol, disabledCol color.Color
 	default:
 		sb.isSelf = false
 	}
-	sb.DCInit(x, y, w, h, 2, disabledCol, activeCol)
-	text.Draw(sb.pic[butActive], sb.sk.GetName(), sb.font, 0, sb.font.Metrics().Height.Ceil()*2, color.Black)
-	text.Draw(sb.pic[butInactive], sb.sk.GetName(), sb.font, 0, sb.font.Metrics().Height.Ceil()*2, color.Black)
+	disabledPic, _ := ebiten.NewImage(w, h, ebiten.FilterDefault)
+	_ = disabledPic.Fill(disabledCol)
+	text.Draw(disabledPic, sb.sk.GetName(), sb.font, 0, sb.font.Metrics().Height.Ceil()*2, color.Black)
+	activePic, _ := ebiten.NewImage(w, h, ebiten.FilterDefault)
+	_ = activePic.Fill(activeCol)
+	text.Draw(activePic, sb.sk.GetName(), sb.font, 0, sb.font.Metrics().Height.Ceil()*2, color.Black)
+	sb.DCInit(x, y, w, h, 2, NewSprite(disabledPic), NewSprite(activePic))
 	return sb
 }
 

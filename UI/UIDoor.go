@@ -14,7 +14,9 @@ func NewUIDoor(x, y, w, h, num int) *UIDoor {
 	d := &UIDoor{
 		num: num,
 	}
-	d.DCInit(x, y, w, h, 1, color.Black)
+	pic, _ := ebiten.NewImage(w, h, ebiten.FilterDefault)
+	_ = pic.Fill(color.Black)
+	d.DCInit(x, y, w, h, 1, NewSprite(pic))
 	return d
 }
 

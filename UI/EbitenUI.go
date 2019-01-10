@@ -32,11 +32,11 @@ func getConstants(w, h int) consts {
 	c.doorW = w * 15 / 100
 	c.doorH = h / 2
 
-	c.enemyX = w / 16
+	c.enemyX = 0
 	c.enemyXOff = w / 4
 	c.enemyY = h / 4
-	c.enemyW = w / 8
-	c.enemyH = h / 4
+	c.enemyW = w / 4
+	c.enemyH = w / 4
 
 	c.hpX = w / 10
 	c.hpY = h * 8 / 10

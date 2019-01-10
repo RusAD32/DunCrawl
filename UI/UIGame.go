@@ -4,6 +4,7 @@ import (
 	. "DunCrawl/Interfaces"
 	"github.com/golang/freetype/truetype"
 	"github.com/hajimehoshi/ebiten"
+	"github.com/hajimehoshi/ebiten/ebitenutil"
 	"github.com/hajimehoshi/ebiten/inpututil"
 	"golang.org/x/image/font"
 	"image/color"
@@ -22,14 +23,13 @@ var (
 	LightGreen = color.RGBA{R: 200, G: 255, B: 200, A: 255}
 	LightBlue  = color.RGBA{R: 200, G: 200, B: 255, A: 255}
 	LightRed   = color.RGBA{R: 255, G: 200, B: 200, A: 255}
-	Brown      = color.RGBA{R: 150, G: 75, A: 255}
 )
 
 type UIGame struct {
 	w                                   int
 	h                                   int
 	l                                   *Labyrinth
-	state                               GameState
+	State                               GameState
 	font                                font.Face
 	currentDoors                        []*UIDoor
 	curEnemies                          []*UIEnemy
@@ -91,7 +91,16 @@ func (g *UIGame) Init(l *Labyrinth, w, h int) {
 		skills: make([]*SkillIcon, 0),
 	}
 	g.pl = &plst
-	g.light = NewDrawableClickable(w/10, h*9/10, h/10, h/10, 1, color.RGBA{R: 255, G: 255, A: 255})
+	g.State = 1
+	pic, _, err := ebitenutil.NewImageFromFile("./resources/UIElements/lamp_t.png", ebiten.FilterDefault)
+	if err != nil {
+		panic(err)
+	}
+	g.light = NewDrawableClickable(0, g.h*4/5, g.h/5, g.h/5, 1, NewSprite(pic))
+
+	//pic, _ := ebiten.NewImage(w/10, h/10, ebiten.FilterDefault)
+	//_ = pic.Fill(color.RGBA{R: 255, G: 255, A: 255})
+
 }
 
 func (g *UIGame) doorClicked(mouseX, mouseY int) int {
@@ -124,7 +133,8 @@ func (g *UIGame) dmgSkillButtonClicked(mouseX, mouseY int) int {
 func (g *UIGame) prepareForFight() {
 	ens := g.l.GetCurrentRoom().GetEnemies()
 	for i, v := range ens {
-		enemy := NewUIEnemy(g.consts.enemyXOff*i+g.consts.enemyX,
+		enemy := NewUIEnemy(
+			g.consts.enemyXOff*i+g.consts.enemyX,
 			g.consts.enemyY,
 			g.consts.enemyW,
 			g.consts.enemyH,
@@ -318,7 +328,7 @@ func (g *UIGame) resolveSkill() {
 			en := g.curEnemies[g.enemyNums[target.(*Enemy)]]
 			en.state = enemyAttacked
 			en.skillUsed = nil
-			g.cd = 60
+			g.cd = en.GetCurAnimLen()
 			g.pl.dmgProcessing = sk.GetRes()
 			g.pl.healProcessing = ""
 		}
@@ -326,28 +336,26 @@ func (g *UIGame) resolveSkill() {
 		{
 			switch sk.GetWielder().(type) {
 			case *Enemy:
-				{
-					en := g.curEnemies[g.enemyNums[sk.GetWielder().(*Enemy)]]
-					en.state = enemyAttacking
-					g.pl.dmgProcessing = sk.GetRes()
-					g.pl.healProcessing = ""
-				}
+				en := g.curEnemies[g.enemyNums[sk.GetWielder().(*Enemy)]]
+				en.state = enemyAttacking
+				g.cd = en.GetCurAnimLen()
+				g.pl.dmgProcessing = sk.GetRes()
+				g.pl.healProcessing = ""
 			case *Pet:
 				switch sk.(NPCSkill).GetSkillType() {
 				case Self, OnlyPlayer, OnlyPet, Allies:
-					{
-						g.pl.dmgProcessing = ""
-						g.pl.healProcessing = sk.GetRes()
-					}
+					g.pl.dmgProcessing = ""
+					g.pl.healProcessing = sk.GetRes()
+					g.cd = 30
 				default:
 					en := g.curEnemies[g.enemyNums[sk.GetTarget().(*Enemy)]]
 					en.state = enemyAttacked
+					g.cd = en.GetCurAnimLen()
 					g.pl.dmgProcessing = sk.GetRes()
 					g.pl.healProcessing = ""
 				}
 
 			}
-			g.cd = 60
 		}
 	case PlayerSelfSkill:
 		{

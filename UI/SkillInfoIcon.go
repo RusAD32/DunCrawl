@@ -20,7 +20,9 @@ func NewSkillIcon(w, h int, sk SkillInfo, col color.Color, font font.Face) *Skil
 		sk:   sk,
 		font: font,
 	}
-	sb.initImg(0, 0, w, h, 1, col)
+	pic, _ := ebiten.NewImage(w, h, ebiten.FilterDefault)
+	_ = pic.Fill(col)
+	sb.initImg(0, 0, w, h, 1, NewSprite(pic))
 	return sb
 }
 
