@@ -27,7 +27,7 @@ type LootPopup struct {
 	DrawableClickable
 }
 
-func NewLootIcon(x, y, w, h int, loot Lootable, font font.Face) *LootIcon {
+func NewLootIcon(x, y, w, h int, loot *Lootable, font font.Face) *LootIcon {
 	p := &LootIcon{}
 	p.initImg(x, y, w, h, 1, Gray)
 	info1 := loot.GetName()
@@ -51,7 +51,7 @@ func (b *LootPopup) isClicked(mouseX, mouseY int) bool {
 	return b.button.isClicked(mouseX-b.x, mouseY-b.y)
 }
 
-func NewLootPopup(x, y, w, h int, font font.Face, loot []Lootable, goodies []Stack) *LootPopup {
+func NewLootPopup(x, y, w, h int, font font.Face, loot []*Lootable, goodies []Stack) *LootPopup {
 	p := &LootPopup{}
 	iconW := h / 5
 	iconH := h / 5

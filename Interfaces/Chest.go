@@ -3,7 +3,7 @@ package Interfaces
 //TODO Generating chests
 type Chest struct {
 	trap       Trap
-	loot       []Lootable
+	loot       []*Lootable
 	usefulLoot []Stack
 }
 
@@ -19,7 +19,7 @@ func (c *Chest) TrapDisarm() {
 	}
 }
 
-func (c *Chest) GetLoot() []Lootable {
+func (c *Chest) GetLoot() []*Lootable {
 	return c.loot
 }
 
@@ -32,7 +32,7 @@ func (c *Chest) GetValuables() []Stack {
 func NewChest() *Chest {
 	return &Chest{
 		nil,
-		[]Lootable{NewLootable("Different stuff", 40)},
+		[]*Lootable{NewLootable("Different stuff", 40)},
 		make([]Stack, 0),
 	}
 }

@@ -13,8 +13,8 @@ func (l *Lootable) GetValue() int {
 	return l.value
 }
 
-func NewLootable(name string, value int) Lootable {
-	return Lootable{
+func NewLootable(name string, value int) *Lootable {
+	return &Lootable{
 		name,
 		value,
 	}

@@ -17,6 +17,9 @@ func (g *UIGame) Update() {
 	case Roam:
 		{
 			for _, v := range getNewClicks() {
+				if g.Light(v[0], v[1]) {
+					return
+				}
 				if g.loot != nil {
 					if g.loot.isClicked(v[0], v[1]) {
 						g.loot = nil // TODO давать игроку то, что он нашел, в конце концов
@@ -38,7 +41,6 @@ func (g *UIGame) Update() {
 					g.chest = nil
 					if g.l.GotoRoom(Direction(nextDoor)) {
 						g.prepareForFight()
-						g.l.GetCurrentRoom().AtTurnStart()
 					} else {
 						loot, goodies := g.l.GetCurrentRoom().GetValues()
 						if len(loot) != 0 || len(goodies) != 0 {
@@ -88,6 +90,7 @@ func (g *UIGame) Draw(screen *ebiten.Image) {
 			if g.loot != nil {
 				g.loot.Draw(screen)
 			}
+			g.light.DrawImg(screen)
 		}
 	case Fight:
 		{

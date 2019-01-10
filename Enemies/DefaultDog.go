@@ -11,7 +11,7 @@ func NewDefaultDog(index int) *Enemy {
 	skills := make([]NPCSkill, 0)
 	sk1 := NPCSkills.NewDogBite(e)
 	skills = append(skills, sk1)
-	loot := []Lootable{NewLootable("Stuff", 15)}
+	loot := []*Lootable{NewLootable("Stuff", 15)}
 	*e = *NewEnemy(
 		Animal,
 		skills,

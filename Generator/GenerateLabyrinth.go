@@ -47,6 +47,7 @@ func getCorners(length, width int) []int {
 
 func generateCenter(lab *Labyrinth, length, width, startingRoomNum int) {
 	rooms := fillWithRooms(length, width, Solid)
+	rooms[lab.GetStartingRoom()] = GenerateStartingRoom(lab.GetStartingRoom())
 	lab.AddRooms(rooms)
 	lab.SetCurrentRoom(startingRoomNum)
 	lab.AddSection(&rooms)
@@ -90,19 +91,40 @@ func fillWithRooms(length, width int, kind WallType) []*Room {
 	return rooms
 }
 
+func GenerateStartingRoom(num int) *Room {
+	r := NewRoom([]*Enemy{}, []*Enemy{}, []*Lootable{}, []*Lootable{}, []Stack{}, []Stack{}, nil)
+	r.DistFromCenter = -1
+	r.Num = num
+	return r
+}
+
 func GenerateRoom(num int) *Room {
 	enemies := make([]*Enemy, 0)
+	shEnemies := make([]*Enemy, 0)
+	shLoot := make([]*Lootable, 0)
 	if rand.Float32() < 0.3 {
 		enemies = make([]*Enemy, 4)
 		for i := range enemies {
 			enemies[i] = NewDefaultDog(i)
 		}
 	}
+	if rand.Float32() < 0.2 {
+		shEnemies = make([]*Enemy, 4)
+		for i := range shEnemies {
+			shEnemies[i] = NewDefaultDog(i)
+		}
+	}
+	if rand.Float32() < 0.2 {
+		shLoot = make([]*Lootable, 2)
+		for i := range shLoot {
+			shLoot[i] = NewLootable("Shadow thingy", 100)
+		}
+	}
 	var chest *Chest
 	if rand.Float32() < 0.1 {
 		chest = NewChest()
 	}
-	r := NewRoom(enemies, []*Enemy{}, []Lootable{}, []Lootable{}, []Stack{}, []Stack{}, chest)
+	r := NewRoom(enemies, shEnemies, []*Lootable{}, shLoot, []Stack{}, []Stack{}, chest)
 	r.DistFromCenter = -1
 	r.Num = num
 	return r

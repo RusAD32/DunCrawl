@@ -25,14 +25,14 @@ type Enemy struct {
 	enemyType CreatureType
 	skills    []NPCSkill
 	equipment []*Equippable
-	loot      []Lootable
+	loot      []*Lootable
 	provision []Stack
 	aiLevel   AiLevel
 	BasicUnit
 }
 
 func NewEnemy(typ CreatureType, skills []NPCSkill, eqiup []*Equippable,
-	loot []Lootable, provision []Stack, level AiLevel,
+	loot []*Lootable, provision []Stack, level AiLevel,
 	name string, hp int, stats map[Stat]int) *Enemy {
 	e := &Enemy{}
 	e.enemyType = typ

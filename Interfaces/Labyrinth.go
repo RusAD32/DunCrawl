@@ -45,6 +45,10 @@ func (l *Labyrinth) MarkInited() {
 	l.state = Roam
 }
 
+func (l *Labyrinth) GetStartingRoom() int {
+	return l.startingRoomNum
+}
+
 func (l *Labyrinth) switchRooms(direction Direction) bool {
 	if l.current == nil {
 		l.current = l.rooms[l.startingRoomNum]
@@ -71,12 +75,13 @@ func (l *Labyrinth) GotoRoom(direction Direction) bool {
 	l.current.p = l.p
 	if l.current.FightState == TurnStart {
 		l.state = Fight
+		l.current.AtTurnStart()
 		return true
 	}
 	return false
 }
 
-func (l *Labyrinth) GetValues() ([]Lootable, []Stack) {
+func (l *Labyrinth) GetValues() ([]*Lootable, []Stack) {
 	if l.state != Fight || l.current.FightState == FightEnd {
 		l.state = Roam
 		return l.current.GetValues()
@@ -95,7 +100,7 @@ func (l *Labyrinth) Light() {
 	l.current.Light()
 }
 
-func (l *Labyrinth) UnlockChest() ([]Lootable, []Stack) {
+func (l *Labyrinth) UnlockChest() ([]*Lootable, []Stack) {
 	return l.current.UnlockChest()
 }
 

@@ -12,8 +12,8 @@ type Room struct {
 	pq               PriorityQueue
 	turnStartTrigger Trigger
 	turnEndTrigger   Trigger
-	loot             []Lootable
-	shadowLoot       []Lootable
+	loot             []*Lootable
+	shadowLoot       []*Lootable
 	shadowEnemies    []*Enemy
 	shadowProvision  []Stack
 	provision        []Stack
@@ -28,7 +28,7 @@ type Room struct {
 	seenInDfs      bool
 }
 
-func NewRoom(enemies, shEnemies []*Enemy, loot, shLoot []Lootable, provision, shProvision []Stack, chest *Chest) *Room {
+func NewRoom(enemies, shEnemies []*Enemy, loot, shLoot []*Lootable, provision, shProvision []Stack, chest *Chest) *Room {
 	r := &Room{
 		enemies:         enemies,
 		defeated:        make([]*Enemy, 0),
@@ -165,11 +165,11 @@ func (r *Room) GetEnemies() []*Enemy {
 	return r.enemies
 }
 
-func (r *Room) GetValues() ([]Lootable, []Stack) {
+func (r *Room) GetValues() ([]*Lootable, []Stack) {
 	return r.GetLoot(), r.GetGoodies()
 }
 
-func (r *Room) GetLoot() []Lootable {
+func (r *Room) GetLoot() []*Lootable {
 	//TODO решить, надо ли их забирать, и привести к единому стандарту
 	return r.loot
 }
@@ -192,11 +192,11 @@ func (r *Room) HasShadowEnemies() bool {
 	return len(r.shadowEnemies) > 0
 }
 
-func (r *Room) UnlockChest() ([]Lootable, []Stack) {
+func (r *Room) UnlockChest() ([]*Lootable, []Stack) {
 	if r.chest != nil {
 		return r.chest.GetLoot(), r.chest.GetValuables()
 	}
-	return make([]Lootable, 0), make([]Stack, 0)
+	return make([]*Lootable, 0), make([]Stack, 0)
 }
 
 func (r *Room) Light() {
@@ -211,14 +211,6 @@ func (r *Room) Light() {
 
 func (r *Room) GetNeighbours() []*Wall {
 	return r.neighbours
-}
-
-func (r *Room) AddLoot(lootable Lootable) {
-	r.loot = append(r.loot, lootable)
-}
-
-func (r *Room) AddShadowLoot(lootable Lootable) {
-	r.shadowLoot = append(r.shadowLoot, lootable)
 }
 
 func (r *Room) GetLocks() int {

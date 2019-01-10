@@ -36,6 +36,7 @@ type UIGame struct {
 	selfSkButs                          []*SkillButton
 	dmgSkButs                           []*SkillButton
 	chest                               *DrawableClickable
+	light                               *DrawableClickable
 	enemyNums                           map[*Enemy]int
 	pl                                  *PlayerStats
 	cd                                  int
@@ -90,6 +91,7 @@ func (g *UIGame) Init(l *Labyrinth, w, h int) {
 		skills: make([]*SkillIcon, 0),
 	}
 	g.pl = &plst
+	g.light = NewDrawableClickable(w/10, h*9/10, h/10, h/10, 1, color.RGBA{R: 255, G: 255, A: 255})
 }
 
 func (g *UIGame) doorClicked(mouseX, mouseY int) int {
@@ -379,4 +381,20 @@ func (g *UIGame) updateDoors() {
 			3)
 		g.currentDoors = append(g.currentDoors, door)
 	}
+}
+
+func (g *UIGame) Light(mouseX, mouseY int) bool {
+	if g.light.isClicked(mouseX, mouseY) {
+		g.l.Light()
+		if g.l.GetState() == Fight {
+			g.prepareForFight()
+		} else {
+			loot, goodies := g.l.GetValues()
+			if len(loot) > 0 || len(goodies) > 0 {
+				g.loot = NewLootPopup(g.w/3, g.h/3, g.w/3, g.h/3, g.font, loot, goodies)
+			}
+		}
+		return true
+	}
+	return false
 }
