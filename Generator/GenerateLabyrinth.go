@@ -46,8 +46,7 @@ func getCorners(length, width int) []int {
 }
 
 func generateCenter(lab *Labyrinth, length, width, startingRoomNum int) {
-	rooms := fillWithRooms(length, width, Solid)
-	rooms[lab.GetStartingRoom()] = GenerateStartingRoom(lab.GetStartingRoom())
+	rooms := fillWithRooms(length, width, Solid, startingRoomNum)
 	lab.AddRooms(rooms)
 	lab.SetCurrentRoom(startingRoomNum)
 	lab.AddSection(&rooms)
@@ -66,7 +65,7 @@ func generateCenter(lab *Labyrinth, length, width, startingRoomNum int) {
 }
 
 func generateBossPath(lab *Labyrinth, width, length, dir int) {
-	newRooms := fillWithRooms(length, width, Solid)
+	newRooms := fillWithRooms(length, width, Solid, -1)
 	firstRoom := newRooms[getCorners(length, width)[rotateRoomNum(dir, 2)]]
 	lab.AddSection(&newRooms)
 	connectTo := lab.GetRooms()[getCorners(length, width)[dir]]
@@ -75,11 +74,16 @@ func generateBossPath(lab *Labyrinth, width, length, dir int) {
 	//TODO mark as inner or outer based on distance
 }
 
-func fillWithRooms(length, width int, kind WallType) []*Room {
+func fillWithRooms(length, width int, kind WallType, startingRoomNum int) []*Room {
 	rooms := make([]*Room, 0)
 	for i := 0; i < width; i++ {
 		for j := 0; j < length; j++ {
-			rooms = append(rooms, GenerateRoom(i*length+j))
+			num := i*length + j
+			if num == startingRoomNum {
+				rooms = append(rooms, GenerateStartingRoom(num))
+			} else {
+				rooms = append(rooms, GenerateRoom(num))
+			}
 			if i > 0 {
 				ConnectRooms(rooms[i*length+j], rooms[(i-1)*length+j], Forward, kind)
 			}

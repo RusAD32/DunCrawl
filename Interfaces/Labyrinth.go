@@ -45,10 +45,6 @@ func (l *Labyrinth) MarkInited() {
 	l.state = Roam
 }
 
-func (l *Labyrinth) GetStartingRoom() int {
-	return l.startingRoomNum
-}
-
 func (l *Labyrinth) switchRooms(direction Direction) bool {
 	if l.current == nil {
 		l.current = l.rooms[l.startingRoomNum]
