@@ -6,6 +6,7 @@ import (
 
 type Sprite struct {
 	frames      []*ebiten.Image
+	opts        *ebiten.DrawImageOptions
 	curFrame    int
 	totalFrames int
 	frameCycle  int
@@ -16,6 +17,7 @@ type Sprite struct {
 func NewSprite(imgs ...*ebiten.Image) *Sprite {
 	return &Sprite{
 		frames:      imgs,
+		opts:        &ebiten.DrawImageOptions{},
 		curFrame:    0,
 		frameCycle:  4,
 		totalFrames: len(imgs),

@@ -13,6 +13,12 @@ import (
 
 type GameState int
 
+const (
+	NotInited GameState = iota
+	Ready
+	Loading
+)
+
 var (
 	Red        = color.RGBA{R: 255, A: 255}
 	Green      = color.RGBA{G: 255, A: 255}
@@ -183,6 +189,7 @@ func (g *UIGame) prepareForFight() {
 		g.dmgSkButs = append(g.dmgSkButs, button)
 	}
 	g.turnStartActions = true
+	g.State = Ready
 }
 
 func (g *UIGame) ConstructSkillIcon(skill SkillInfo, w, h int) *SkillIcon {

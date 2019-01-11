@@ -39,13 +39,10 @@ func NewSkillButton(x, y, w, h int, sk Skill, activeCol, disabledCol color.Color
 	if err != nil {
 		panic(err)
 	}
-	w2, h2 := disabledPic.Size()
-	blur, _ := ebiten.NewImage(w2, h2, ebiten.FilterLinear)
-	_ = blur.Fill(color.RGBA{A: 150})
-	_ = disabledPic.DrawImage(blur, &ebiten.DrawImageOptions{})
 	//text.Draw(disabledPic, sb.sk.GetName(), sb.font, 0, sb.font.Metrics().Height.Ceil(), color.Black)
 	//text.Draw(activePic, sb.sk.GetName(), sb.font, 0, sb.font.Metrics().Height.Ceil(), color.Black)
 	sb.DCInit(x, y, w, h, 2, NewSprite(disabledPic), NewSprite(activePic))
+	sb.pic[0].opts.ColorM.Scale(0.5, 0.5, 0.5, 1)
 	return sb
 }
 

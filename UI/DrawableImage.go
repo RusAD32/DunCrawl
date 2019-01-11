@@ -27,5 +27,11 @@ func (d *DrawableImage) ChoosePic() *ebiten.Image {
 }
 
 func (d *DrawableImage) DrawImg(screen *ebiten.Image) {
-	_ = screen.DrawImage(d.ChoosePic(), d.opts)
+	defOpts := &ebiten.DrawImageOptions{}
+	defOpts.ColorM.Scale(-1, -1, -1, -1)
+	opts := *d.opts
+	opts.GeoM.Add(d.pic[d.state].opts.GeoM)
+	opts.ColorM.Add(d.pic[d.state].opts.ColorM)
+	opts.ColorM.Add(defOpts.ColorM)
+	_ = screen.DrawImage(d.ChoosePic(), &opts)
 }

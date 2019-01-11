@@ -11,6 +11,9 @@ import (
 )
 
 func (g *UIGame) Update() {
+	if g.State != Ready {
+		return
+	}
 	if g.cd > 0 {
 		g.cd--
 		return
@@ -42,7 +45,8 @@ func (g *UIGame) Update() {
 				if nextDoor != -1 {
 					g.chest = nil
 					if g.l.GotoRoom(Direction(nextDoor)) {
-						g.prepareForFight()
+						g.State = Loading
+						go g.prepareForFight()
 					} else {
 						loot, goodies := g.l.GetCurrentRoom().GetValues()
 						if len(loot) != 0 || len(goodies) != 0 {
@@ -50,7 +54,7 @@ func (g *UIGame) Update() {
 						}
 					}
 					if g.l.GetCurrentRoom().HasChest() {
-						pic, _, err := ebitenutil.NewImageFromFile("./resources/UIElements/chest_t.png", ebiten.FilterLinear)
+						pic, _, err := ebitenutil.NewImageFromFile("resources/UIElements/chest_t.png", ebiten.FilterLinear)
 						if err != nil {
 							panic(err)
 						}
@@ -83,6 +87,11 @@ func (g *UIGame) Update() {
 
 func (g *UIGame) Draw(screen *ebiten.Image) {
 	_ = screen.DrawImage(g.bg, g.bgopts)
+	if g.State != Ready {
+		_ = screen.Fill(color.Black)
+		_ = ebitenutil.DebugPrint(screen, "Loading...")
+		return
+	}
 	switch g.l.GetState() {
 	case Roam:
 		{

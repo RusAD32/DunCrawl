@@ -5,6 +5,7 @@ import (
 	. "DunCrawl/Interfaces"
 	"DunCrawl/UI"
 	"github.com/hajimehoshi/ebiten"
+	"github.com/hajimehoshi/ebiten/ebitenutil"
 	"image/color"
 	"math"
 )
@@ -20,7 +21,7 @@ var g UI.UIGame
 func update(screen *ebiten.Image) error {
 	//UI.MoveThroughLabyrinth(l)
 	_ = screen.Fill(color.White)
-	if g.State == 0 {
+	if g.State == UI.NotInited {
 		g.Init(l, 600, 480)
 	}
 	g.Update()
@@ -28,7 +29,7 @@ func update(screen *ebiten.Image) error {
 		return nil
 	}
 	g.Draw(screen)
-	//ebitenutil.DebugPrintAt(screen, UI.PrintMemUsage(), 0, 300)
+	ebitenutil.DebugPrintAt(screen, UI.PrintMemUsage(), 0, 300)
 	//ebitenutil.DebugPrintAt(screen, fmt.Sprintf("%f", scale), 300, 200)
 	//w, h := screen.Size()
 	//UI.DrawLabyrinth(screen, &l,5, 5, w/5, h/5, color.Black)
