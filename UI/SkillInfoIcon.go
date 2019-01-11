@@ -3,7 +3,6 @@ package UI
 import (
 	. "DunCrawl/Interfaces"
 	"github.com/hajimehoshi/ebiten"
-	"github.com/hajimehoshi/ebiten/ebitenutil"
 	"github.com/hajimehoshi/ebiten/text"
 	"golang.org/x/image/font"
 	"image/color"
@@ -16,15 +15,12 @@ type SkillIcon struct {
 	DrawableImage
 }
 
-func NewSkillIcon(w, h int, sk SkillInfo, col color.Color, font font.Face) *SkillIcon {
+func NewSkillIcon(w, h int, sk SkillInfo, font font.Face, p *TexPreloader) *SkillIcon {
 	sb := &SkillIcon{
 		sk:   sk,
 		font: font,
 	}
-	pic, _, err := ebitenutil.NewImageFromFile(sk.GetIconPath(), ebiten.FilterLinear)
-	if err != nil {
-		panic(err)
-	}
+	pic := p.GetImgByPath(sk.GetIconPath())
 	sb.initImg(0, 0, w, h, 1, NewSprite(pic))
 	return sb
 }

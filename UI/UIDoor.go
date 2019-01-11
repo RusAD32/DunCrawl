@@ -2,7 +2,6 @@ package UI
 
 import (
 	"github.com/hajimehoshi/ebiten"
-	"github.com/hajimehoshi/ebiten/ebitenutil"
 	"image/color"
 )
 
@@ -12,7 +11,7 @@ type UIDoor struct {
 	visible bool
 }
 
-func NewUIDoor(x, y, w, h, num int) *UIDoor {
+func NewUIDoor(x, y, w, h, num int, t *TexPreloader) *UIDoor {
 	doorPics := []string{
 		"resources/UIElements/DoorLft.png",
 		"resources/UIElements/DoorFwd.png",
@@ -23,11 +22,7 @@ func NewUIDoor(x, y, w, h, num int) *UIDoor {
 	}
 	var pic *ebiten.Image
 	if num <= 2 {
-		var err error
-		pic, _, err = ebitenutil.NewImageFromFile(doorPics[num], ebiten.FilterLinear)
-		if err != nil {
-			panic(err)
-		}
+		pic = t.GetImgByPath(doorPics[num])
 	} else {
 		pic, _ = ebiten.NewImage(w, h, ebiten.FilterLinear)
 		_ = pic.Fill(color.Black)

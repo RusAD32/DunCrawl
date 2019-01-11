@@ -52,6 +52,7 @@ type UIGame struct {
 	queue                               SkQueue
 	resolvingSk                         *SkillIcon
 	loot                                *LootPopup
+	textures                            *TexPreloader
 	turnStartActions, preResolveActions bool
 	consts
 }
@@ -114,16 +115,17 @@ func (g *UIGame) Init(l *Labyrinth, w, h int) {
 	//pic, _ := ebiten.NewImage(w/10, h/10, ebiten.FilterLinear)
 	//_ = pic.Fill(color.RGBA{R: 255, G: 255, A: 255})
 	g.currentDoors = make([]*UIDoor, 4)
+	g.textures = NewTexPreloader()
 	for i := 0; i < 3; i++ {
-		g.currentDoors[i] = NewUIDoor(g.doorX+i*g.doorXOff, g.doorY+(i%2)*g.doorXOff/3, g.doorW, g.doorH-g.doorH/3*(i%2), i)
+		g.currentDoors[i] = NewUIDoor(g.doorX+i*g.doorXOff, g.doorY+(i%2)*g.doorXOff/3, g.doorW, g.doorH-g.doorH/3*(i%2), i, g.textures)
 	}
-	g.currentDoors[3] = NewUIDoor(g.consts.backdoorX, g.consts.backdoorY, g.consts.backdoorW, g.consts.backdoorH, 3)
+	g.currentDoors[3] = NewUIDoor(g.consts.backdoorX, g.consts.backdoorY, g.consts.backdoorW, g.consts.backdoorH, 3, g.textures)
 	g.updateDoors()
 }
 
 func (g *UIGame) doorClicked(mouseX, mouseY int) int {
 	for _, v := range g.currentDoors {
-		if v.isClicked(mouseX, mouseY) {
+		if v.visible && v.isClicked(mouseX, mouseY) {
 			return v.num
 		}
 	}
@@ -157,10 +159,7 @@ func (g *UIGame) prepareForFight() {
 			g.consts.enemyW,
 			g.consts.enemyH,
 			Violet,
-			Firebrick,
-			OrangeRed,
-			color.Black,
-			v)
+			v, g.textures)
 		g.enemyNums[v] = i
 		g.curEnemies = append(g.curEnemies, enemy)
 	}
@@ -171,9 +170,7 @@ func (g *UIGame) prepareForFight() {
 			g.consts.skButW,
 			g.consts.skButH,
 			v,
-			LightGreen,
-			Gray,
-			g.font)
+			g.font, g.textures)
 		g.selfSkButs = append(g.selfSkButs, button)
 	}
 	for i, v := range g.l.GetPlayer().GetDmgSkillList() {
@@ -183,9 +180,7 @@ func (g *UIGame) prepareForFight() {
 			g.consts.skButW,
 			g.consts.skButH,
 			v,
-			LightBlue,
-			Gray,
-			g.font)
+			g.font, g.textures)
 		g.dmgSkButs = append(g.dmgSkButs, button)
 	}
 	g.turnStartActions = true
@@ -193,16 +188,7 @@ func (g *UIGame) prepareForFight() {
 }
 
 func (g *UIGame) ConstructSkillIcon(skill SkillInfo, w, h int) *SkillIcon {
-	var col color.Color
-	switch skill.(type) {
-	case PlayerDmgSkill:
-		col = LightBlue
-	case PlayerSelfSkill:
-		col = LightGreen
-	default:
-		col = LightRed
-	}
-	return NewSkillIcon(w, h, skill, col, g.font)
+	return NewSkillIcon(w, h, skill, g.font, g.textures)
 }
 
 func (g *UIGame) updateQueue() {

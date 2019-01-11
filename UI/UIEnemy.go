@@ -25,36 +25,25 @@ type UIEnemy struct {
 	skillUsed  Skill
 }
 
-func loadSpriteFromPics(paths []string) *Sprite {
+func loadSpriteFromPics(paths []string, t *TexPreloader) *Sprite {
 	pics := make([]*ebiten.Image, 0)
 	for _, v := range paths {
-		pic, _, err := ebitenutil.NewImageFromFile(v, ebiten.FilterLinear)
-		if err != nil {
-			panic(err)
-		}
+		pic := t.GetImgByPath(v)
 		pics = append(pics, pic)
 	}
 	return NewSprite(pics...)
 }
 
-func NewUIEnemy(x, y, w, h int, colDef, colAttacking, colAttacked, colDead color.Color, enemy *Enemy) *UIEnemy {
+func NewUIEnemy(x, y, w, h int, colDef color.Color, enemy *Enemy, t *TexPreloader) *UIEnemy {
 	e := &UIEnemy{
 		col:   colDef,
 		enemy: enemy,
 	}
-	spriteIdle := loadSpriteFromPics(enemy.IdleImgsPath())
-	spriteSkill := loadSpriteFromPics(enemy.SkillImgsPath())
-	spriteAttacked := loadSpriteFromPics(enemy.AttackedImgsPath())
-	spriteDead := loadSpriteFromPics(enemy.DeadImgsPath())
+	spriteIdle := loadSpriteFromPics(enemy.IdleImgsPath(), t)
+	spriteSkill := loadSpriteFromPics(enemy.SkillImgsPath(), t)
+	spriteAttacked := loadSpriteFromPics(enemy.AttackedImgsPath(), t)
+	spriteDead := loadSpriteFromPics(enemy.DeadImgsPath(), t)
 	spriteDead.noLoop = true
-	picDef, _ := ebiten.NewImage(w, h, ebiten.FilterLinear)
-	_ = picDef.Fill(colDef)
-	picAttacking, _ := ebiten.NewImage(w, h, ebiten.FilterLinear)
-	_ = picAttacking.Fill(colAttacking)
-	picAttacked, _ := ebiten.NewImage(w, h, ebiten.FilterLinear)
-	_ = picAttacked.Fill(colAttacked)
-	picDead, _ := ebiten.NewImage(w, h, ebiten.FilterLinear)
-	_ = picDead.Fill(colDead)
 	e.DCInit(x, y, w, h, 4, spriteIdle, spriteSkill, spriteAttacked, spriteDead)
 	return e
 }
