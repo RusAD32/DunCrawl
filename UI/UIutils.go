@@ -82,6 +82,7 @@ func (g *UIGame) Update() {
 }
 
 func (g *UIGame) Draw(screen *ebiten.Image) {
+	_ = screen.DrawImage(g.bg, g.bgopts)
 	switch g.l.GetState() {
 	case Roam:
 		{

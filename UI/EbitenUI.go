@@ -26,11 +26,11 @@ func getConstants(w, h int) consts {
 	c.labW = w / 5
 	c.labH = h / 5
 
-	c.doorX = w * 2 / 10
+	c.doorX = w * 15 / 100
 	c.doorXOff = w / 4
-	c.doorY = h * 2 / 10
-	c.doorW = w * 15 / 100
-	c.doorH = h / 2
+	c.doorY = h / 5
+	c.doorW = w * 2 / 10
+	c.doorH = h * 5 / 8
 
 	c.enemyX = 0
 	c.enemyXOff = w / 4
@@ -48,8 +48,8 @@ func getConstants(w, h int) consts {
 	c.statusY = h * 9 / 10
 
 	c.backdoorX = w * 2 / 10
-	c.backdoorY = h * 8 / 10
-	c.backdoorW = w * 66 / 100
+	c.backdoorY = h * 9 / 10
+	c.backdoorW = w * 6 / 10
 	c.backdoorH = h / 10
 
 	c.selfSkButX = w / 16

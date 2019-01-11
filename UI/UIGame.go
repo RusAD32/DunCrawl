@@ -8,6 +8,7 @@ import (
 	"github.com/hajimehoshi/ebiten/inpututil"
 	"golang.org/x/image/font"
 	"image/color"
+	_ "image/png"
 )
 
 type GameState int
@@ -31,6 +32,8 @@ type UIGame struct {
 	l                                   *Labyrinth
 	State                               GameState
 	font                                font.Face
+	bg                                  *ebiten.Image
+	bgopts                              *ebiten.DrawImageOptions
 	currentDoors                        []*UIDoor
 	curEnemies                          []*UIEnemy
 	selfSkButs                          []*SkillButton
@@ -53,8 +56,6 @@ func (g *UIGame) Init(l *Labyrinth, w, h int) {
 	g.h = h
 
 	g.consts = getConstants(w, h)
-
-	g.updateDoors()
 	g.curEnemies = make([]*UIEnemy, 0)
 	fontRaw, err := LoadResource("Roboto-Regular.ttf")
 	if err != nil {
@@ -92,15 +93,26 @@ func (g *UIGame) Init(l *Labyrinth, w, h int) {
 	}
 	g.pl = &plst
 	g.State = 1
-	pic, _, err := ebitenutil.NewImageFromFile("./resources/UIElements/lamp_t.png", ebiten.FilterLinear)
+	pic, _, err := ebitenutil.NewImageFromFile("resources/UIElements/lamp_t.png", ebiten.FilterLinear)
 	if err != nil {
 		panic(err)
 	}
 	g.light = NewDrawableClickable(0, g.h*4/5, g.h/5, g.h/5, 1, NewSprite(pic))
-
+	g.bg, _, err = ebitenutil.NewImageFromFile("resources/UIElements/Background.png", ebiten.FilterLinear)
+	if err != nil {
+		panic(err)
+	}
+	bgW, bgH := g.bg.Size()
+	g.bgopts = &ebiten.DrawImageOptions{}
+	g.bgopts.GeoM.Scale(float64(w)/float64(bgW), float64(h)/float64(bgH))
 	//pic, _ := ebiten.NewImage(w/10, h/10, ebiten.FilterLinear)
 	//_ = pic.Fill(color.RGBA{R: 255, G: 255, A: 255})
-
+	g.currentDoors = make([]*UIDoor, 4)
+	for i := 0; i < 3; i++ {
+		g.currentDoors[i] = NewUIDoor(g.doorX+i*g.doorXOff, g.doorY+(i%2)*g.doorXOff/3, g.doorW, g.doorH-g.doorH/3*(i%2), i)
+	}
+	g.currentDoors[3] = NewUIDoor(g.consts.backdoorX, g.consts.backdoorY, g.consts.backdoorW, g.consts.backdoorH, 3)
+	g.updateDoors()
 }
 
 func (g *UIGame) doorClicked(mouseX, mouseY int) int {
@@ -368,26 +380,8 @@ func (g *UIGame) resolveSkill() {
 
 func (g *UIGame) updateDoors() {
 	neighbours := g.l.GetSliceNeighbours()
-	g.currentDoors = make([]*UIDoor, 0)
-	for i := 0; i < 3; i++ {
-		if neighbours[i] {
-			door := NewUIDoor(
-				g.consts.doorX+i*g.consts.doorXOff,
-				g.consts.doorY,
-				g.consts.doorW,
-				g.consts.doorH,
-				i)
-			g.currentDoors = append(g.currentDoors, door)
-		}
-	}
-	if neighbours[3] { // should always be true
-		door := NewUIDoor(
-			g.consts.backdoorX,
-			g.consts.backdoorY,
-			g.consts.backdoorW,
-			g.consts.backdoorH,
-			3)
-		g.currentDoors = append(g.currentDoors, door)
+	for i, v := range neighbours {
+		g.currentDoors[i].visible = v
 	}
 }
 
