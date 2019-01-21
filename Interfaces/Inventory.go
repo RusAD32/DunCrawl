@@ -1,10 +1,19 @@
 package Interfaces
 
-import "errors"
+import (
+	"errors"
+)
 
 type Inventory struct {
 	slots    []Stack
 	maxSlots int
+}
+
+func NewInventoryFromStack(st []Stack) *Inventory {
+	return &Inventory{
+		maxSlots: -1,
+		slots:    st,
+	}
 }
 
 func NewInventory(size int) *Inventory {
@@ -12,6 +21,10 @@ func NewInventory(size int) *Inventory {
 		maxSlots: size,
 		slots:    make([]Stack, size),
 	}
+}
+
+func (i *Inventory) AddStack(items ...Stack) {
+	i.slots = append(i.slots, items...)
 }
 
 func (i *Inventory) Add(item Carriable, amount int) error {

@@ -36,3 +36,7 @@ func NewChest() *Chest {
 		make([]Stack, 0),
 	}
 }
+
+func (c *Chest) AddUsefulLoot(carriables ...Stack) {
+	c.usefulLoot = append(c.usefulLoot, carriables...)
+}

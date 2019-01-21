@@ -96,8 +96,8 @@ func (l *Labyrinth) Light() {
 	l.current.Light()
 }
 
-func (l *Labyrinth) UnlockChest() ([]*Lootable, []Stack) {
-	return l.current.UnlockChest()
+func (l *Labyrinth) UnlockChest() {
+	l.current.UnlockChest()
 }
 
 func (l *Labyrinth) GetNeighbours() map[string]bool {

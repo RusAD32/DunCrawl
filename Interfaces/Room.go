@@ -15,8 +15,8 @@ type Room struct {
 	loot             []*Lootable
 	shadowLoot       []*Lootable
 	shadowEnemies    []*Enemy
-	shadowProvision  []Stack
-	provision        []Stack
+	shadowProvision  *Inventory
+	provision        *Inventory
 	chest            *Chest
 	neighbours       []*Wall
 	FightState
@@ -37,8 +37,8 @@ func NewRoom(enemies, shEnemies []*Enemy, loot, shLoot []*Lootable, provision, s
 		chest:           chest,
 		loot:            loot,
 		shadowLoot:      shLoot,
-		provision:       provision,
-		shadowProvision: shProvision,
+		provision:       NewInventoryFromStack(provision),
+		shadowProvision: NewInventoryFromStack(shProvision),
 	}
 	if enemies != nil && len(enemies) > 0 {
 		r.FightState = TurnStart
@@ -70,7 +70,7 @@ func (r *Room) AtTurnStart() {
 		if len(r.enemies) == 0 || !r.p.IsAlive() {
 			for _, v := range r.defeated {
 				r.loot = append(r.loot, v.loot...)
-				r.provision = append(r.provision, v.GetProvision()...)
+				r.provision.AddStack(r.GetGoodies()...)
 			}
 			r.defeated = make([]*Enemy, 0)
 			r.FightState = FightEnd
@@ -175,8 +175,7 @@ func (r *Room) GetLoot() []*Lootable {
 }
 
 func (r *Room) GetGoodies() []Stack {
-	res := r.provision
-	r.provision = make([]Stack, 0)
+	res := r.provision.slots
 	return res
 }
 
@@ -192,16 +191,16 @@ func (r *Room) HasShadowEnemies() bool {
 	return len(r.shadowEnemies) > 0
 }
 
-func (r *Room) UnlockChest() ([]*Lootable, []Stack) {
+func (r *Room) UnlockChest() {
 	if r.chest != nil {
-		return r.chest.GetLoot(), r.chest.GetValuables()
+		r.loot = append(r.loot, r.chest.GetLoot()...)
+		r.provision.AddStack(r.chest.GetValuables()...)
 	}
-	return make([]*Lootable, 0), make([]Stack, 0)
 }
 
 func (r *Room) Light() {
 	r.enemies = append(r.enemies, r.shadowEnemies...)
-	r.provision = append(r.provision, r.shadowProvision...)
+	r.provision.AddStack(r.shadowProvision.slots...)
 	r.loot = append(r.loot, r.shadowLoot...)
 	if len(r.enemies) > 0 {
 		r.FightState = TurnStart
@@ -221,6 +220,31 @@ func (r *Room) GetLocks() int {
 		}
 	}
 	return locks
+}
+
+func (r *Room) ClaimLoot() {
+	for _, v := range r.loot {
+		r.p.money += v.GetValue()
+	}
+	r.loot = make([]*Lootable, 0)
+}
+
+func (r *Room) ClaimValues(slots []int) {
+	for _, v := range slots {
+		sl := r.provision.slots[v]
+		err := r.p.inv.Add(sl.GetItem(), sl.GetAmount())
+		if err != nil {
+			// Не должно быть такого, что мы добавляем больше одного стека. Но проверим
+			if sl.GetItem().StacksBy() > sl.GetAmount() {
+				panic(fmt.Sprintf("More items in stack than should be! %v in room %v, %v wanted, %v",
+					sl.GetItem().GetName(), r.Num, sl.MaxAmount(), sl.GetAmount()))
+			}
+			//А основная причина ошибок -- то, что в инвентаре нет места.
+			//тогда мы просто не добавляем ничего игроку в инвентарь и не убираем из комнаты
+			return
+		}
+		r.provision.Remove(v, r.provision.slots[v].GetAmount())
+	}
 }
 
 func BackTrackerLabGen(room *Room, distFromStart int) {

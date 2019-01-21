@@ -26,15 +26,27 @@ func (g *UIGame) Update() {
 					return
 				}
 				if g.loot != nil {
-					if g.loot.isClicked(v[0], v[1]) {
-						g.loot = nil // TODO давать игроку то, что он нашел, в конце концов
+					if g.loot.onCarriableClicked(v[0], v[1]) {
+						return
 					}
-					return
+					if g.loot.isClicked(v[0], v[1]) {
+						g.l.GetCurrentRoom().ClaimLoot()
+						slots := make([]int, 0)
+						for i, v := range g.loot.goodies {
+							if v.state == int(Taking) {
+								slots = append(slots, i)
+							}
+						}
+						g.l.GetCurrentRoom().ClaimValues(slots)
+						g.loot = nil
+					}
+					return // Мы возвращаемся здесь потому, что надо забрать лут прежде, чем уходить. Но нужно ли?
 				}
 				if g.chest != nil {
 					for _, click := range getNewClicks() {
 						if g.chest.isClicked(click[0], click[1]) {
-							loot, goodies := g.l.UnlockChest()
+							g.l.UnlockChest()
+							loot, goodies := g.l.GetValues()
 							g.loot = NewLootPopup(g.w/3, g.h/3, g.w/3, g.h/3, g.font, loot, goodies)
 							g.chest = nil
 							return
@@ -75,7 +87,7 @@ func (g *UIGame) Update() {
 			case ResolvingSkills:
 				g.resolveSkill()
 			case FightEnd:
-				loot, values := g.l.GetValues() // TODO display this on screen
+				loot, values := g.l.GetValues()
 				g.loot = NewLootPopup(g.w/3, g.h/3, g.w/3, g.h/3, g.font, loot, values)
 				g.curEnemies = make([]*UIEnemy, 0)
 				g.selfSkButs = make([]*SkillButton, 0)
@@ -124,7 +136,7 @@ func (g *UIGame) Draw(screen *ebiten.Image) {
 		}
 	}
 	//ebitenutil.DebugPrintAt(screen, PrintMemUsage(), 0, 300)
-
+	ebitenutil.DebugPrintAt(screen, fmt.Sprintf("%d", g.pl.pl.GetMoney()), 300, 0)
 }
 
 func PrintMemUsage() string {

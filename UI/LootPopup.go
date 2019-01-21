@@ -9,6 +9,13 @@ import (
 	"image/color"
 )
 
+type CarriableState int
+
+const (
+	Taking CarriableState = iota
+	Leaving
+)
+
 type LootIcon struct {
 	DrawableImage
 	loot Lootable
@@ -16,8 +23,7 @@ type LootIcon struct {
 
 type CarriableIcon struct {
 	DrawableClickable
-	loot    Stack
-	leaving bool
+	loot Stack
 }
 
 type LootPopup struct {
@@ -30,7 +36,7 @@ type LootPopup struct {
 func NewLootIcon(x, y, w, h int, loot *Lootable, font font.Face) *LootIcon {
 	p := &LootIcon{}
 	pic, _ := ebiten.NewImage(w, h, ebiten.FilterLinear)
-	_ = pic.Fill(Gray)
+	_ = pic.Fill(LightGreen)
 	info1 := loot.GetName()
 	info2 := fmt.Sprintf("(%dg)", loot.GetValue())
 	text.Draw(pic, info1, font, 0, font.Metrics().Height.Ceil(), color.Black)
@@ -41,14 +47,29 @@ func NewLootIcon(x, y, w, h int, loot *Lootable, font font.Face) *LootIcon {
 
 func NewCarriableIcon(x, y, w, h int, loot Stack, font font.Face) *CarriableIcon {
 	p := &CarriableIcon{}
+	p.state = int(Taking)
 	pic, _ := ebiten.NewImage(w, h, ebiten.FilterLinear)
-	_ = pic.Fill(Gray)
+	_ = pic.Fill(LightGreen)
+	pic2, _ := ebiten.NewImage(w, h, ebiten.FilterLinear)
+	_ = pic2.Fill(Gray)
 	info1 := loot.GetName()
 	info2 := fmt.Sprintf("(%d)", loot.GetAmount())
 	text.Draw(pic, info1, font, 0, font.Metrics().Height.Ceil(), color.Black)
 	text.Draw(pic, info2, font, 0, 2*font.Metrics().Height.Ceil(), color.Black)
-	p.DCInit(x, y, w, h, 1, NewSprite(pic))
+	text.Draw(pic2, info1, font, 0, font.Metrics().Height.Ceil(), color.Black)
+	text.Draw(pic2, info2, font, 0, 2*font.Metrics().Height.Ceil(), color.Black)
+	p.DCInit(x, y, w, h, 1, NewSprite(pic), NewSprite(pic2))
 	return p
+}
+
+func (b *LootPopup) onCarriableClicked(mouseX, mouseY int) bool {
+	for _, v := range b.goodies {
+		if v.isClicked(mouseX-b.x, mouseY-b.y) {
+			v.state = (v.state + 1) % 2
+			return true
+		}
+	}
+	return false
 }
 
 func (b *LootPopup) isClicked(mouseX, mouseY int) bool {

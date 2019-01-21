@@ -21,7 +21,7 @@ func NewDefaultDog(index int) *Enemy {
 		make([]Stack, 0),
 		Usual,
 		fmt.Sprintf("Rabid dog %d", index),
-		15,
+		7,
 		make(map[Stat]int),
 		[]string{
 			"resources/EnemySprites/DefaultDog/Idle/Idle_000.png",
