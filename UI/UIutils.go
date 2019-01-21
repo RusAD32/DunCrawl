@@ -38,6 +38,7 @@ func (g *UIGame) Update() {
 							}
 						}
 						g.l.GetCurrentRoom().ClaimValues(slots)
+						g.reloadInventory()
 						g.loot = nil
 					}
 					return // Мы возвращаемся здесь потому, что надо забрать лут прежде, чем уходить. Но нужно ли?
@@ -109,6 +110,7 @@ func (g *UIGame) Draw(screen *ebiten.Image) {
 		{
 			//this is the most memory-greedy function
 			DrawLabyrinth(screen, g.l, g.consts.labXPos, g.consts.labYPos, g.consts.labW, g.consts.labH, color.Black)
+			g.inv.Draw(screen)
 			for _, v := range g.currentDoors {
 				v.Draw(screen, color.Black)
 			}

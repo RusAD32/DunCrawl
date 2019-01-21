@@ -30,6 +30,7 @@ var (
 	LightGreen = color.RGBA{R: 200, G: 255, B: 200, A: 255}
 	LightBlue  = color.RGBA{R: 200, G: 200, B: 255, A: 255}
 	LightRed   = color.RGBA{R: 255, G: 200, B: 200, A: 255}
+	LightGray  = color.RGBA{R: 177, G: 177, B: 177, A: 255}
 )
 
 type UIGame struct {
@@ -48,6 +49,7 @@ type UIGame struct {
 	light                               *DrawableClickable
 	enemyNums                           map[*Enemy]int
 	pl                                  *PlayerStats
+	inv                                 *UIInventory
 	cd                                  int
 	queue                               SkQueue
 	resolvingSk                         *SkillIcon
@@ -110,6 +112,7 @@ func (g *UIGame) Init(l *Labyrinth, w, h int) {
 		panic(err)
 	}
 	bgW, bgH := g.bg.Size()
+	g.inv = NewUIInventory(w*2/5, h/15, w/5, h/7, g.font, g.pl.pl.GetInventory())
 	g.bgopts = &ebiten.DrawImageOptions{}
 	g.bgopts.GeoM.Scale(float64(w)/float64(bgW), float64(h)/float64(bgH))
 	//pic, _ := ebiten.NewImage(w/10, h/10, ebiten.FilterLinear)
@@ -121,6 +124,10 @@ func (g *UIGame) Init(l *Labyrinth, w, h int) {
 	}
 	g.currentDoors[3] = NewUIDoor(g.consts.backdoorX, g.consts.backdoorY, g.consts.backdoorW, g.consts.backdoorH, 3, g.textures)
 	g.updateDoors()
+}
+
+func (g *UIGame) reloadInventory() {
+	g.inv = NewUIInventory(g.w*2/5, g.h/15, g.w/5, g.h/7, g.font, g.pl.pl.GetInventory())
 }
 
 func (g *UIGame) doorClicked(mouseX, mouseY int) int {

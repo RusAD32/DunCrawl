@@ -1,9 +1,5 @@
 package Interfaces
 
-import (
-	"fmt"
-)
-
 type Slot int
 
 const (
@@ -59,19 +55,18 @@ func (e *Equippable) GetName() string {
 
 func (e *Equippable) Use(p *Player, values ...interface{}) {
 	length := len(e.availableSlots)
+	var slotNum int
 	if len(values) > 0 {
-		slotNum := values[0].(int)
-		if length > 1 {
-			prompt := "Choose where to equip:\n"
-			for i, v := range e.availableSlots {
-				prompt += fmt.Sprintf("%d: %s\n", i+1, SlotNames[v])
-			}
-			p.equipment[e.availableSlots[slotNum]] = e
-
-		} else if length == 1 {
-			p.equipment[e.availableSlots[0]] = e
-		}
+		slotNum = values[0].(int)
+	} else {
+		slotNum = 0
 	}
+	if length > 1 {
+		p.equipment[e.availableSlots[slotNum]] = e
+	} else if length == 1 {
+		p.equipment[e.availableSlots[0]] = e
+	}
+
 }
 
 func (e *Equippable) StacksBy() int {

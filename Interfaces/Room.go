@@ -170,7 +170,6 @@ func (r *Room) GetValues() ([]*Lootable, []Stack) {
 }
 
 func (r *Room) GetLoot() []*Lootable {
-	//TODO решить, надо ли их забирать, и привести к единому стандарту
 	return r.loot
 }
 

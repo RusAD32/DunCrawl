@@ -96,7 +96,7 @@ func NewLootPopup(x, y, w, h int, font font.Face, loot []*Lootable, goodies []St
 		p.goodies = append(p.goodies, NewCarriableIcon(carIconX+i*lootIconOffs, carIconY, iconW, iconH, v, font))
 	}
 	butPic, _ := ebiten.NewImage(w/4, h/5, ebiten.FilterLinear)
-	_ = butPic.Fill(color.RGBA{R: 177, G: 177, B: 177, A: 255})
+	_ = butPic.Fill(LightGray)
 	text.Draw(butPic, "Confirm", font, 0, font.Metrics().Height.Ceil(), color.Black)
 	p.button = NewDrawableClickable(w*2/5, h*3/4, w/4, h/5, 1, NewSprite(butPic))
 	p.DCInit(x, y, w, h, 1, NewSprite(pic))

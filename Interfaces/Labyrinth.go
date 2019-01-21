@@ -12,7 +12,6 @@ const (
 const DOORS_PER_ROOM = 4
 const NEW_NEIGHBOUR_OFFSET = -1
 
-//TODO давать плееру то, что он в комнатах нашел
 //TODO написать NewTrigger для лабиринта
 
 type Labyrinth struct {
