@@ -66,6 +66,7 @@ func (g *UIGame) Update() {
 							g.loot = NewLootPopup(g.w/3, g.h/3, g.w/3, g.h/3, g.font, loot, goodies)
 						}
 					}
+					g.textures.EnsureThese(g.l.GetResources())
 					if g.l.GetCurrentRoom().HasChest() {
 						pic, _, err := ebitenutil.NewImageFromFile("resources/UIElements/chest_t.png", ebiten.FilterLinear)
 						if err != nil {

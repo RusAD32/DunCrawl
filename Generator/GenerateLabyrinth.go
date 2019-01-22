@@ -121,7 +121,7 @@ func GenerateRoom(num int) *Room {
 		}
 	}
 	var chest *Chest
-	if rand.Float32() < 0.9 {
+	if rand.Float32() < 0.1 {
 		chest = NewChest()
 		chest.AddUsefulLoot(NewStack(NewHatchet(), 1), NewStack(NewHatchet(), 1))
 	}

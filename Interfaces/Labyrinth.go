@@ -13,6 +13,7 @@ const DOORS_PER_ROOM = 4
 const NEW_NEIGHBOUR_OFFSET = -1
 
 //TODO написать NewTrigger для лабиринта
+//Что именно я имел в виду? Триггеры перехода в комнату?
 
 type Labyrinth struct {
 	p                 *Player
@@ -168,4 +169,49 @@ func (l *Labyrinth) AddSection(sec *[]*Room) {
 
 func (l *Labyrinth) GetSection(num int) *[]*Room {
 	return l.sections[num]
+}
+
+func (l *Labyrinth) GetResources() []string {
+	resources := []string{
+		"resources/UIElements/Background.png",
+		"resources/UIElements/DoorFwd.png",
+		"resources/UIElements/DoorLft.png",
+		"resources/UIElements/DoorRgt.png",
+		"resources/UIElements/lamp_t.png",
+	}
+	return append(resources, resourcesDFS(l.GetCurrentRoom(), 0, 5, []int{})...)
+
+}
+
+func resourcesDFS(start *Room, curDepth, maxDepth int, alreadySeen []int) []string {
+	if curDepth > maxDepth || inSlice(alreadySeen, start.Num) {
+		return []string{}
+	}
+	alreadySeen = append(alreadySeen, start.Num)
+	res := make([]string, 0)
+	for _, v := range start.enemies {
+		// The texture preloader already filters out the duplicates, so it shouldn't be a big deal
+		res = append(res, v.IdleImgsPath()...)
+		res = append(res, v.AttackedImgsPath()...)
+		res = append(res, v.SkillImgsPath()...)
+		res = append(res, v.DeadImgsPath()...)
+		for _, sk := range v.skills {
+			res = append(res, sk.GetIconPath())
+		}
+	}
+	for _, v := range start.GetNeighbours() {
+		if v.CanGoThrough() {
+			res = append(res, resourcesDFS(v.GetNextDoor(), curDepth+1, maxDepth, alreadySeen)...)
+		}
+	}
+	return res
+}
+
+func inSlice(sl []int, num int) bool {
+	for _, v := range sl {
+		if v == num {
+			return true
+		}
+	}
+	return false
 }

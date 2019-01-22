@@ -26,10 +26,17 @@ func (p *TexPreloader) GetImgByPath(path string) *ebiten.Image {
 }
 
 func (p *TexPreloader) DeleteAllButThese(paths []string) {
-	for k, _ := range *p {
+	for k := range *p {
 		if !contains(paths, k) {
 			delete(*p, k)
 		}
+	}
+}
+
+func (p *TexPreloader) EnsureThese(paths []string) {
+	p.DeleteAllButThese(paths)
+	for _, path := range paths {
+		p.GetImgByPath(path)
 	}
 }
 
