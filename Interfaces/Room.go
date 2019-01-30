@@ -175,6 +175,11 @@ func (r *Room) GetLoot() []*Lootable {
 
 func (r *Room) GetGoodies() []Stack {
 	res := r.provision.slots
+	for i := len(res) - 1; i >= 0; i-- {
+		if res[i] == nil {
+			res = append(res[:i], res[i+1:]...)
+		}
+	}
 	return res
 }
 
@@ -199,8 +204,11 @@ func (r *Room) UnlockChest() {
 
 func (r *Room) Light() {
 	r.enemies = append(r.enemies, r.shadowEnemies...)
+	r.shadowEnemies = make([]*Enemy, 0)
 	r.provision.AddStack(r.shadowProvision.slots...)
+	r.shadowProvision = NewInventoryFromStack(make([]Stack, 0))
 	r.loot = append(r.loot, r.shadowLoot...)
+	r.shadowLoot = make([]*Lootable, 0)
 	if len(r.enemies) > 0 {
 		r.FightState = TurnStart
 		r.AtTurnStart()
