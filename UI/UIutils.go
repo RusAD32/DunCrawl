@@ -57,15 +57,7 @@ func (g *UIGame) Update() {
 				nextDoor := g.doorClicked(v[0], v[1])
 				if nextDoor != -1 {
 					g.chest = nil
-					if g.l.GotoRoom(Direction(nextDoor)) {
-						g.State = Loading
-						go g.prepareForFight()
-					} else {
-						loot, goodies := g.l.GetCurrentRoom().GetValues()
-						if len(loot) != 0 || len(goodies) != 0 {
-							g.loot = NewLootPopup(g.w/3, g.h/3, g.w/3, g.h/3, g.font, loot, goodies)
-						}
-					}
+					fight := g.l.GotoRoom(Direction(nextDoor))
 					g.textures.EnsureThese(g.l.GetResources())
 					if g.l.GetCurrentRoom().HasChest() {
 						pic, _, err := ebitenutil.NewImageFromFile("resources/UIElements/chest_t.png", ebiten.FilterLinear)
@@ -75,6 +67,16 @@ func (g *UIGame) Update() {
 						g.chest = NewDrawableClickable(g.w/3, g.h/3, g.w/3, g.w/3, 1, NewSprite(pic))
 					}
 					g.updateDoors()
+					if fight {
+						g.State = Loading
+						go g.prepareForFight()
+						return
+					} else {
+						loot, goodies := g.l.GetCurrentRoom().GetValues()
+						if len(loot) != 0 || len(goodies) != 0 {
+							g.loot = NewLootPopup(g.w/3, g.h/3, g.w/3, g.h/3, g.font, loot, goodies)
+						}
+					}
 					return
 				}
 			}
