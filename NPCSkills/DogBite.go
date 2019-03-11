@@ -11,7 +11,7 @@ type DogBite struct {
 
 func NewDogBite(enemy Unit) *DogBite {
 	b := &DogBite{}
-	b.baseDmg = 100
+	b.baseDmg = 10
 	b.speed = 6
 	b.name = "Bite"
 	b.wielder = enemy
