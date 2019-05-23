@@ -1,6 +1,7 @@
 package UI
 
 import (
+	"DunCrawl/Generator"
 	. "DunCrawl/Interfaces"
 	"fmt"
 	"github.com/hajimehoshi/ebiten"
@@ -17,6 +18,9 @@ func (g *UIGame) Update() {
 	if g.cd > 0 {
 		g.cd--
 		return
+	}
+	if !g.pl.pl.IsAlive() {
+		g.Init(Generator.GenerateLabyrinth(10, 10), g.w, g.h)
 	}
 	switch g.l.GetState() {
 	case Roam:

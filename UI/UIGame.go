@@ -4,7 +4,6 @@ import (
 	. "DunCrawl/Interfaces"
 	"github.com/golang/freetype/truetype"
 	"github.com/hajimehoshi/ebiten"
-	"github.com/hajimehoshi/ebiten/ebitenutil"
 	"github.com/hajimehoshi/ebiten/inpututil"
 	"golang.org/x/image/font"
 	"image/color"
@@ -102,15 +101,10 @@ func (g *UIGame) Init(l *Labyrinth, w, h int) {
 	}
 	g.pl = &plst
 	g.State = 1
-	pic, _, err := ebitenutil.NewImageFromFile("resources/UIElements/lamp_t.png", ebiten.FilterLinear)
-	if err != nil {
-		panic(err)
-	}
+	g.textures = NewTexPreloader()
+	pic := g.textures.GetImgByPath("resources/UIElements/lamp_t.png")
 	g.light = NewDrawableClickable(0, g.h*4/5, g.h/5, g.h/5, 1, NewSprite(pic))
-	g.bg, _, err = ebitenutil.NewImageFromFile("resources/UIElements/Background.png", ebiten.FilterLinear)
-	if err != nil {
-		panic(err)
-	}
+	g.bg = g.textures.GetImgByPath("resources/UIElements/Background.png")
 	bgW, bgH := g.bg.Size()
 	g.inv = NewUIInventory(w*2/5, h/15, w/5, h/7, g.font, g.pl.pl.GetInventory())
 	g.bgopts = &ebiten.DrawImageOptions{}
@@ -118,12 +112,12 @@ func (g *UIGame) Init(l *Labyrinth, w, h int) {
 	//pic, _ := ebiten.NewImage(w/10, h/10, ebiten.FilterLinear)
 	//_ = pic.Fill(color.RGBA{R: 255, G: 255, A: 255})
 	g.currentDoors = make([]*UIDoor, 4)
-	g.textures = NewTexPreloader()
 	for i := 0; i < 3; i++ {
 		g.currentDoors[i] = NewUIDoor(g.doorX+i*g.doorXOff, g.doorY+(i%2)*g.doorXOff/3, g.doorW, g.doorH-g.doorH/3*(i%2), i, g.textures)
 	}
 	g.currentDoors[3] = NewUIDoor(g.consts.backdoorX, g.consts.backdoorY, g.consts.backdoorW, g.consts.backdoorH, 3, g.textures)
 	g.updateDoors()
+	g.textures.EnsureThese(g.l.GetResources())
 }
 
 func (g *UIGame) reloadInventory() {
@@ -282,6 +276,7 @@ func (g *UIGame) submitDmgSkill() {
 			if skill.GetUses() == 0 {
 				return
 			}
+			//TODO: can it really be nil? Check
 			skill.SetTarget(curEn.enemy)
 			curEn.skillUsed = skill
 			for _, v := range g.curEnemies {
