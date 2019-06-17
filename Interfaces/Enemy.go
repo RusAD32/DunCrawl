@@ -17,6 +17,7 @@ type AiLevel int
 
 const (
 	Usual AiLevel = iota
+	Crossbow
 	Miniboss
 	Boss
 )
@@ -100,10 +101,32 @@ func (e *Enemy) ChangeHealth(damage int) int {
 	return damage
 }
 
+func CrossbowIntel(e *Enemy) NPCSkill {
+	switch {
+	case FindEffect(e, Winded1):
+		{
+			return e.skills[1] // Wind2
+		}
+	case FindEffect(e, Winded2):
+		{
+			return e.skills[2] // Wind3
+		}
+	case FindEffect(e, Winded3):
+		{
+			return e.skills[3] // Shoot
+		}
+	default:
+		return e.skills[0] // Wind1. SHOULD BE CONSTRUCTED IN THIS ORDER
+		//TODO maybe choose skill by class?
+	}
+}
+
 func (e *Enemy) ChooseSkill() NPCSkill {
 	switch e.aiLevel {
 	case Usual:
 		return e.skills[rand.Intn(len(e.skills))]
+	case Crossbow:
+		return CrossbowIntel(e)
 	case Miniboss: //TODO write the minimap or another algorithm for their ai
 		return nil
 	case Boss:

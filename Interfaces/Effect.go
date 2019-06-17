@@ -6,6 +6,9 @@ const (
 	Stun EffectID = iota
 	Confusion
 	CounterAtk
+	Winded1
+	Winded2
+	Winded3
 )
 
 type Effect interface {

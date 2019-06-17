@@ -9,9 +9,9 @@ type DogBite struct {
 	CommonEnSkill
 }
 
-func NewDogBite(enemy Unit) *DogBite {
+func NewDogBite(enemy Unit) NPCSkill {
 	b := &DogBite{}
-	b.baseDmg = 100
+	b.baseDmg = 10
 	b.speed = 6
 	b.name = "Bite"
 	b.wielder = enemy
