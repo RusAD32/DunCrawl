@@ -105,7 +105,11 @@ func GenerateRoom(num int) *Room {
 	if rand.Float32() < 0.3 {
 		enemies = make([]*Enemy, 4)
 		for i := range enemies {
-			enemies[i] = NewDefaultDog(i)
+			if rand.Float64() > 0.8 {
+				enemies[i] = NewDefaultDog(i)
+			} else {
+				enemies[i] = NewCrossbowSkeleton(i)
+			}
 		}
 	}
 	if rand.Float32() < 0.2 {

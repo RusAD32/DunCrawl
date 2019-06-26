@@ -24,7 +24,7 @@ func NewCrossbowSkeleton(index int) *Enemy {
 		make([]Stack, 0),
 		Crossbow,
 		fmt.Sprintf("Crossbow Skeleton %d", index),
-		15,
+		50,
 		make(map[Stat]int),
 		[]string{
 			"resources/EnemySprites/DefaultDog/Idle/Idle_000.png",
